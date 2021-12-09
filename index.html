@@ -4,6 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="https://unpkg.com/css-baseline/css/3.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
         :root {
             --gray-pallet-background: rgb(30, 37, 53);
             --red-pallet-background: lightcoral;
@@ -34,6 +36,10 @@
             --decent-color-23: blueviolet;
             
         }
+        body {
+            font-size: 0.9rem;
+            font-family: Roboto;
+        }
         .animate {
             transition: all 0.5s ease-in-out 0s;
         }
@@ -51,6 +57,10 @@
             padding: 0.5rem 1rem;
             color: white;
         }
+        a {
+            color: cornflowerblue;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <script type="module">;(async () => {
@@ -63,7 +73,14 @@
     const Reactive = (await import("https://cdn.skypack.dev/cause-n-effect@3.0.0")).default
     const DateTime = (await import("https://cdn.skypack.dev/good-date@1.3.16")).default
     const Container = (await import("https://cdn.skypack.dev/@!vanilla/container@v1.0.5")).default
-    const {html} = new Elemental({ Container, If: (props)=>props.true?props.children:"" })
+    const {html} = new Elemental({
+        // Custom elements
+        Container,
+        Card,
+        Chip,
+        Title,
+        If: (props)=>props.true?props.children:"",
+    })
     const [ fadeIn, fadeOut ] = [
         [
             [
@@ -103,12 +120,24 @@
                     min-height="40rem"
                     background="lightcoral"
                     min-width=14rem
+                    max-width=26rem
                     >
                         <Container name="Bio" background="lightpink" padding="1rem">
-                            Howdy!
+                            <span>- Picture</span>
+                            <span>- Contact info (Linked In, Github)</span>
+                            <span>- Enjoyment Blip</span>
                         </Container>
-                        <Container name="References" background="lightsalmon" padding="1rem">
-                            Howdy!
+                        <Container name="References" padding="1rem" width=100% horizontalAlignment="center">
+                            <Title color="white" align-self=flex-start underline thin margin-bottom=1.5rem>
+                                References
+                            </Title>
+                            <Card width="100%" max-width=20rem padding="1rem 1.2rem"  >
+                                <Title underline size=18>
+                                    Dr. Guni Sharon
+                                </Title>
+                                <span>     <b>Relation:</b> PhD Advisor           </span>
+                                <span>     <b>Email:   </b> <a>guni@tamu.edu</a>  </span>
+                            </Card>
                         </Container>
                 </Container>
                 
@@ -137,13 +166,36 @@
                                     }
                                 </style>
                                 <Container name="Education" background="lightskyblue" padding="1rem" width="15rem">
-                                    Education
+                                    <Card>
+                                        Education
+                                        <span>PhD: Computer Science </span>
+                                        <span>Graduation Estimate: 2025</span>
+                                        <span>GPA: 4.0 (as of 2021)</span>
+                                        <span></span>
+                                        <span>BS: Computer Science</span>
+                                        <span>University: Texas A&M</span>
+                                        <span>GPA: 3.8</span>
+                                        <span>Graduation: 2020</span>
+                                        <span></span>
+                                        <!-- <span>University: Texas A&M</span>
+                                        <span></span>
+                                        <span>- Undergrad details  </span>
+                                        <span>- UTD                </span> -->
+                                    </Card>
                                 </Container>
                                 <Container name="Work History" background="lightcyan" padding="1rem" width="15rem">
                                     Work History
+                                    <span> - Reinforcement Learning Topic </span>
+                                    <span> - Computer Vision Work </span>
+                                    <span> - Frogslayer </span>
                                 </Container>
                                 <Container name="Notable Projects" background="lightsteelblue" padding="1rem" width="15rem">
                                     Notable Projects
+                                    <span> - FrogSlayer project </span>
+                                    <span> - Security Website </span>
+                                    <span> - Video Annotater </span>
+                                    <span> - Phrasify  </span>
+                                    <span> - Reinforcement learning from scratch </span>
                                 </Container>
                             </Container>
                             <Container name="Secondary-Content" row wrap horizontalAlignment="left" width="100%" padding="1rem" background="lightseagreen" flex-grow=1 innerAlignment="top" min-height=15rem >
@@ -156,10 +208,122 @@
                                     }
                                 </style>
                                 <Container name="Acheivements" background="lightgreen" padding="1rem">
-                                    Acheivements
+                                    Achievements
+                                    <span> - 100+ repos </span>
+                                    <span> - VS Code extension </span>
+                                    <span> - Eagle Scout </span>
+                                    <span> - Python packages </span>
+                                    <span> - NPM packages </span>
                                 </Container>
-                                <Container name="Skills" background="aquamarine" padding="1rem">
-                                    Skills
+                                <Container name="Skills" background="aquamarine" padding="1rem" flex-basis="min-content" flex-grow=2>
+                                    <Title color="black" align-self=flex-start underline thin margin-bottom=1.5rem>
+                                        Skill Sets (hover for details)
+                                    </Title>
+                                    <Container row wrap name="Skills-Inner" innerAlignment="top" >
+                                         <style>
+                                            div [name="Skills-Inner"] > div > * {
+                                                padding: 1rem;
+                                                flex-basis: min-content;
+                                                max-width: 22rem;
+                                                min-width: 13rem;
+                                                max-height: fit-content;
+                                                flex-grow: 0;
+                                            }
+                                            div [name="Skills-Inner"] > * {
+                                                flex-basis: min-content;
+                                                max-width: 24rem;
+                                                min-width: 13rem;
+                                                flex-grow: 1;
+                                            }
+                                        </style>
+                                        <Container flex-grow=3>
+                                            <Card name="Human-Skills" margin=0.4rem row wrap background="#934773" horizontalAlignment="center">
+                                                <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
+                                                    Human Skills
+                                                </Title>
+                                                <Chip> Public Speaking </Chip>
+                                                <Chip> Agile & Scrum </Chip>
+                                                <Chip title="(lead of 7/8 academic projects)"> Leadership </Chip>
+                                            </Card>
+                                            
+                                            <Card name="Technical-Areas" margin=0.4rem row wrap background="cornflowerblue" horizontalAlignment="center">
+                                                <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
+                                                    Technical Areas
+                                                </Title>
+                                                <Chip> Reinforcement Learning </Chip>
+                                                <Chip> Web Development </Chip>
+                                                <Chip> Deep Learning </Chip>
+                                                <Chip> Scripting & Automation </Chip>
+                                                <Chip> Statistics </Chip>
+                                                <Chip> Psychology </Chip>
+                                                <Chip> Neurology </Chip>
+                                            </Card>
+                                        </Container>
+                                        
+                                        <Container flex-grow=6>
+                                            
+                                            <Card margin=0.4rem row wrap background="#7a4793" horizontalAlignment="center">
+                                                <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
+                                                    Programming Languages
+                                                </Title>
+                                                <Chip>Python</Chip>
+                                                <Chip>JavaScipt</Chip>
+                                                <Chip>C++</Chip>
+                                                <Chip>CSS</Chip>
+                                                <Chip>HTML</Chip>
+                                                <Chip>WASM</Chip>
+                                                <Chip>Rust</Chip>
+                                                <Chip>Ruby</Chip>
+                                                <Chip>Bash</Chip>
+                                                <Chip>Nix</Chip>
+                                                <Chip>Prolog</Chip>
+                                                <Chip>Java</Chip>
+                                                <Chip>C#</Chip>
+                                                <Chip>Haskell</Chip>
+                                                <Chip>Racket</Chip>
+                                                <Chip>Perl</Chip>
+                                                <Chip>Applescript</Chip>
+                                            </Card>
+                                            
+                                            <Card margin=0.4rem row wrap background="darkcyan" horizontalAlignment="center">
+                                                <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
+                                                    Specific Tools
+                                                </Title>
+                                                <Chip>Docker</Chip>
+                                                <Chip>Git</Chip>
+                                                <Chip>Node.js</Chip>
+                                                <Chip>Zotero</Chip>
+                                                <Chip>Nix</Chip>
+                                                <Chip>Deno</Chip>
+                                                <Chip padding="0.6rem 1.3em">
+                                                    Pip Modules
+                                                    <Container row wrap width=100% horizontalAlignment="center">
+                                                        <Chip>numpy</Chip>
+                                                        <Chip>opencv</Chip>
+                                                        <Chip>pytorch</Chip>
+                                                        <Chip>pandas</Chip>
+                                                        <Chip>keras</Chip>
+                                                    </Container>
+                                                </Chip>
+                                                <Chip padding="0.6rem 1.3em">
+                                                    Npm Packages
+                                                    <Container row wrap width=100% horizontalAlignment="center">
+                                                        <Chip>React</Chip>
+                                                        <Chip>Vue</Chip>
+                                                        <Chip>Express.js</Chip>
+                                                        <Chip>Webpack</Chip>
+                                                        <Chip>SocketIO</Chip>
+                                                        <Chip>Lodash</Chip>
+                                                        <Chip>Babel</Chip>
+                                                        <Chip>Chart.js</Chip>
+                                                    </Container>
+                                                </Chip>
+                                            </Card>
+                                            
+                                            
+                                        </Container>
+                                        
+                                    </Container>
                                 </Container>
                             </Container>
                         </Container>
@@ -169,11 +333,65 @@
     `
     document.body.animate(...fadeIn)
     
-    function CustomComponent1({}) {
+    function Title({underline, thin, size, style, children, color, ...props}) {
+        style = {
+            fontSize: size||"1.5rem",
+            marginBottom: "0.7rem",
+            // add underline or not
+            ...(underline ? {
+                borderBottom: "2px solid "+color||"gray",
+                fontSize: size||"1.3rem",
+            }:{}),
+            ...(thin ? {
+                fontWeight: 100,
+            }:{}),
+            ...(thin && underline ? {
+                borderBottom: "1px solid "+color||"gray",
+            }:{}),
+            color,
+            ...style,
+            ...props,
+        }
+        const element = html`
+            <h3 ...${props} >
+                    ${children}
+            </h3>
+        `
+        // this next line shouldn't be necessary, I'm not sure why it is (but I know that it is)
+        Object.assign(element.style, style)
+        return element
+    }
+    
+    function Card({name, children, ...props}) {
         return html`
-            <div>
-                <span>I'm a custom component</span>
-            </div>
+            <Container
+                name=${name}
+                border-radius="1rem"
+                box-shadow="0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24)"
+                padding="1.5rem 2rem"
+                background="var(--card-background, white)"
+                ...${props}
+                >
+                    ${children}
+            </Container>
+        `
+    }
+    
+    function Chip({name, color, children, ...props}) {
+        return html`
+            <Container
+                name=${name}
+                border-radius="2rem"
+                padding="0.35rem 0.7rem"
+                margin="0.15rem"
+                background=${color||"rgba(255,255,255,0.25)"}
+                backdrop-filter="saturate(180%) brightness(1.05)"
+                color="white"
+                font-size="0.8rem"
+                ...${props}
+                >
+                    ${children}
+            </Container>
         `
     }
     
