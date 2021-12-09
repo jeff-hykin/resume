@@ -4,6 +4,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="https://unpkg.com/css-baseline/css/3.css">
     <style>
+        :root {
+            --gray-pallet-background: rgb(30, 37, 53);
+            --red-pallet-background: lightcoral;
+            /* misc */
+            --red-pallet-font: white;
+            --decent-color-1: lightcoral;
+            --decent-color-2: salmon;
+            --decent-color-3: lightpink;
+            --decent-color-4: lightsalmon;
+            --decent-color-5: coral;
+            --decent-color-6: lightcyan;
+            --decent-color-7: lightblue;
+            --decent-color-8: lightsteelblue;
+            --decent-color-9: skyblue;
+            --decent-color-10: lightskyblue;
+            --decent-color-11: cornflowerblue;
+            --decent-color-12: dodgerblue;
+            --decent-color-13: aquamarine;
+            --decent-color-14: turquoise;
+            --decent-color-15: darkturquoise;
+            --decent-color-16: lightseagreen;
+            --decent-color-17: darkcyan;
+            --decent-color-18: teal;
+            --decent-color-19: mediumspringgreen;
+            --decent-color-20: lightgreen;
+            --decent-color-21: cadetblue;
+            --decent-color-22: darkorchid;
+            --decent-color-23: blueviolet;
+            
+        }
         .animate {
             transition: all 0.5s ease-in-out 0s;
         }
@@ -34,15 +64,110 @@
     const DateTime = (await import("https://cdn.skypack.dev/good-date@1.3.16")).default
     const Container = (await import("https://cdn.skypack.dev/@!vanilla/container@v1.0.5")).default
     const {html} = new Elemental({ Container, If: (props)=>props.true?props.children:"" })
+    const [ fadeIn, fadeOut ] = [
+        [
+            [
+                { offset: 0.0, opacity: 0, },
+                { offset: 0.1, opacity: 0, },
+                { offset: 1.0, opacity: 1, },
+            ], {
+                duration: 1000,
+                easing: 'ease-out',
+                iterations: 1
+            }
+        ],
+        [
+            [
+                { offset: 0.0, opacity: 1, },
+                { offset: 0.1, opacity: 1, },
+                { offset: 1.0, opacity: 0, },
+            ], {
+                duration: 1000,
+                easing: 'ease-out',
+                iterations: 1
+            }
+        ],
+    ]
     
     document.body = html`
         <body>
-            <Container verticalAlignment="center" horizontalAlignment="center" width="100%" height="10rem" backgroundColor="lightcoral" color=white>
-                Howdy!
+            <Container row wrap height="fit-content" width="100%">
+                <Container
+                    name="Bio-Area"
+                    column
+                    flex-grow="1"
+                    horizontalAlignment="center"
+                    verticalAlignment="space-evenly"
+                    padding="1rem"
+                    height="100vh"
+                    min-height="40rem"
+                    background="lightcoral"
+                    min-width=14rem
+                    >
+                        <Container name="Bio" background="lightpink" padding="1rem">
+                            Howdy!
+                        </Container>
+                        <Container name="References" background="lightsalmon" padding="1rem">
+                            Howdy!
+                        </Container>
+                </Container>
+                
+                <Container
+                    name="Content-Area"
+                    column
+                    flex-grow="3"
+                    flex-shrink="0"
+                    horizontalAlignment="center"
+                    verticalAlignment="top"
+                    background="lightblue"
+                    padding="1rem"
+                    height="100vh"
+                    min-height="40rem"
+                    max-width=100%
+                    overflow="auto"
+                    >
+                        <Container name="Content-Area-Width-Reducer" background="cornflowerblue" padding="12vh 1rem" width="100%" max-width="70rem" min-height="fit-content" flex-grow="1"  >
+                            <Container name="Primary-Content" row wrap horizontalAlignment="left" width="100%" padding="1rem" background="dodgerblue" flex-grow=1 innerAlignment="top" min-height=15rem >
+                                <style>
+                                    div [name="Primary-Content"] > * {
+                                        margin-right: 3rem;
+                                        margin-bottom: 3rem;
+                                        flex-grow: 1;
+                                        transform: translateX(1.5rem);
+                                    }
+                                </style>
+                                <Container name="Education" background="lightskyblue" padding="1rem" width="15rem">
+                                    Education
+                                </Container>
+                                <Container name="Work History" background="lightcyan" padding="1rem" width="15rem">
+                                    Work History
+                                </Container>
+                                <Container name="Notable Projects" background="lightsteelblue" padding="1rem" width="15rem">
+                                    Notable Projects
+                                </Container>
+                            </Container>
+                            <Container name="Secondary-Content" row wrap horizontalAlignment="left" width="100%" padding="1rem" background="lightseagreen" flex-grow=1 innerAlignment="top" min-height=15rem >
+                                <style>
+                                    div [name="Secondary-Content"] > * {
+                                        margin-right: 3rem;
+                                        margin-bottom: 3rem;
+                                        flex-grow: 1;
+                                        transform: translateX(1.5rem);
+                                    }
+                                </style>
+                                <Container name="Acheivements" background="lightgreen" padding="1rem">
+                                    Acheivements
+                                </Container>
+                                <Container name="Skills" background="aquamarine" padding="1rem">
+                                    Skills
+                                </Container>
+                            </Container>
+                        </Container>
+                </Container>
             </Container>
-            <${CustomComponent1} />
         </body>
     `
+    document.body.animate(...fadeIn)
     
     function CustomComponent1({}) {
         return html`
