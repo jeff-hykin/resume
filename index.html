@@ -1,0 +1,55 @@
+<head>
+    <title>Your Title</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://unpkg.com/css-baseline/css/3.css">
+    <style>
+        .animate {
+            transition: all 0.5s ease-in-out 0s;
+        }
+        .weak-shadow {
+            transition: all 0.3s ease-in-out 0s;
+            box-shadow: 0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24);
+        }
+        .weak-shadow:hover {
+            box-shadow: 0 8px 17px 2px rgba(0,0,0,0.10),0 6px 30px 5px rgba(0,0,0,0.08),0 8px 10px -7px rgba(0,0,0,0.16);
+        }
+        button {
+            border-radius: 1rem;
+            border: none;
+            background-color: cornflowerblue;
+            padding: 0.5rem 1rem;
+            color: white;
+        }
+    </style>
+</head>
+<script type="module">;(async () => {
+    // 
+    // 
+    // Main code
+    // 
+    // 
+    const { Elemental } = (await import("https://cdn.skypack.dev/@!!!!!/elemental@0.0.12")).default
+    const Reactive = (await import("https://cdn.skypack.dev/cause-n-effect@3.0.0")).default
+    const DateTime = (await import("https://cdn.skypack.dev/good-date@1.3.16")).default
+    const Container = (await import("https://cdn.skypack.dev/@!vanilla/container@v1.0.5")).default
+    const {html} = new Elemental({ Container, If: (props)=>props.true?props.children:"" })
+    
+    document.body = html`
+        <body>
+            <Container verticalAlignment="center" horizontalAlignment="center" width="100%" height="10rem" backgroundColor="lightcoral" color=white>
+                Howdy!
+            </Container>
+            <${CustomComponent1} />
+        </body>
+    `
+    
+    function CustomComponent1({}) {
+        return html`
+            <div>
+                <span>I'm a custom component</span>
+            </div>
+        `
+    }
+    
+})()</script>
