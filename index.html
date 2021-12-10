@@ -9,6 +9,10 @@
         :root {
             --gray-pallet-background: rgb(30, 37, 53);
             --red-pallet-background: lightcoral;
+            --off-white: hsl(0, 0%, 87.8%);
+            --charcoal: hsl(180, 0%, 31%);
+            --charcoal-on-charcoal: hsl(0deg 0% 50%);
+            --soft-gray-gradient: linear-gradient(-110deg, whitesmoke, var(--off-white));
             /* misc */
             --red-pallet-font: white;
             --decent-color-1: lightcoral;
@@ -34,7 +38,6 @@
             --decent-color-21: cadetblue;
             --decent-color-22: darkorchid;
             --decent-color-23: blueviolet;
-            
         }
         body {
             font-size: 0.9rem;
@@ -58,7 +61,7 @@
             color: white;
         }
         a {
-            color: cornflowerblue;
+            color: lightskyblue;
             text-decoration: underline;
         }
     </style>
@@ -79,6 +82,7 @@
         Card,
         Chip,
         Title,
+        AcheivementToken,
         If: (props)=>props.true?props.children:"",
     })
     const [ fadeIn, fadeOut ] = [
@@ -108,7 +112,7 @@
     
     document.body = html`
         <body>
-            <Container row wrap height="fit-content" width="100%">
+            <Container row wrap height="fit-content" width="100%" background="var(--soft-gray-gradient)">
                 <Container
                     name="Bio-Area"
                     column
@@ -118,7 +122,7 @@
                     padding="1rem"
                     height="100vh"
                     min-height="40rem"
-                    background="lightcoral"
+                    background="var(--charcoal)"
                     min-width=14rem
                     max-width=26rem
                     >
@@ -131,12 +135,12 @@
                             <Title color="white" align-self=flex-start underline thin margin-bottom=1.5rem>
                                 References
                             </Title>
-                            <Card width="100%" max-width=20rem padding="1rem 1.2rem"  >
+                            <Card width="100%" max-width=20rem padding="1rem 1.2rem" background-color="var(--charcoal-on-charcoal)" color="white" font-weight="100" >
                                 <Title underline size=18>
                                     Dr. Guni Sharon
                                 </Title>
-                                <span>     <b>Relation:</b> PhD Advisor           </span>
-                                <span>     <b>Email:   </b> <a>guni@tamu.edu</a>  </span>
+                                <span>     Relation:<b> PhD Advisor          </b> </span>
+                                <span>     Email:   <b> <a>guni@tamu.edu</a> </b> </span>
                             </Card>
                         </Container>
                 </Container>
@@ -148,15 +152,14 @@
                     flex-shrink="0"
                     horizontalAlignment="center"
                     verticalAlignment="top"
-                    background="lightblue"
                     padding="1rem"
                     height="100vh"
                     min-height="40rem"
                     max-width=100%
                     overflow="auto"
                     >
-                        <Container name="Content-Area-Width-Reducer" background="cornflowerblue" padding="12vh 1rem" width="100%" max-width="70rem" min-height="fit-content" flex-grow="1"  >
-                            <Container name="Primary-Content" row wrap horizontalAlignment="left" width="100%" padding="1rem" background="dodgerblue" flex-grow=1 innerAlignment="top" min-height=15rem >
+                        <Container name="Content-Area-Width-Reducer" padding="12vh 1rem" width="100%" max-width="80rem" min-height="fit-content" flex-grow="1"  >
+                            <Container name="Primary-Content" row wrap horizontalAlignment="left" width="100%" flex-grow=1 innerAlignment="top" min-height=15rem >
                                 <style>
                                     div [name="Primary-Content"] > * {
                                         margin-right: 3rem;
@@ -164,25 +167,38 @@
                                         flex-grow: 1;
                                         transform: translateX(1.5rem);
                                     }
+                                    div[name="Primary-Content"] * {
+                                        flex-grow: 1;
+                                    }
+                                    div[name="line"] {
+                                        height: 1rem;
+                                    }
                                 </style>
-                                <Container name="Education" background="lightskyblue" padding="1rem" width="15rem">
-                                    <Card>
+                                <Container>
+                                    <Title color="black" underline thin>
                                         Education
-                                        <span>PhD: Computer Science </span>
-                                        <span>Graduation Estimate: 2025</span>
-                                        <span>GPA: 4.0 (as of 2021)</span>
-                                        <span></span>
-                                        <span>BS: Computer Science</span>
-                                        <span>University: Texas A&M</span>
-                                        <span>GPA: 3.8</span>
-                                        <span>Graduation: 2020</span>
-                                        <span></span>
-                                        <!-- <span>University: Texas A&M</span>
-                                        <span></span>
-                                        <span>- Undergrad details  </span>
-                                        <span>- UTD                </span> -->
+                                    </Title>
+                                    <Card width="100%">
+                                        <span>PhD: <b>Computer Science</b> </span>
+                                        <span>Graduation Estimate: <b>2025</b></span>
+                                        <span>GPA: <b>4.0</b> (as of 2021)</span>
+                                        <span>Focus: <b>Reinforcement Learning</b></span>
                                     </Card>
+                                    <Container name="line" />
+                                    <Card width="100%">
+                                        <span>BS: <b>Computer Science</b></span>
+                                        <span>University: <b>Texas A&M</b></span>
+                                        <span>GPA: <b>3.8</b></span>
+                                        <span>Graduation: <b>2020</b></span>
+                                    </Card>
+                                    <span></span>
+                                    <span></span>
+                                    <!-- <span>University: Texas A&M</span>
+                                    <span></span>
+                                    <span>- Undergrad details  </span>
+                                    <span>- UTD                </span> -->
                                 </Container>
+                                
                                 <Container name="Work History" background="lightcyan" padding="1rem" width="15rem">
                                     Work History
                                     <span> - Reinforcement Learning Topic </span>
@@ -198,26 +214,56 @@
                                     <span> - Reinforcement learning from scratch </span>
                                 </Container>
                             </Container>
-                            <Container name="Secondary-Content" row wrap horizontalAlignment="left" width="100%" padding="1rem" background="lightseagreen" flex-grow=1 innerAlignment="top" min-height=15rem >
+                            <Container name="Secondary-Content" row wrap horizontalAlignment="left" width="100%" padding="1rem" flex-grow=1 innerAlignment="top" min-height=15rem >
                                 <style>
                                     div [name="Secondary-Content"] > * {
-                                        margin-right: 3rem;
                                         margin-bottom: 3rem;
                                         flex-grow: 1;
                                         transform: translateX(1.5rem);
                                     }
                                 </style>
-                                <Container name="Acheivements" background="lightgreen" padding="1rem">
-                                    Achievements
-                                    <span> - 100+ repos </span>
-                                    <span> - VS Code extension </span>
-                                    <span> - Eagle Scout </span>
-                                    <span> - Python packages </span>
-                                    <span> - NPM packages </span>
+                                <Container name="Acheivements" padding="1rem" flex-grow="0" margin-right="5rem" margin-bottom="5rem">
+                                    <Title align-self=flex-start underline thin margin-bottom=1.5rem>
+                                        Achievements
+                                    </Title>
+                                    <Container name="Acheivements-Card" horizontalAlignment="left" color="var(--charcoal-on-charcoal)" margin-left="2.2rem">
+                                        <style>
+                                            div[name="Acheivements-Card"] > [name="line"] {
+                                                /* border-bottom: 1px solid var(--charcoal-on-charcoal); */
+                                                width: 100%;
+                                                --spacing: 0.4rem;
+                                                margin-bottom: var(--spacing);
+                                                margin-top: var(--spacing);
+                                            }
+                                        </style>
+                                        
+                                        <AcheivementToken> Eagle Scout </AcheivementToken>
+                                        <Container name="line" />
+                                        
+                                        <AcheivementToken> Scrum / Agile Certification </AcheivementToken>
+                                        <Container name="line" />
+                                        
+                                        <AcheivementToken> Extension +1,000,000 downloads </AcheivementToken>
+                                        <Container name="line" />
+                                        
+                                        <AcheivementToken> Maintainer of VS Code's C++ Syntax </AcheivementToken>
+                                        <Container name="line" />
+                                        
+                                        <AcheivementToken> +40 Npm packages  </AcheivementToken>
+                                        <Container name="line" />
+                                        
+                                        <AcheivementToken> +100 public GitHub Repos </AcheivementToken>
+                                        <Container name="line" />
+                                        
+                                        <AcheivementToken> +5 Extensions with +10,000 downloads </AcheivementToken>
+                                        <Container name="line" />
+                                        
+                                        <AcheivementToken> +5 Python pip packages </AcheivementToken>
+                                    </Container>
                                 </Container>
-                                <Container name="Skills" background="aquamarine" padding="1rem" flex-basis="min-content" flex-grow=2>
-                                    <Title color="black" align-self=flex-start underline thin margin-bottom=1.5rem>
-                                        Skill Sets (hover for details)
+                                <Container name="Skills" padding="1rem" flex-basis="min-content" flex-grow=3>
+                                    <Title align-self=flex-start underline thin margin-bottom=1.5rem>
+                                        Skill Sets
                                     </Title>
                                     <Container row wrap name="Skills-Inner" innerAlignment="top" >
                                          <style>
@@ -251,12 +297,13 @@
                                                     Technical Areas
                                                 </Title>
                                                 <Chip> Reinforcement Learning </Chip>
-                                                <Chip> Web Development </Chip>
-                                                <Chip> Deep Learning </Chip>
-                                                <Chip> Scripting & Automation </Chip>
                                                 <Chip> Statistics </Chip>
-                                                <Chip> Psychology </Chip>
+                                                <Chip> Web Development </Chip>
+                                                <Chip> UI Design </Chip>
+                                                <Chip> Deep Learning </Chip>
                                                 <Chip> Neurology </Chip>
+                                                <Chip> Psychology </Chip>
+                                                <Chip> Scripting & Automation </Chip>
                                             </Card>
                                         </Container>
                                         
@@ -292,6 +339,7 @@
                                                 <Chip>Docker</Chip>
                                                 <Chip>Git</Chip>
                                                 <Chip>Node.js</Chip>
+                                                <Chip>IPFS</Chip>
                                                 <Chip>Zotero</Chip>
                                                 <Chip>Nix</Chip>
                                                 <Chip>Deno</Chip>
@@ -339,14 +387,14 @@
             marginBottom: "0.7rem",
             // add underline or not
             ...(underline ? {
-                borderBottom: "2px solid "+color||"gray",
+                borderBottom: "2px solid "+(color||"gray"),
                 fontSize: size||"1.3rem",
             }:{}),
             ...(thin ? {
                 fontWeight: 100,
             }:{}),
             ...(thin && underline ? {
-                borderBottom: "1px solid "+color||"gray",
+                borderBottom: "1px solid "+(color||"gray"),
             }:{}),
             color,
             ...style,
@@ -391,6 +439,22 @@
                 ...${props}
                 >
                     ${children}
+            </Container>
+        `
+    }
+    
+    function AcheivementToken({children, ...props}) {
+        return html`
+            <Container border-radius="2rem" border="2px solid white" box-shadow="0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24)" ...${props}> 
+                <Container
+                    border-radius="2rem"
+                    border="5px solid #E5C07B"
+                    padding="0.6rem 1rem"
+                    font-size="1rem"
+                    background-color="white"
+                    > 
+                        ${children}
+                </Container>
             </Container>
         `
     }
