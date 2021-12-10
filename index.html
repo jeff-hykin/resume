@@ -174,45 +174,68 @@
                                         height: 1rem;
                                     }
                                 </style>
+                                
                                 <Container>
                                     <Title color="black" underline thin>
                                         Education
                                     </Title>
-                                    <Card width="100%">
-                                        <span>PhD: <b>Computer Science</b> </span>
-                                        <span>Graduation Estimate: <b>2025</b></span>
-                                        <span>GPA: <b>4.0</b> (as of 2021)</span>
-                                        <span>Focus: <b>Reinforcement Learning</b></span>
-                                    </Card>
-                                    <Container name="line" />
-                                    <Card width="100%">
-                                        <span>BS: <b>Computer Science</b></span>
-                                        <span>University: <b>Texas A&M</b></span>
-                                        <span>GPA: <b>3.8</b></span>
-                                        <span>Graduation: <b>2020</b></span>
-                                    </Card>
-                                    <span></span>
-                                    <span></span>
-                                    <!-- <span>University: Texas A&M</span>
-                                    <span></span>
-                                    <span>- Undergrad details  </span>
-                                    <span>- UTD                </span> -->
+                                        <Card width="90%" font-size="1rem">
+                                            <span>PhD: <b>Computer Science</b> </span>
+                                            <span>Graduation Estimate: <b>2025</b></span>
+                                            <span>GPA: <b>4.0</b> (as of 2021)</span>
+                                            <span>Focus: <b>Reinforcement Learning</b></span>
+                                        </Card>
+                                        <Container name="line" />
+                                        <Card width="90%" font-size="1rem">
+                                            <span>BS: <b>Computer Science</b></span>
+                                            <span>University: <b>Texas A&M</b></span>
+                                            <span>GPA: <b>3.8</b></span>
+                                            <span>Graduation: <b>2020</b></span>
+                                        </Card>
                                 </Container>
                                 
-                                <Container name="Work History" background="lightcyan" padding="1rem" width="15rem">
-                                    Work History
-                                    <span> - Reinforcement Learning Topic </span>
-                                    <span> - Computer Vision Work </span>
-                                    <span> - Frogslayer </span>
+                                <Container>
+                                    <Title color="black" underline thin>
+                                        Work History
+                                    </Title>
+                                        <Card width="90%" font-size="1rem">
+                                            <span>Reinforcement Learning Research </span>
+                                        </Card>
+                                        <Container name="line" />
+                                        <Card width="90%" font-size="1rem">
+                                            <span>Emotion Recognition Research </span>
+                                        </Card>
+                                        <Container name="line" />
+                                        <Card width="90%" font-size="1rem">
+                                            <span>FrogSlayer</span>
+                                        </Card>
                                 </Container>
-                                <Container name="Notable Projects" background="lightsteelblue" padding="1rem" width="15rem">
-                                    Notable Projects
-                                    <span> - FrogSlayer project </span>
-                                    <span> - Security Website </span>
-                                    <span> - Video Annotater </span>
-                                    <span> - Phrasify  </span>
-                                    <span> - Reinforcement learning from scratch </span>
+                                
+                                <Container>
+                                    <Title color="black" underline thin>
+                                        Notable Projects
+                                    </Title>
+                                        <Card width="90%" font-size="1rem">
+                                            <span>FrogSlayer project </span>
+                                        </Card>
+                                        <Container name="line" />
+                                        <Card width="90%" font-size="1rem">
+                                            <span>Security/Viz Website </span>
+                                        </Card>
+                                        <Container name="line" />
+                                        <Card width="90%" font-size="1rem">
+                                            <span>Video Annotater </span>
+                                        </Card>
+                                        <Container name="line" />
+                                        <Card width="90%" font-size="1rem">
+                                            <span>Phrasify  </span>
+                                        </Card>
+                                        <Container name="line" />
+                                        <Card width="90%" font-size="1rem">
+                                            <span>Reinforcement learning from scratch </span>
+                                        </Card>
                                 </Container>
+                                
                             </Container>
                             <Container name="Secondary-Content" row wrap horizontalAlignment="left" width="100%" padding="1rem" flex-grow=1 innerAlignment="top" min-height=15rem >
                                 <style>
@@ -227,37 +250,13 @@
                                         Achievements
                                     </Title>
                                     <Container name="Acheivements-Card" horizontalAlignment="left" color="var(--charcoal-on-charcoal)" margin-left="2.2rem">
-                                        <style>
-                                            div[name="Acheivements-Card"] > [name="line"] {
-                                                /* border-bottom: 1px solid var(--charcoal-on-charcoal); */
-                                                width: 100%;
-                                                --spacing: 0.4rem;
-                                                margin-bottom: var(--spacing);
-                                                margin-top: var(--spacing);
-                                            }
-                                        </style>
-                                        
                                         <AcheivementToken> Eagle Scout </AcheivementToken>
-                                        <Container name="line" />
-                                        
                                         <AcheivementToken> Scrum / Agile Certification </AcheivementToken>
-                                        <Container name="line" />
-                                        
                                         <AcheivementToken> Extension +1,000,000 downloads </AcheivementToken>
-                                        <Container name="line" />
-                                        
                                         <AcheivementToken> Maintainer of VS Code's C++ Syntax </AcheivementToken>
-                                        <Container name="line" />
-                                        
                                         <AcheivementToken> +40 Npm packages  </AcheivementToken>
-                                        <Container name="line" />
-                                        
                                         <AcheivementToken> +100 public GitHub Repos </AcheivementToken>
-                                        <Container name="line" />
-                                        
                                         <AcheivementToken> +5 Extensions with +10,000 downloads </AcheivementToken>
-                                        <Container name="line" />
-                                        
                                         <AcheivementToken> +5 Python pip packages </AcheivementToken>
                                     </Container>
                                 </Container>
@@ -343,9 +342,9 @@
                                                 <Chip>Zotero</Chip>
                                                 <Chip>Nix</Chip>
                                                 <Chip>Deno</Chip>
-                                                <Chip padding="0.6rem 1.3em">
-                                                    Pip Modules
+                                                <Chip padding="0.6rem 1.1rem">
                                                     <Container row wrap width=100% horizontalAlignment="center">
+                                                        <Chip color="transparent"><u> Pip Modules:</u></Chip>
                                                         <Chip>numpy</Chip>
                                                         <Chip>opencv</Chip>
                                                         <Chip>pytorch</Chip>
@@ -353,9 +352,9 @@
                                                         <Chip>keras</Chip>
                                                     </Container>
                                                 </Chip>
-                                                <Chip padding="0.6rem 1.3em">
-                                                    Npm Packages
+                                                <Chip padding="0.6rem 1.1rem">
                                                     <Container row wrap width=100% horizontalAlignment="center">
+                                                        <Chip color="transparent"><u>Npm Packages:</u></Chip>
                                                         <Chip>React</Chip>
                                                         <Chip>Vue</Chip>
                                                         <Chip>Express.js</Chip>
@@ -383,6 +382,7 @@
     
     function Title({underline, thin, size, style, children, color, ...props}) {
         style = {
+            flexGrow: 0,
             fontSize: size||"1.5rem",
             marginBottom: "0.7rem",
             // add underline or not
@@ -433,7 +433,7 @@
                 padding="0.35rem 0.7rem"
                 margin="0.15rem"
                 background=${color||"rgba(255,255,255,0.25)"}
-                backdrop-filter="saturate(180%) brightness(1.05)"
+                backdrop-filter=${color?"":"saturate(180%) brightness(1.05)"}
                 color="white"
                 font-size="0.8rem"
                 ...${props}
@@ -445,16 +445,22 @@
     
     function AcheivementToken({children, ...props}) {
         return html`
-            <Container border-radius="2rem" border="2px solid white" box-shadow="0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24)" ...${props}> 
-                <Container
-                    border-radius="2rem"
-                    border="5px solid #E5C07B"
-                    padding="0.6rem 1rem"
-                    font-size="1rem"
-                    background-color="white"
-                    > 
-                        ${children}
-                </Container>
+            <Container
+                border-radius="2rem"
+                border="2px solid white"
+                box-shadow="0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24)"
+                margin-bottom="1rem"
+                ...${props}
+                > 
+                    <Container
+                        border-radius="2rem"
+                        border="5px solid #E5C07B"
+                        padding="0.6rem 1rem"
+                        font-size="1rem"
+                        background-color="white"
+                        > 
+                            ${children}
+                    </Container>
             </Container>
         `
     }
