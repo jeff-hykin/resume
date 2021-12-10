@@ -6,6 +6,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto');
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
         :root {
             --gray-pallet-background: rgb(30, 37, 53);
             --red-pallet-background: lightcoral;
@@ -83,6 +84,7 @@
         Chip,
         Title,
         AcheivementToken,
+        MainCategory,
         If: (props)=>props.true?props.children:"",
     })
     const [ fadeIn, fadeOut ] = [
@@ -158,7 +160,7 @@
                     max-width=100%
                     overflow="auto"
                     >
-                        <Container name="Content-Area-Width-Reducer" padding="12vh 1rem" width="100%" max-width="80rem" min-height="fit-content" flex-grow="1"  >
+                        <Container name="Content-Area-Width-Reducer" padding="12vh 1rem" padding-bottom="0" width="100%" max-width="80rem" min-height="fit-content" flex-grow="1"  >
                             <Container name="Primary-Content" row wrap horizontalAlignment="left" width="100%" flex-grow=1 innerAlignment="top" min-height=15rem >
                                 <style>
                                     div [name="Primary-Content"] > * {
@@ -167,74 +169,55 @@
                                         flex-grow: 1;
                                         transform: translateX(1.5rem);
                                     }
-                                    div[name="Primary-Content"] * {
-                                        flex-grow: 1;
-                                    }
                                     div[name="line"] {
                                         height: 1rem;
                                     }
                                 </style>
                                 
-                                <Container>
-                                    <Title color="black" underline thin>
-                                        Education
-                                    </Title>
-                                        <Card width="90%" font-size="1rem">
-                                            <span>PhD: <b>Computer Science</b> </span>
-                                            <span>Graduation Estimate: <b>2025</b></span>
-                                            <span>GPA: <b>4.0</b> (as of 2021)</span>
-                                            <span>Focus: <b>Reinforcement Learning</b></span>
-                                        </Card>
-                                        <Container name="line" />
-                                        <Card width="90%" font-size="1rem">
-                                            <span>BS: <b>Computer Science</b></span>
-                                            <span>University: <b>Texas A&M</b></span>
-                                            <span>GPA: <b>3.8</b></span>
-                                            <span>Graduation: <b>2020</b></span>
-                                        </Card>
-                                </Container>
+                                <MainCategory title="Education">
+                                    <Card>
+                                        <span>PhD: <b>Computer Science</b> </span>
+                                        <span>Graduation Estimate: <b>2025</b></span>
+                                        <span>GPA: <b>4.0</b> (as of 2021)</span>
+                                        <span>Focus: <b>Reinforcement Learning</b></span>
+                                    </Card>
+                                    <Card>
+                                        <span>BS: <b>Computer Science</b></span>
+                                        <span>University: <b>Texas A&M</b></span>
+                                        <span>GPA: <b>3.8</b></span>
+                                        <span>Graduation: <b>2020</b></span>
+                                    </Card>
+                                </MainCategory>
                                 
-                                <Container>
-                                    <Title color="black" underline thin>
-                                        Work History
-                                    </Title>
-                                        <Card width="90%" font-size="1rem">
-                                            <span>Reinforcement Learning Research </span>
-                                        </Card>
-                                        <Container name="line" />
-                                        <Card width="90%" font-size="1rem">
-                                            <span>Emotion Recognition Research </span>
-                                        </Card>
-                                        <Container name="line" />
-                                        <Card width="90%" font-size="1rem">
-                                            <span>FrogSlayer</span>
-                                        </Card>
-                                </Container>
+                                <MainCategory title="Work History">
+                                    <Card>
+                                        <span>Reinforcement Learning Research </span>
+                                    </Card>
+                                    <Card>
+                                        <span>Emotion Recognition Research </span>
+                                    </Card>
+                                    <Card>
+                                        <span>FrogSlayer</span>
+                                    </Card>
+                                </MainCategory>
                                 
-                                <Container>
-                                    <Title color="black" underline thin>
-                                        Notable Projects
-                                    </Title>
-                                        <Card width="90%" font-size="1rem">
-                                            <span>FrogSlayer project </span>
-                                        </Card>
-                                        <Container name="line" />
-                                        <Card width="90%" font-size="1rem">
-                                            <span>Security/Viz Website </span>
-                                        </Card>
-                                        <Container name="line" />
-                                        <Card width="90%" font-size="1rem">
-                                            <span>Video Annotater </span>
-                                        </Card>
-                                        <Container name="line" />
-                                        <Card width="90%" font-size="1rem">
-                                            <span>Phrasify  </span>
-                                        </Card>
-                                        <Container name="line" />
-                                        <Card width="90%" font-size="1rem">
-                                            <span>Reinforcement learning from scratch </span>
-                                        </Card>
-                                </Container>
+                                <MainCategory title="Notable Projects">
+                                    <Card>
+                                        <span>FrogSlayer project </span>
+                                    </Card>
+                                    <Card>
+                                        <span>Security/Viz Website </span>
+                                    </Card>
+                                    <Card>
+                                        <span>Video Annotater </span>
+                                    </Card>
+                                    <Card>
+                                        <span>Phrasify  </span>
+                                    </Card>
+                                    <Card>
+                                        <span>Reinforcement learning from scratch </span>
+                                    </Card>
+                                </MainCategory>
                                 
                             </Container>
                             <Container name="Secondary-Content" row wrap horizontalAlignment="left" width="100%" padding="1rem" flex-grow=1 innerAlignment="top" min-height=15rem >
@@ -461,6 +444,26 @@
                         > 
                             ${children}
                     </Container>
+            </Container>
+        `
+    }
+    
+    function MainCategory({title, children, ...props}) {
+        for (const each of children) {
+            each.style.width = "90%"
+            each.style.fontSize = "1rem"
+            each.style.marginBottom = "1rem"
+            each.style.fontWeight = "300"
+            each.style.marginRight = "2rem"
+        }
+        return html`
+            <Container>
+                <Title color="black" underline thin>
+                    ${title}
+                </Title>
+                <Container max-height="22rem" overflow=auto width=110% horizontalAlignment="center" >
+                    ${children}
+                </Container>
             </Container>
         `
     }
