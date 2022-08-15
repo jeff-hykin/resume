@@ -71,80 +71,96 @@
         }
     </style>
 </head>
-<body>
-    <div style="display: flex;justify-content: center;align-items: center;height: 100vh;">
-        <div style="width: 50px;height: 50px;border: 10px solid #dddddd;border-top-color: #009579;border-radius: 50%;transform: rotate(0.16turn);" id="good-component--initial-loader">
+<!--                                   -->
+<!-- Synchonous/Fast loading animation -->
+<!--                                   -->
+    <body>
+        <div style="display: flex;justify-content: center;align-items: center;height: 100vh;">
+            <div style="width: 50px;height: 50px;border: 10px solid #dddddd;border-top-color: #009579;border-radius: 50%;transform: rotate(0.16turn);" id="good-component--initial-loader">
+            </div>
         </div>
-    </div>
-</body>
-<script>
-    const animateLoader = ()=>{
-    const element = document.getElementById("good-component--initial-loader")
-        element && element.animate(
-            [
-                { transform: 'rotate(0turn)' },
-                { transform: 'rotate(1turn)' },
-            ],
-            {
-                duration: 1000,
-                iterations: Infinity,
-                easing: 'ease',
-            },
-        )
-    }
-    document.body ? animateLoader() : document.addEventListener("DOMContentLoaded", animateLoader)
-</script>
+    </body>
+    <script>
+        // 
+        // Synchonous/Fast loading animation
+        // 
+            const animateLoader = ()=>{
+            const element = document.getElementById("good-component--initial-loader")
+                element && element.animate(
+                    [
+                        { transform: 'rotate(0turn)' },
+                        { transform: 'rotate(1turn)' },
+                    ],
+                    {
+                        duration: 1000,
+                        iterations: Infinity,
+                        easing: 'ease',
+                    },
+                )
+            }
+            document.body ? animateLoader() : document.addEventListener("DOMContentLoaded", animateLoader)
+    </script>
+
+<!--                -->
+<!-- The main code  -->
+<!--                -->
 <script type="module">;(async () => {
     // 
     // 
-    // Main code
+    // Initialize
     // 
     // 
-    const { Elemental } = (await import("https://cdn.skypack.dev/@!!!!!/elemental@0.0.12")).default
-    const Reactive = (await import("https://cdn.skypack.dev/cause-n-effect@3.0.0")).default
-    const DateTime = (await import("https://cdn.skypack.dev/good-date@1.3.16")).default
-    const Container = (await import("https://cdn.skypack.dev/@!vanilla/container@v1.0.5")).default
-    const {html} = new Elemental({
-        // Custom elements
-        Container,
-        Card,
-        Chip,
-        Title,
-        AcheivementToken,
-        MainCategory,
-        Space: ()=>{
-            const element = document.createElement("code")
-            element.style.whiteSpace = "pre"
-            element.innerHTML = " "
-            return element
-        },
-        If: (props)=>props.true?props.children:"",
-    })
-    const [ fadeIn, fadeOut ] = [
-        [
-            [
-                { offset: 0.0, opacity: 0, },
-                { offset: 0.1, opacity: 0, },
-                { offset: 1.0, opacity: 1, },
-            ], {
-                duration: 1000,
-                easing: 'ease-out',
-                iterations: 1
-            }
-        ],
-        [
-            [
-                { offset: 0.0, opacity: 1, },
-                { offset: 0.1, opacity: 1, },
-                { offset: 1.0, opacity: 0, },
-            ], {
-                duration: 1000,
-                easing: 'ease-out',
-                iterations: 1
-            }
-        ],
-    ]
+        const ElementalLibrary = import("https://cdn.skypack.dev/@!!!!!/elemental@0.0.12")
+        const ContainerLibrary = import("https://cdn.skypack.dev/@!vanilla/container@v1.0.5")
+        
+        const { Elemental } = (await ElementalLibrary).default
     
+        // 
+        // Custom elements
+        // 
+        const { html } = new Elemental({
+            Container: (await ContainerLibrary).default,
+            Card,
+            Chip,
+            Title,
+            AcheivementToken,
+            MainCategory,
+            Space,
+        })
+        
+        // 
+        // animations
+        // 
+        const [ fadeIn, fadeOut ] = [
+            [
+                [
+                    { offset: 0.0, opacity: 0, },
+                    { offset: 0.1, opacity: 0, },
+                    { offset: 1.0, opacity: 1, },
+                ], {
+                    duration: 1000,
+                    easing: 'ease-out',
+                    iterations: 1
+                }
+            ],
+            [
+                [
+                    { offset: 0.0, opacity: 1, },
+                    { offset: 0.1, opacity: 1, },
+                    { offset: 1.0, opacity: 0, },
+                ], {
+                    duration: 1000,
+                    easing: 'ease-out',
+                    iterations: 1
+                }
+            ],
+        ]
+    
+    // 
+    // 
+    // Main Code
+    // 
+    // 
     document.body = html`
         <body>
             <Container row wrap height="fit-content" width="100%" background="var(--soft-gray-gradient)">
@@ -184,7 +200,7 @@
                             </Title>
                             
                             <Card width="100%" max-width=20rem padding="1rem 1.2rem" background-color="var(--charcoal-on-charcoal)" color="white" font-weight="100" margin-bottom=1rem >
-                                <Title underline size=18>
+                                <Title underline size=16>
                                     Dr. Guni Sharon
                                 </Title>
                                 <span>     Relation:<b> PhD Advisor          </b> </span>
@@ -192,7 +208,7 @@
                             </Card>
                             
                             <Card width="100%" max-width=20rem padding="1rem 1.2rem" background-color="var(--charcoal-on-charcoal)" color="white" font-weight="100" margin-bottom=1rem>
-                                <Title underline size=18>
+                                <Title underline size=16>
                                     Devin Rabon
                                 </Title>
                                 <span>     Relation: <b>HR at FrogSlayer Consulting</b> </span>
@@ -312,8 +328,8 @@
                                     <Container name="Acheivements-Card" horizontalAlignment="left" color="var(--charcoal-on-charcoal)" margin-left="2.2rem">
                                         <AcheivementToken> Eagle Scout </AcheivementToken>
                                         <AcheivementToken> Scrum / Agile Certification </AcheivementToken>
-                                        <AcheivementToken> <a href="https://github.com/jeff-hykin/better-cpp-syntax">Extension</a><Space />with +1,000,000 Downloads </AcheivementToken>
-                                        <AcheivementToken> Maintainer of VS Code's <Space/><a href="https://github.com/jeff-hykin/better-cpp-syntax"> C++ Syntax</a> </AcheivementToken>
+                                        <AcheivementToken> <a href="https://github.com/jeff-hykin/better-cpp-syntax">Extension</a><Space />with +9,000,000 Downloads </AcheivementToken>
+                                        <AcheivementToken> Maintainer of VS Code's<Space/><a href="https://github.com/jeff-hykin/better-cpp-syntax"> C++ Syntax</a> </AcheivementToken>
                                         <AcheivementToken> +40 Published Npm Packages  </AcheivementToken>
                                         <AcheivementToken> +100 Public GitHub Repos </AcheivementToken>
                                         <AcheivementToken> +5 Extensions with +10,000 Downloads </AcheivementToken>
@@ -440,110 +456,123 @@
     `
     document.body.animate(...fadeIn)
     
-    function Title({underline, thin, size, style, children, color, ...props}) {
-        style = {
-            flexGrow: 0,
-            fontSize: size||"1.5rem",
-            marginBottom: "0.7rem",
-            // add underline or not
-            ...(underline ? {
-                borderBottom: "2px solid "+(color||"gray"),
-                fontSize: size||"1.3rem",
-            }:{}),
-            ...(thin ? {
-                fontWeight: 100,
-            }:{}),
-            ...(thin && underline ? {
-                borderBottom: "1px solid "+(color||"gray"),
-            }:{}),
-            color,
-            ...style,
-            ...props,
+    // 
+    // 
+    // Components
+    // 
+    // 
+        function Space() {
+            const element = document.createElement("code")
+            element.style.whiteSpace = "pre"
+            element.innerHTML = " "
+            return element
         }
-        const element = html`
-            <h3 ...${props} >
-                    ${children}
-            </h3>
-        `
-        // this next line shouldn't be necessary, I'm not sure why it is (but I know that it is)
-        Object.assign(element.style, style)
-        return element
-    }
-    
-    function Card({name, children, ...props}) {
-        return html`
-            <Container
-                name=${name}
-                border-radius="1rem"
-                box-shadow="0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24)"
-                padding="1.5rem 2rem"
-                background="var(--card-background, white)"
-                ...${props}
-                >
-                    ${children}
-            </Container>
-        `
-    }
-    
-    function Chip({name, color, children, ...props}) {
-        return html`
-            <Container
-                name=${name}
-                border-radius="2rem"
-                padding="0.35rem 0.7rem"
-                margin="0.15rem"
-                background=${color||"rgba(255,255,255,0.25)"}
-                backdrop-filter=${color?"":"saturate(180%) brightness(1.05)"}
-                color="white"
-                font-size="0.8rem"
-                ...${props}
-                >
-                    ${children}
-            </Container>
-        `
-    }
-    
-    function AcheivementToken({children, ...props}) {
-        return html`
-            <Container
-                border-radius="2rem"
-                border="2px solid white"
-                box-shadow="0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24)"
-                margin-bottom="1rem"
-                ...${props}
-                > 
-                    <Container
-                        border-radius="2rem"
-                        border="5px solid #E5C07B"
-                        padding="0.6rem 1rem"
-                        font-size="1rem"
-                        background-color="white"
-                        row
-                        > 
-                            ${children}
-                    </Container>
-            </Container>
-        `
-    }
-    
-    function MainCategory({title, children, ...props}) {
-        for (const each of children) {
-            each.style.width = "90%"
-            each.style.fontSize = "1rem"
-            each.style.marginBottom = "1rem"
-            each.style.fontWeight = "300"
-            each.style.marginRight = "2rem"
+        
+        function Title({underline, thin, size, style, children, color, ...props}) {
+            style = {
+                flexGrow: 0,
+                fontSize: size||"1.5rem",
+                marginBottom: "0.7rem",
+                // add underline or not
+                ...(underline ? {
+                    borderBottom: "2px solid "+(color||"gray"),
+                    fontSize: size||"1.3rem",
+                }:{}),
+                ...(thin ? {
+                    fontWeight: 100,
+                }:{}),
+                ...(thin && underline ? {
+                    borderBottom: "1px solid "+(color||"gray"),
+                }:{}),
+                color,
+                ...style,
+                ...props,
+            }
+            const element = html`
+                <h3 ...${props} >
+                        ${children}
+                </h3>
+            `
+            // this next line shouldn't be necessary, I'm not sure why it is (but I know that it is)
+            Object.assign(element.style, style)
+            return element
         }
-        return html`
-            <Container>
-                <Title color="black" underline thin>
-                    ${title}
-                </Title>
-                <Container max-height="22rem" overflow=auto width=110% horizontalAlignment="center" >
-                    ${children}
+        
+        function Card({name, children, ...props}) {
+            return html`
+                <Container
+                    name=${name}
+                    border-radius="1rem"
+                    box-shadow="0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24)"
+                    padding="1.5rem 2rem"
+                    background="var(--card-background, white)"
+                    ...${props}
+                    >
+                        ${children}
                 </Container>
-            </Container>
-        `
-    }
+            `
+        }
+        
+        function Chip({name, color, children, ...props}) {
+            return html`
+                <Container
+                    name=${name}
+                    border-radius="2rem"
+                    padding="0.35rem 0.7rem"
+                    margin="0.15rem"
+                    background=${color||"rgba(255,255,255,0.25)"}
+                    backdrop-filter=${color?"":"saturate(180%) brightness(1.05)"}
+                    color="white"
+                    font-size="0.8rem"
+                    display="inline"
+                    ...${props}
+                    >
+                        ${children}
+                </Container>
+            `
+        }
+        
+        function AcheivementToken({children, ...props}) {
+            return html`
+                <Container
+                    border-radius="2rem"
+                    border="2px solid white"
+                    box-shadow="0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24)"
+                    margin-bottom="1rem"
+                    ...${props}
+                    > 
+                        <Container
+                            border-radius="2rem"
+                            border="5px solid #E5C07B"
+                            padding="0.6rem 1rem"
+                            font-size="1rem"
+                            background-color="white"
+                            row
+                            > 
+                                ${children}
+                        </Container>
+                </Container>
+            `
+        }
+        
+        function MainCategory({title, children, ...props}) {
+            for (const each of children) {
+                each.style.width = "90%"
+                each.style.fontSize = "1rem"
+                each.style.marginBottom = "1rem"
+                each.style.fontWeight = "300"
+                each.style.marginRight = "2rem"
+            }
+            return html`
+                <Container>
+                    <Title color="black" underline thin>
+                        ${title}
+                    </Title>
+                    <Container max-height="22rem" overflow=auto width=110% horizontalAlignment="center" >
+                        ${children}
+                    </Container>
+                </Container>
+            `
+        }
     
 })()</script>
