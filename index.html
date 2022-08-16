@@ -254,7 +254,8 @@
                                     <Card>
                                         <span>PhD: <b>Computer Science</b> </span>
                                         <span>Graduation Estimate: <b>2025</b></span>
-                                        <span>GPA: <b>4.0</b> (as of 2021)</span>
+                                        <span>University: <b>Texas A&M</b></span>
+                                        <span>GPA: <b>4.0</b> (as of 2022)</span>
                                         <span>Focus: <b>Reinforcement Learning</b></span>
                                     </Card>
                                     <Card>
@@ -266,6 +267,10 @@
                                 </MainCategory>
                                 
                                 <MainCategory title="Notable Projects">
+                                    <span style="display: none;">${`
+                                        (Poor man's comment b/c lib has bug with html comments)
+                                        TODO: add RoboMasters competition
+                                    `}</span>
                                     <Card>
                                         <Container row horizontalAlignment="space-between" width="100%">
                                             <Title size=0.95rem underline color="gray">iLab Website</Title>
@@ -380,9 +385,10 @@
                                     </Title>
                                     <Container name="Acheivements-Card" horizontalAlignment="left" color="var(--charcoal-on-charcoal)" margin-left="2.2rem">
                                         <AcheivementToken> Eagle Scout </AcheivementToken>
-                                        <AcheivementToken> Scrum / Agile Certification </AcheivementToken>
                                         <AcheivementToken> <a href="https://github.com/jeff-hykin/better-cpp-syntax">Extension</a><Space />with +9,000,000 Downloads </AcheivementToken>
+                                        <AcheivementToken> RoboMasters North American 2nd Place Team </AcheivementToken>
                                         <AcheivementToken> Maintainer of VS Code's<Space/><a href="https://github.com/jeff-hykin/better-cpp-syntax"> C++ Syntax</a> </AcheivementToken>
+                                        <AcheivementToken> Scrum Certification </AcheivementToken>
                                         <AcheivementToken> +40 Published Npm Packages  </AcheivementToken>
                                         <AcheivementToken> +100 Public GitHub Repos </AcheivementToken>
                                         <AcheivementToken> +5 Extensions with +10,000 Downloads </AcheivementToken>
@@ -410,7 +416,6 @@
                                                 flex-grow: 1;
                                             }
                                         </style>
-                                            ${/* <Container flex-grow=3> */null}
                                             <Container flex-grow=3>
                                                 <Card name="Human-Skills" margin=0.4rem row wrap background="#934773" horizontalAlignment="center">
                                                     <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
@@ -428,6 +433,7 @@
                                                     <Chip> Reinforcement Learning </Chip>
                                                     <Chip> Statistics </Chip>
                                                     <Chip> Web Development </Chip>
+                                                    <Chip> Robotics </Chip>
                                                     <Chip> UI Design </Chip>
                                                     <Chip> Deep Learning </Chip>
                                                     <Chip> Neurology </Chip>
@@ -435,9 +441,7 @@
                                                     <Chip> Scripting & Automation </Chip>
                                                 </Card>
                                             </Container>
-                                            ${/* </Container> */null}
                                             
-                                            ${/* <Container flex-grow=6> */null}
                                             <Container flex-grow=6>
                                                 
                                                 <Card margin=0.4rem row wrap background="#7a4793" horizontalAlignment="center">
@@ -486,7 +490,7 @@
                                                             <Chip>Chart.js</Chip>
                                                             <Chip>Parcel.js</Chip>
                                                             <Chip>Redux</Chip>
-                                                            <Chip color="transparent"><u>Npm Packages</u></Chip>
+                                                            <Chip color="transparent" min-width="100%" text-align="center"><u>Npm Packages</u></Chip>
                                                         </Container>
                                                     </Chip>
                                                     <Chip padding="0.6rem 1.1rem" max-width="100%" min-width="100%">
@@ -496,14 +500,13 @@
                                                             <Chip>pytorch</Chip>
                                                             <Chip>pandas</Chip>
                                                             <Chip>keras</Chip>
-                                                            <Chip color="transparent"><u>Pip Modules</u></Chip>
+                                                            <Chip color="transparent" min-width="100%" text-align="center"><u>Pip Modules</u></Chip>
                                                         </Container>
                                                     </Chip>
                                                     
                                                 </Card>
                                                 
                                             </Container>
-                                            ${/* </Container> */null}
                                         
                                     </Container>
                                 </Container>
