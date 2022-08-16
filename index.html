@@ -104,22 +104,23 @@
 <!--                -->
 <!-- The main code  -->
 <!--                -->
-<script type="module">;(async () => {
+<script type="module">//;(async () => {
     // 
     // 
     // Initialize
     // 
     // 
-        const ElementalLibrary = import("https://cdn.skypack.dev/@!!!!!/elemental@0.0.12")
-        const ContainerLibrary = import("https://cdn.skypack.dev/@!vanilla/container@v1.0.5")
-        
-        const { Elemental } = (await ElementalLibrary).default
+        // const ElementalLibrary = (await import("https://cdn.skypack.dev/@!!!!!/elemental@0.0.12")).default
+        // const ContainerLibrary = (await import("https://cdn.skypack.dev/@!vanilla/container@v1.0.5")).default
+        // inlined version of what is above
+        const [ ElementalLibrary, ContainerLibrary ] = (()=>{var e = "\uE000", t = "\uE001"; function o(r2) {  var p2, a1, l, s, c = arguments, i = this, n = 0, d = [], h = 0, u = [], f = 0;  d.root = true;  var g = function(e2, o2, r3) {  o2 === void 0 && (o2 = []);  var p3 = 0;  return (e2 = r3 || e2 !== t ? e2.replace(/\ue001/g, (e3)=>u[f++]  ) : u[f++].slice(1, -1)) ? (e2.replace(/\ue000/g, (t2, r4)=>(r4 && o2.push(e2.slice(p3, r4)), p3 = r4 + 1, o2.push(c[++h]))  ), p3 < e2.length && o2.push(e2.slice(p3)), o2.length > 1 ? o2 : o2[0]) : e2;  }, m = ()=>{  [d, s, ...p2] = d, d.push(i(s, ...p2));  };  return r2.join(e).replace(/<!--[^]*-->/g, "").replace(/<!\[CDATA\[[^]*\]\]>/g, "").replace(/('|")[^\1]*?\1/g, (e2)=>(u.push(e2), t)  ).replace(/\s+/g, " ").replace(/(?:^|>)([^<]*)(?:$|<)/g, (e2, t2, r3, p3)=>{  var c2, i2;  if (r3 && p3.slice(n, r3).replace(/(\S)\/$/, "$1 /").split(" ").map((e3, t3)=>{  if (e3[0] === "/") c2 = i2 || e3.slice(1) || 1;  else if (t3) {  if (e3) {  var r4 = d[2] || (d[2] = {});  e3.slice(0, 3) === "..." ? Object.assign(r4, arguments[++h]) : ([a1, l] = e3.split("="), r4[g(a1)] = !l || g(l));  }  } else {  for(i2 = g(e3); o.close[d[1] + i2];)m();  d = [  d,  i2,  null  ], o.empty[i2] && (c2 = i2);  }  }), c2) for(m(); s !== c2 && o.close[s];)m();  n = r3 + e2.length, t2 && t2 !== " " && g((s = 0, t2), d, true);  }), d.root || m(), d.length > 1 ? d : d[0]; } o.empty = {}, o.close = {}, "area base br col command embed hr img input keygen link meta param source track wbr ! !doctype ? ?xml".split(" ").map((e2)=>o.empty[e2] = o.empty[e2.toUpperCase()] = true ); var r = {  li: "",  dt: "dd",  dd: "dt",  p: "address article aside blockquote details div dl fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr main menu nav ol pre section table",  rt: "rp",  rp: "rt",  optgroup: "",  option: "optgroup",  caption: "tbody thead tfoot tr colgroup",  colgroup: "thead tbody tfoot tr caption",  thead: "tbody tfoot caption",  tbody: "tfoot caption",  tfoot: "caption",  tr: "tbody tfoot",  td: "th tr",  th: "td tr tbody" }, p = function(e2) {  [  ...r[e2].split(" "),  e2  ].map((t2)=>{  o.close[e2] = o.close[e2.toUpperCase()] = o.close[e2 + t2] = o.close[e2.toUpperCase() + t2] = o.close[e2 + t2.toUpperCase()] = o.close[e2.toUpperCase() + t2.toUpperCase()] = true;  }); }; for(var a in r)p(a); const xhtm = o; class Elemental {  constructor(components = {}, options = {}){  const { middleware: middleware2 , errorComponentFactory } = options;  this.components = components || {};  this.middleware = middleware2 || {};  this.errorComponentFactory = errorComponentFactory || defaultErrorComponentFactory;  this.html = xhtm.bind((...args)=>this.createElement(...args)  );  this.css = Elemental.css;  }  createElement(...args) {  Elemental.debug && console.debug(`args is:`, args);  for (const middleware2 of (this.middleware[Elemental.allTags] || []).concat(this.middleware[args[0]] || [])){  try {  args = eachMiddleWare(args);  } catch (error) {  console.error("[elemental] one of the middleware functions failed:", eachMiddleWare, args);  }  }  let [key, properties, ...children] = args;  Elemental.debug && console.debug(`key, properties, children is:`, key, properties, children);  if (this.components[key] instanceof Function) {  key = this.components[key];  }  if (key instanceof Function) {  let output;  try {  output = isConstructor(key) ? new key({  ...properties,  children  }) : key({  ...properties,  children  });  } catch (error) {  return this.errorComponentFactory({  ...properties,  children  }, key, error);  }  if (output instanceof Promise) {  const elementPromise = output;  const placeholder = elementPromise.placeholder || document.createElement("div");  setTimeout(async ()=>placeholder.replaceWith(await elementPromise)  , 0);  return placeholder;  } else {  return output;  }  }  const isSvg = Elemental.exclusivelySvgElements.has(key);  const element = isSvg ? document.createElementNS("http://www.w3.org/2000/svg", key) : document.createElement(key);  if (properties instanceof Object) {  for (const [key2, value] of Object.entries(properties)){  try {  if (isSvg) {  const kebabCase = key2.replace(/(?<=[a-z])([A-Z])(?=[a-z])/g, (each2)=>`-${each2.toLowerCase()}`  );  element.setAttribute(kebabCase, value);  } else {  element.setAttribute(key2.toLowerCase(), value);  }  } catch (error) {}  try {  element[key2] = value;  } catch (error1) {}  }  }  return appendChildren(element, ...children);  }  extend(additionalComponents = {}, options = {}) {  const { additionalMiddleware , ...other } = options;  return new Elemental({  ...this.components,  ...additionalComponents  }, {  middleware: {  ...this.middleware,  ...middleware  },  ...other  });  } } Elemental.allTags = Symbol.for("allTags"); Elemental.exclusivelySvgElements = new Set([  "svg",  "animate",  "animateMotion",  "animateTransform",  "circle",  "clipPath",  "defs",  "desc",  "discard",  "ellipse",  "feBlend",  "feColorMatrix",  "feComponentTransfer",  "feComposite",  "feConvolveMatrix",  "feDiffuseLighting",  "feDisplacementMap",  "feDistantLight",  "feDropShadow",  "feFlood",  "feFuncA",  "feFuncB",  "feFuncG",  "feFuncR",  "feGaussianBlur",  "feImage",  "feMerge",  "feMergeNode",  "feMorphology",  "feOffset",  "fePointLight",  "feSpecularLighting",  "feSpotLight",  "feTile",  "feTurbulence",  "filter",  "foreignObject",  "g",  "hatch",  "hatchpath",  "image",  "line",  "linearGradient",  "marker",  "mask",  "mesh",  "meshgradient",  "meshpatch",  "meshrow",  "metadata",  "mpath",  "path",  "pattern",  "polygon",  "polyline",  "radialGradient",  "rect",  "set",  "stop",  "switch",  "symbol",  "text",  "textPath",  "tspan",  "unknown",  "use",  "view" ]); Elemental.css = function(...args) {  const element = document.createElement("div");  if (args.length == 1) {  if (args instanceof Object) {  Object.assign(element.style, args);  }  } else if (args.length > 1) {  const [strings, ...values] = args;  let finalString = "";  for (const each2 of strings){  finalString += each2;  if (values.length > 0) {  finalString += `${values.shift()}`;  }  }  element.style = finalString;  }  return element.style; }; function appendChildren(element, ...children) {  for (const each2 of children){  if (typeof each2 == "string") {  element.appendChild(new window.Text(each2));  } else if (each2 == null) {  element.appendChild(new window.Text(""));  } else if (!(each2 instanceof Object)) {  element.appendChild(new window.Text(`${each2}`));  } else if (each2 instanceof Node) {  element.appendChild(each2);  } else if (each2 instanceof Array) {  appendChildren(element, ...each2);  } else if (each2 instanceof Function) {  appendChildren(element, each2());  } else if (each2 instanceof Promise) {  const elementPromise = each2;  const placeholder = elementPromise.placeholder || document.createElement("div");  setTimeout(async ()=>placeholder.replaceWith(await elementPromise)  , 0);  element.appendChild(placeholder);  } else if (each2 != null && each2 instanceof Object) {  element.appendChild(each2);  }  }  return element; } function defaultErrorComponentFactory({ children , ...properties }, key, error) {  const element = document.createElement("div");  const errorDetails = document.createElement("code");  const childContainer = document.createElement("div");  element.style.all = "unset";  element.style.display = "flex";  element.style.flexDirection = "column";  element.style.padding = "1.5rem";  element.style.backgroundColor = "#f5a5a8";  element.style.color = "white";  element.style.fontFamily = '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif';  element.style.fontSize = "18px";  element.style.fontWeight = "400";  element.style.overflow = "auto";  element.innerHTML = `I'm sorry, there was an error when loading this part of the page \u{1F641} `;  let errorElementPart;  if (typeof key == "string") {  errorElementPart = `<${key} />`;  } else {  try {  errorElementPart = `<${key.prototype.constructor.name} />`;  } catch (error2) {  errorElementPart = `<${key} />`;  }  }  let errorJsonObject = {};  for (const [key2, value] of Object.entries(properties)){  try {  errorJsonObject[key2] = JSON.parse(JSON.stringify(value));  } catch (error2) {  errorJsonObject[key2] = `${value}`;  }  }  errorDetails.innerHTML = `tag: ${errorElementPart} properties: ${JSON.stringify(errorJsonObject)} error: ${error}`;  errorDetails.style.padding = "1rem";  errorDetails.style.backgroundColor = "#161b22";  errorDetails.style.color = "#789896";  element.appendChild(errorDetails);  childContainer.style.all = "unset";  childContainer.style.display = "flex";  childContainer.style.flexDirection = "column";  childContainer.style.marginTop = "1.3rem";  if (children instanceof Array) {  for (const [key2, value] of Object.entries(children)){  if (typeof each == "string") {  childContainer.appendChild(new window.Text(value));  } else if (value instanceof Node) {  childContainer.appendChild(value);  }  }  }  element.appendChild(childContainer);  return element; } function isConstructor(obj) {  return !!obj.prototype && !!obj.prototype.constructor.name; } const originalHead = document.head; Object.defineProperty(document, "head", {  set: (element)=>appendChildren(originalHead, ...element.childNodes)  ,  get: ()=>originalHead }); const html = new Elemental().html; const css = Elemental.css; const allTags = Elemental.allTags; var ElementalLibrary = {  Elemental,  html,  css,  allTags }; const htmlEventHandlers = new Set([  "onabort",  "onanimationcancel",  "onanimationend",  "onanimationiteration",  "onanimationstart",  "onauxclick",  "onblur",  "onerror",  "onfocus",  "oncancel",  "oncanplay",  "oncanplaythrough",  "onchange",  "onclick",  "onclose",  "oncontextmenu",  "oncuechange",  "ondblclick",  "ondrag",  "ondragend",  "ondragenter",  "ondragleave",  "ondragover",  "ondragstart",  "ondrop",  "ondurationchange",  "onemptied",  "onended",  "onformdata",  "ongotpointercapture",  "oninput",  "oninvalid",  "onkeydown",  "onkeypress",  "onkeyup",  "onload",  "onloadeddata",  "onloadedmetadata",  "onloadend",  "onloadstart",  "onlostpointercapture",  "onmousedown",  "onmouseenter",  "onmouseleave",  "onmousemove",  "onmouseout",  "onmouseover",  "onmouseup",  "onmousewheel",  "onwheel",  "onpause",  "onplay",  "onplaying",  "onpointerdown",  "onpointermove",  "onpointerup",  "onpointercancel",  "onpointerover",  "onpointerout",  "onpointerenter",  "onpointerleave",  "onpointerlockchange",  "onpointerlockerror",  "onprogress",  "onratechange",  "onreset",  "onresize",  "onscroll",  "onsecuritypolicyviolation",  "onseeked",  "onseeking",  "onselect",  "onselectstart",  "onselectionchange",  "onshow",  "onslotchange",  "onstalled",  "onsubmit",  "onsuspend",  "ontimeupdate",  "onvolumechange",  "ontouchcancel",  "ontouchend",  "ontouchmove",  "ontouchstart",  "ontransitioncancel",  "ontransitionend",  "ontransitionrun",  "ontransitionstart",  "onwaiting" ]); const fixedAttributes = new Set([  "accept",  "accept-charset",  "accesskey",  "action",  "align",  "allow",  "alt",  "async",  "autocapitalize",  "autocomplete",  "autofocus",  "autoplay",  "background",  "bgcolor",  "border",  "buffered",  "capture",  "challenge",  "charset",  "checked",  "cite",  "class",  "code",  "codebase",  "color",  "cols",  "colspan",  "content",  "contenteditable",  "contextmenu",  "controls",  "coords",  "crossorigin",  "csp",  "data",  "datetime",  "decoding",  "default",  "defer",  "dir",  "dirname",  "disabled",  "download",  "draggable",  "enctype",  "enterkeyhint",  "for",  "form",  "formaction",  "formenctype",  "formmethod",  "formnovalidate",  "formtarget",  "headers",  "height",  "hidden",  "high",  "href",  "hreflang",  "http-equiv",  "icon",  "id",  "importance",  "integrity",  "intrinsicsize",  "inputmode",  "ismap",  "itemprop",  "keytype",  "kind",  "label",  "lang",  "language",  "loading",  "list",  "loop",  "low",  "manifest",  "max",  "maxlength",  "minlength",  "media",  "method",  "min",  "multiple",  "muted",  "name",  "novalidate",  "open",  "optimum",  "pattern",  "ping",  "placeholder",  "poster",  "preload",  "radiogroup",  "readonly",  "referrerpolicy",  "rel",  "required",  "reversed",  "rows",  "rowspan",  "sandbox",  "scope",  "scoped",  "selected",  "shape",  "size",  "sizes",  "slot",  "span",  "spellcheck",  "src",  "srcdoc",  "srclang",  "srcset",  "start",  "step",  "style",  "summary",  "tabindex",  "target",  "title",  "translate",  "type",  "usemap",  "value",  "width",  "wrap",  ...htmlEventHandlers ]); const isAnHtmlAttribute = (string)=>{  if (fixedAttributes.has(string)) {  return true;  } else if (string.startsWith("data-")) {  return true;  }  return false; }; const cssHmtlOverlap = new Set([  "width",  "height",  "background",  "border",  "color" ]); const splitHtmlCssAttributes = (object)=>{  const htmlAttributes = {};  const cssAttributes = {};  for (const [key, value] of Object.entries(object)){  if (cssHmtlOverlap.has(key)) {  htmlAttributes[key] = value;  cssAttributes[key] = value;  } else if (isAnHtmlAttribute(key)) {  htmlAttributes[key] = value;  } else {  cssAttributes[key] = value;  }  }  return [  htmlAttributes,  cssAttributes  ]; }; const computeDirection = (row, column, reverse)=>{  const output = row ? "row" : "column";  if (!reverse) {  return output;  } else {  return `${output}-reverse`;  } }; const humanPositionToCssPosition = (humanPosition)=>{  if (humanPosition === "relativeToParent") {  return "absolute";  } else if (humanPosition === "relativeToSelf") {  return "relative";  } else if (humanPosition === "relativeToWindow") {  return "fixed";  } else if (humanPosition === "sticky") {  return "sticky";  } else if (typeof humanPosition === "string") {  console.warn(`positionSelf needs to be one of [ 'relativeToParent', 'relativeToSelf', 'relativeToWindow', 'sticky' ] but instead it was: '${humanPosition}'`);  }  return void 0; }; const humanPositionToCssFlexbox = (humanWord)=>{  if (humanWord.match(/^(top|left)$/i)) {  return "flex-start";  } else if (humanWord.match(/^(bottom|right)$/i)) {  return "flex-end";  } else {  return humanWord;  } }; const columnAlignment = (horizontalAlignment, verticalAlignment, innerAlignment, wrap)=>{  if (!wrap) {  return {  justifyContent: verticalAlignment,  alignItems: horizontalAlignment  };  } else {  return {  justifyContent: verticalAlignment,  alignItems: innerAlignment,  alignContent: horizontalAlignment  };  } }; const rowAlignment = (horizontalAlignment, verticalAlignment, innerAlignment, wrap)=>{  if (!wrap) {  return {  justifyContent: horizontalAlignment,  alignItems: verticalAlignment  };  } else {  return {  justifyContent: horizontalAlignment,  alignItems: innerAlignment,  alignContent: verticalAlignment  };  } }; const computeFlexAlignmentAttributes = (directionIsRow, horizontalAlignment, verticalAlignment, innerAlignment, wrap)=>{  horizontalAlignment = humanPositionToCssFlexbox(horizontalAlignment);  verticalAlignment = humanPositionToCssFlexbox(verticalAlignment);  if (directionIsRow) {  return rowAlignment(horizontalAlignment, verticalAlignment, innerAlignment, wrap);  } else {  return columnAlignment(horizontalAlignment, verticalAlignment, innerAlignment, wrap);  } }; const setProperties = (element, properties)=>{  for (const [key, value] of Object.entries(properties)){  try {  const kebabCase = key.replace(/(?<=[a-z])([A-Z])(?=[a-z])/g, (each)=>`-${each.toLowerCase()}`  );  element.setAttribute(kebabCase, value);  } catch (error) {}  element[key] = value;  } }; const elementSymbol = Symbol.for("element"); function appendChildren1(element, ...children) {  for (const each of children){  if (typeof each == "string") {  element.appendChild(new window.Text(each));  } else if (each == null) {  element.appendChild(new window.Text(""));  } else if (!(each instanceof Object)) {  element.appendChild(new window.Text(`${each}`));  } else if (each[elementSymbol]) {  element.appendChild(each[elementSymbol]);  } else if (each instanceof Node) {  element.appendChild(each);  } else if (each instanceof Array) {  appendChildren1(element, ...each);  } else if (each instanceof Function) {  appendChildren1(element, each());  } else if (each instanceof Promise) {  const elementPromise = each;  const placeholder = elementPromise.placeholder || document.createElement("div");  setTimeout(async ()=>placeholder.replaceWith(await elementPromise)  , 0);  element.appendChild(placeholder);  } else if (each != null && each instanceof Object) {  element.appendChild(each);  }  }  return element; } var ContainerLibrary = ({ row , column , reverse , wrap , positionSelf ="relativeToSelf" , verticalAlignment ="top" , horizontalAlignment ="left" , innerAlignment ="center" , textWrapAlignment , children , ...props })=>{  const [htmlAttributes, cssAttributes] = splitHtmlCssAttributes(props);  const element = document.createElement("div");  Object.assign(element.style, {  position: humanPositionToCssPosition(positionSelf) || "relative",  display: "flex",  flexDirection: computeDirection(row, column, reverse),  flexWrap: wrap === "reverse" ? "wrap-reverse" : wrap && "wrap",  textAlign: textWrapAlignment || horizontalAlignment,  ...computeFlexAlignmentAttributes(row, horizontalAlignment, verticalAlignment, innerAlignment, wrap),  ...cssAttributes  });  setProperties(element, {  name: "positioner",  ...htmlAttributes  });  appendChildren1(element, children);  return element; }; return [ElementalLibrary, ContainerLibrary]})()
+        const { Elemental } = ElementalLibrary
     
         // 
         // Custom elements
         // 
         const { html } = new Elemental({
-            Container: (await ContainerLibrary).default,
+            Container: ContainerLibrary,
             Card,
             Chip,
             Title,
@@ -200,7 +201,7 @@
                             </Title>
                             
                             <Card width="100%" max-width=20rem padding="1rem 1.2rem" background-color="var(--charcoal-on-charcoal)" color="white" font-weight="100" margin-bottom=1rem >
-                                <Title underline size=16>
+                                <Title underline size="18pt">
                                     Dr. Guni Sharon
                                 </Title>
                                 <span>     Relation:<b> PhD Advisor          </b> </span>
@@ -208,7 +209,7 @@
                             </Card>
                             
                             <Card width="100%" max-width=20rem padding="1rem 1.2rem" background-color="var(--charcoal-on-charcoal)" color="white" font-weight="100" margin-bottom=1rem>
-                                <Title underline size=16>
+                                <Title underline size="18pt">
                                     Devin Rabon
                                 </Title>
                                 <span>     Relation: <b>HR at FrogSlayer Consulting</b> </span>
@@ -240,6 +241,9 @@
                                         margin-bottom: 3rem;
                                         flex-grow: 1;
                                         transform: translateX(1.5rem);
+                                        min-width: 15rem;
+                                        width: 19rem;
+                                        max-width: 27rem;
                                     }
                                     div[name="line"] {
                                         height: 1rem;
@@ -258,6 +262,83 @@
                                         <span>University: <b>Texas A&M</b></span>
                                         <span>GPA: <b>3.8</b></span>
                                         <span>Graduation: <b>2020</b></span>
+                                    </Card>
+                                </MainCategory>
+                                
+                                <MainCategory title="Notable Projects">
+                                    <Card>
+                                        <Container row horizontalAlignment="space-between" width="100%">
+                                            <Title size=0.95rem underline color="gray">iLab Website</Title>
+                                            <div style="min-width: 2rem;"/>
+                                            <span style="font-size: 0.86rem; font-weight: bold;" ><a href="https://drive.google.com/file/d/1Gnjfu19px7_KUCrCgwQz_xvv6KPRDzMT/view?t=0m46s"> Short Video Demo </a> </span>
+                                        </Container>
+                                        <span style="font-size: 0.85em;transform: translateX(1rem);">
+                                            <li>A Deep Learning course tool at Texas A&M</li>
+                                            <li>Sole developer (UX, frontend, backend, dev-ops)</li>
+                                            <li>Uses Vue, Node, Mongo DB</li>
+                                            <li>UI created from scratch</li>
+                                        </span>
+                                    </Card> 
+                                    <Card>
+                                        <Container row horizontalAlignment="space-between" width="100%">
+                                            <Title size=0.95rem underline color="gray">EFH (Software Consulting)</Title>
+                                            <div style="min-width: 2rem;"/>
+                                            <span style="font-size: 0.86rem; font-weight: bold;" >
+                                                <a href="https://jeffhykin.wixsite.com/resume/copy-of-work"> Full Details </a>
+                                            </span>
+                                        </Container>
+                                        <span style="font-size: 0.85em;transform: translateX(1rem);">
+                                            <li>1 of 5 core developers</li>
+                                            <li>>$1 million project</li>
+                                            <li>Scrum & Agile</li>
+                                            <li>
+                                                <span style="display: inline-block; vertical-align: top; max-width: 16rem">Significant contribution to 13 of 22 pages</span>
+                                            </li>
+                                        </span>
+                                    </Card>
+                                    <Card>
+                                        <Container row horizontalAlignment="space-between" width="100%">
+                                            <Title size=0.95rem underline color="gray">Vulnerabilities Visualized</Title>
+                                            <div style="min-width: 2rem;"/>
+                                            <span style="font-size: 0.86rem; font-weight: bold;" >
+                                                <a href="https://github.com/jeff-hykin/vulnerabilities_visualized">Repository</a>
+                                            </span>
+                                        </Container>
+                                        <span style="font-size: 0.85em;">
+                                            This project scraped data from both Github and <a href="https://www.cvedetails.com/">CVE Details</a>. The data was cross-linked and visualized to give insights on how vulnerabilities relate to code changes.
+                                        </span>
+                                    </Card>
+                                    <Card>
+                                        <Container row horizontalAlignment="space-between" width="100%">
+                                            <Title size=0.95rem underline color="gray">Human Computer Interaction Project</Title>
+                                            <div style="min-width: 2rem;"/>
+                                            <span style="font-size: 0.86rem; font-weight: bold;" >
+                                                <a href="https://jeff-hykin.github.io/hci-project/">link</a>
+                                            </span>
+                                        </Container>
+                                        
+                                        <span style="font-size: 0.85em;">
+                                            A week long project with the goal of demoing a creative way to show daily events
+                                        </span>
+                                    </Card>
+                                    <Card>
+                                        <Container row horizontalAlignment="space-between" width="100%">
+                                            <Title size=0.95rem underline color="gray">Resh</Title>
+                                            <div style="min-width: 2rem;"/>
+                                            <span style="font-size: 0.86rem; font-weight: bold;" >
+                                                <a href="https://github.com/jeff-hykin/resh">link</a>
+                                            </span>
+                                        </Container>
+                                        
+                                        <span style="font-size: 0.85em;">
+                                            A new kind of terminal application. A personal project that introduced me to Electron.js many years ago.
+                                        </span>
+                                    </Card>
+                                    <Card>
+                                        <span><a href="https://github.com/jeff-hykin/video_labeller">Realtime Video Annotater</a></span>
+                                    </Card>
+                                    <Card>
+                                        <span><a href="https://github.com/jeff-hykin/phrasify">Phrasify</a></span>
                                     </Card>
                                 </MainCategory>
                                 
@@ -281,34 +362,6 @@
                                         <span>Organization: <span style="max-width: 12rem; display: inline-block;"><b>FrogSlayer</b></span></span>
                                         <span>Role: <b>Software Dev</b></span>
                                         <span>Duration: <b>(Jan 2018 - Jan 2019)</b></span>
-                                    </Card>
-                                </MainCategory>
-                                
-                                <MainCategory title="Notable Projects">
-                                    <Card>
-                                        <Title size=0.95rem underline color="gray">EFH Project (Software Consulting)</Title>
-                                        <span style="color: gray;">
-                                            <li>1 of 5 core developers</li>
-                                            <li>>$1 million project</li>
-                                            <li>Scrum & Agile</li>
-                                            <li>
-                                                <span style="display: inline-block; vertical-align: top; max-width: 16rem">Significant contribution to 13 of the ~22 web pages</span>
-                                            </li>
-                                        </span>
-                                        <Container height="1rem" />
-                                        <a href="https://jeffhykin.wixsite.com/resume/copy-of-work"> Full Details </a>
-                                    </Card>
-                                    <Card>
-                                        <span> <a href="https://github.com/jeff-hykin/vulnerabilities_visualized"> Security/Viz Website </a> </span>
-                                    </Card>
-                                    <Card>
-                                        <span><a href="https://github.com/jeff-hykin/reinforcement_playground">Reinforcement Playground</a> </span>
-                                    </Card>
-                                    <Card>
-                                        <span><a href="https://github.com/jeff-hykin/video_labeller">Video Annotater</a></span>
-                                    </Card>
-                                    <Card>
-                                        <span>Phrasify</span>
                                     </Card>
                                 </MainCategory>
                                 
@@ -357,94 +410,100 @@
                                                 flex-grow: 1;
                                             }
                                         </style>
-                                        <Container flex-grow=3>
-                                            <Card name="Human-Skills" margin=0.4rem row wrap background="#934773" horizontalAlignment="center">
-                                                <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
-                                                    Human Skills
-                                                </Title>
-                                                <Chip> Public Speaking </Chip>
-                                                <Chip> Agile & Scrum </Chip>
-                                                <Chip title="(lead of 7/8 academic projects)"> Leadership </Chip>
-                                            </Card>
+                                            ${/* <Container flex-grow=3> */null}
+                                            <Container flex-grow=3>
+                                                <Card name="Human-Skills" margin=0.4rem row wrap background="#934773" horizontalAlignment="center">
+                                                    <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
+                                                        Human Skills
+                                                    </Title>
+                                                    <Chip> Public Speaking </Chip>
+                                                    <Chip> Agile & Scrum </Chip>
+                                                    <Chip title="(lead of 7/8 academic projects)"> Leadership </Chip>
+                                                </Card>
+                                                
+                                                <Card name="Technical-Areas" margin=0.4rem row wrap background="cornflowerblue" horizontalAlignment="center">
+                                                    <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
+                                                        Technical Areas
+                                                    </Title>
+                                                    <Chip> Reinforcement Learning </Chip>
+                                                    <Chip> Statistics </Chip>
+                                                    <Chip> Web Development </Chip>
+                                                    <Chip> UI Design </Chip>
+                                                    <Chip> Deep Learning </Chip>
+                                                    <Chip> Neurology </Chip>
+                                                    <Chip> Psychology </Chip>
+                                                    <Chip> Scripting & Automation </Chip>
+                                                </Card>
+                                            </Container>
+                                            ${/* </Container> */null}
                                             
-                                            <Card name="Technical-Areas" margin=0.4rem row wrap background="cornflowerblue" horizontalAlignment="center">
-                                                <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
-                                                    Technical Areas
-                                                </Title>
-                                                <Chip> Reinforcement Learning </Chip>
-                                                <Chip> Statistics </Chip>
-                                                <Chip> Web Development </Chip>
-                                                <Chip> UI Design </Chip>
-                                                <Chip> Deep Learning </Chip>
-                                                <Chip> Neurology </Chip>
-                                                <Chip> Psychology </Chip>
-                                                <Chip> Scripting & Automation </Chip>
-                                            </Card>
-                                        </Container>
-                                        
-                                        <Container flex-grow=6>
-                                            
-                                            <Card margin=0.4rem row wrap background="#7a4793" horizontalAlignment="center">
-                                                <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
-                                                    Programming Languages
-                                                </Title>
-                                                <Chip>Python</Chip>
-                                                <Chip>JavaScipt</Chip>
-                                                <Chip>C++</Chip>
-                                                <Chip>CSS</Chip>
-                                                <Chip>HTML</Chip>
-                                                <Chip>WASM</Chip>
-                                                <Chip>Rust</Chip>
-                                                <Chip>Ruby</Chip>
-                                                <Chip>Bash</Chip>
-                                                <Chip>Nix</Chip>
-                                                <Chip>Prolog</Chip>
-                                                <Chip>Java</Chip>
-                                                <Chip>C#</Chip>
-                                                <Chip>Haskell</Chip>
-                                                <Chip>Racket</Chip>
-                                                <Chip>Perl</Chip>
-                                                <Chip>Applescript</Chip>
-                                            </Card>
-                                            
-                                            <Card margin=0.4rem row wrap background="darkcyan" horizontalAlignment="center">
-                                                <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
-                                                    Specific Tools
-                                                </Title>
-                                                <Chip>Docker</Chip>
-                                                <Chip>Git</Chip>
-                                                <Chip>Node.js</Chip>
-                                                <Chip>IPFS</Chip>
-                                                <Chip>Zotero</Chip>
-                                                <Chip>Nix</Chip>
-                                                <Chip>Deno</Chip>
-                                                <Chip padding="0.6rem 1.1rem">
-                                                    <Container row wrap width=100% horizontalAlignment="center">
-                                                        <Chip color="transparent"><u> Pip Modules:</u></Chip>
-                                                        <Chip>numpy</Chip>
-                                                        <Chip>opencv</Chip>
-                                                        <Chip>pytorch</Chip>
-                                                        <Chip>pandas</Chip>
-                                                        <Chip>keras</Chip>
-                                                    </Container>
-                                                </Chip>
-                                                <Chip padding="0.6rem 1.1rem">
-                                                    <Container row wrap width=100% horizontalAlignment="center">
-                                                        <Chip color="transparent"><u>Npm Packages:</u></Chip>
-                                                        <Chip>React</Chip>
-                                                        <Chip>Vue</Chip>
-                                                        <Chip>Express.js</Chip>
-                                                        <Chip>Webpack</Chip>
-                                                        <Chip>SocketIO</Chip>
-                                                        <Chip>Lodash</Chip>
-                                                        <Chip>Babel</Chip>
-                                                        <Chip>Chart.js</Chip>
-                                                    </Container>
-                                                </Chip>
-                                            </Card>
-                                            
-                                            
-                                        </Container>
+                                            ${/* <Container flex-grow=6> */null}
+                                            <Container flex-grow=6>
+                                                
+                                                <Card margin=0.4rem row wrap background="#7a4793" horizontalAlignment="center">
+                                                    <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
+                                                        Programming Languages
+                                                    </Title>
+                                                    <Chip>Python</Chip>
+                                                    <Chip>JavaScipt</Chip>
+                                                    <Chip>C++</Chip>
+                                                    <Chip>CSS</Chip>
+                                                    <Chip>HTML</Chip>
+                                                    <Chip>WASM</Chip>
+                                                    <Chip>Rust</Chip>
+                                                    <Chip>Ruby</Chip>
+                                                    <Chip>Bash</Chip>
+                                                    <Chip>Nix</Chip>
+                                                    <Chip>Prolog</Chip>
+                                                    <Chip>Java</Chip>
+                                                    <Chip>C#</Chip>
+                                                    <Chip>Haskell</Chip>
+                                                    <Chip>Racket</Chip>
+                                                    <Chip>Perl</Chip>
+                                                    <Chip>Applescript</Chip>
+                                                </Card>
+                                                
+                                                <Card margin=0.4rem row wrap background="darkcyan" horizontalAlignment="center">
+                                                    <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
+                                                        Specific Tools
+                                                    </Title>
+                                                    <Chip>Git</Chip>
+                                                    <Chip>Node.js</Chip>
+                                                    <Chip>Docker</Chip>
+                                                    <Chip>Mongo DB</Chip>
+                                                    <Chip>Electron</Chip>
+                                                    <Chip>Deno</Chip>
+                                                    <Chip>Nix</Chip>
+                                                    <Chip padding="0.6rem 1.1rem" max-width="100%" min-width="100%">
+                                                        <Container row wrap width=100% horizontalAlignment="center">
+                                                            <Chip>React</Chip>
+                                                            <Chip>Vue</Chip>
+                                                            <Chip>Webpack</Chip>
+                                                            <Chip>Babel</Chip>
+                                                            <Chip>Express.js</Chip>
+                                                            <Chip>SocketIO</Chip>
+                                                            <Chip>Lodash</Chip>
+                                                            <Chip>Chart.js</Chip>
+                                                            <Chip>Parcel.js</Chip>
+                                                            <Chip>Redux</Chip>
+                                                            <Chip color="transparent"><u>Npm Packages</u></Chip>
+                                                        </Container>
+                                                    </Chip>
+                                                    <Chip padding="0.6rem 1.1rem" max-width="100%" min-width="100%">
+                                                        <Container row wrap width=100% horizontalAlignment="center">
+                                                            <Chip>numpy</Chip>
+                                                            <Chip>opencv</Chip>
+                                                            <Chip>pytorch</Chip>
+                                                            <Chip>pandas</Chip>
+                                                            <Chip>keras</Chip>
+                                                            <Chip color="transparent"><u>Pip Modules</u></Chip>
+                                                        </Container>
+                                                    </Chip>
+                                                    
+                                                </Card>
+                                                
+                                            </Container>
+                                            ${/* </Container> */null}
                                         
                                     </Container>
                                 </Container>
@@ -464,7 +523,7 @@
         function Space() {
             const element = document.createElement("code")
             element.style.whiteSpace = "pre"
-            element.innerHTML = " "
+            element.style.minWidth = "0.3em"
             return element
         }
         
@@ -489,9 +548,9 @@
                 ...props,
             }
             const element = html`
-                <h3 ...${props} >
+                <h4 ...${props} >
                         ${children}
-                </h3>
+                </h4>
             `
             // this next line shouldn't be necessary, I'm not sure why it is (but I know that it is)
             Object.assign(element.style, style)
@@ -524,7 +583,10 @@
                     backdrop-filter=${color?"":"saturate(180%) brightness(1.05)"}
                     color="white"
                     font-size="0.8rem"
-                    display="inline"
+                    display="inline-block"
+                    max-width="max-content"
+                    min-width="max-content"
+                    cursor="default"
                     ...${props}
                     >
                         ${children}
@@ -562,6 +624,7 @@
                 each.style.marginBottom = "1rem"
                 each.style.fontWeight = "300"
                 each.style.marginRight = "2rem"
+                each.style.maxWidth = "27rem"
             }
             return html`
                 <Container>
@@ -575,4 +638,5 @@
             `
         }
     
-})()</script>
+// })()
+</script>
