@@ -42,7 +42,7 @@
             --decent-color-23: blueviolet;
         }
         body {
-            font-size: 0.9rem;
+            font-size: 0.9em;
             font-family: Roboto;
         }
         .animate {
@@ -56,10 +56,10 @@
             box-shadow: 0 8px 17px 2px rgba(0,0,0,0.10),0 6px 30px 5px rgba(0,0,0,0.08),0 8px 10px -7px rgba(0,0,0,0.16);
         }
         button {
-            border-radius: 1rem;
+            border-radius: 1em;
             border: none;
             background-color: cornflowerblue;
-            padding: 0.5rem 1rem;
+            padding: 0.5em 1em;
             color: white;
         }
         a {
@@ -113,7 +113,7 @@
         // const ElementalLibrary = (await import("https://cdn.skypack.dev/@!!!!!/elemental@0.0.12")).default
         // const ContainerLibrary = (await import("https://cdn.skypack.dev/@!vanilla/container@v1.0.5")).default
         // inlined version of what is above
-        const [ ElementalLibrary, ContainerLibrary ] = (()=>{var e = "\uE000", t = "\uE001"; function o(r2) {  var p2, a1, l, s, c = arguments, i = this, n = 0, d = [], h = 0, u = [], f = 0;  d.root = true;  var g = function(e2, o2, r3) {  o2 === void 0 && (o2 = []);  var p3 = 0;  return (e2 = r3 || e2 !== t ? e2.replace(/\ue001/g, (e3)=>u[f++]  ) : u[f++].slice(1, -1)) ? (e2.replace(/\ue000/g, (t2, r4)=>(r4 && o2.push(e2.slice(p3, r4)), p3 = r4 + 1, o2.push(c[++h]))  ), p3 < e2.length && o2.push(e2.slice(p3)), o2.length > 1 ? o2 : o2[0]) : e2;  }, m = ()=>{  [d, s, ...p2] = d, d.push(i(s, ...p2));  };  return r2.join(e).replace(/<!--[^]*-->/g, "").replace(/<!\[CDATA\[[^]*\]\]>/g, "").replace(/('|")[^\1]*?\1/g, (e2)=>(u.push(e2), t)  ).replace(/\s+/g, " ").replace(/(?:^|>)([^<]*)(?:$|<)/g, (e2, t2, r3, p3)=>{  var c2, i2;  if (r3 && p3.slice(n, r3).replace(/(\S)\/$/, "$1 /").split(" ").map((e3, t3)=>{  if (e3[0] === "/") c2 = i2 || e3.slice(1) || 1;  else if (t3) {  if (e3) {  var r4 = d[2] || (d[2] = {});  e3.slice(0, 3) === "..." ? Object.assign(r4, arguments[++h]) : ([a1, l] = e3.split("="), r4[g(a1)] = !l || g(l));  }  } else {  for(i2 = g(e3); o.close[d[1] + i2];)m();  d = [  d,  i2,  null  ], o.empty[i2] && (c2 = i2);  }  }), c2) for(m(); s !== c2 && o.close[s];)m();  n = r3 + e2.length, t2 && t2 !== " " && g((s = 0, t2), d, true);  }), d.root || m(), d.length > 1 ? d : d[0]; } o.empty = {}, o.close = {}, "area base br col command embed hr img input keygen link meta param source track wbr ! !doctype ? ?xml".split(" ").map((e2)=>o.empty[e2] = o.empty[e2.toUpperCase()] = true ); var r = {  li: "",  dt: "dd",  dd: "dt",  p: "address article aside blockquote details div dl fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr main menu nav ol pre section table",  rt: "rp",  rp: "rt",  optgroup: "",  option: "optgroup",  caption: "tbody thead tfoot tr colgroup",  colgroup: "thead tbody tfoot tr caption",  thead: "tbody tfoot caption",  tbody: "tfoot caption",  tfoot: "caption",  tr: "tbody tfoot",  td: "th tr",  th: "td tr tbody" }, p = function(e2) {  [  ...r[e2].split(" "),  e2  ].map((t2)=>{  o.close[e2] = o.close[e2.toUpperCase()] = o.close[e2 + t2] = o.close[e2.toUpperCase() + t2] = o.close[e2 + t2.toUpperCase()] = o.close[e2.toUpperCase() + t2.toUpperCase()] = true;  }); }; for(var a in r)p(a); const xhtm = o; class Elemental {  constructor(components = {}, options = {}){  const { middleware: middleware2 , errorComponentFactory } = options;  this.components = components || {};  this.middleware = middleware2 || {};  this.errorComponentFactory = errorComponentFactory || defaultErrorComponentFactory;  this.html = xhtm.bind((...args)=>this.createElement(...args)  );  this.css = Elemental.css;  }  createElement(...args) {  Elemental.debug && console.debug(`args is:`, args);  for (const middleware2 of (this.middleware[Elemental.allTags] || []).concat(this.middleware[args[0]] || [])){  try {  args = eachMiddleWare(args);  } catch (error) {  console.error("[elemental] one of the middleware functions failed:", eachMiddleWare, args);  }  }  let [key, properties, ...children] = args;  Elemental.debug && console.debug(`key, properties, children is:`, key, properties, children);  if (this.components[key] instanceof Function) {  key = this.components[key];  }  if (key instanceof Function) {  let output;  try {  output = isConstructor(key) ? new key({  ...properties,  children  }) : key({  ...properties,  children  });  } catch (error) {  return this.errorComponentFactory({  ...properties,  children  }, key, error);  }  if (output instanceof Promise) {  const elementPromise = output;  const placeholder = elementPromise.placeholder || document.createElement("div");  setTimeout(async ()=>placeholder.replaceWith(await elementPromise)  , 0);  return placeholder;  } else {  return output;  }  }  const isSvg = Elemental.exclusivelySvgElements.has(key);  const element = isSvg ? document.createElementNS("http://www.w3.org/2000/svg", key) : document.createElement(key);  if (properties instanceof Object) {  for (const [key2, value] of Object.entries(properties)){  try {  if (isSvg) {  const kebabCase = key2.replace(/(?<=[a-z])([A-Z])(?=[a-z])/g, (each2)=>`-${each2.toLowerCase()}`  );  element.setAttribute(kebabCase, value);  } else {  element.setAttribute(key2.toLowerCase(), value);  }  } catch (error) {}  try {  element[key2] = value;  } catch (error1) {}  }  }  return appendChildren(element, ...children);  }  extend(additionalComponents = {}, options = {}) {  const { additionalMiddleware , ...other } = options;  return new Elemental({  ...this.components,  ...additionalComponents  }, {  middleware: {  ...this.middleware,  ...middleware  },  ...other  });  } } Elemental.allTags = Symbol.for("allTags"); Elemental.exclusivelySvgElements = new Set([  "svg",  "animate",  "animateMotion",  "animateTransform",  "circle",  "clipPath",  "defs",  "desc",  "discard",  "ellipse",  "feBlend",  "feColorMatrix",  "feComponentTransfer",  "feComposite",  "feConvolveMatrix",  "feDiffuseLighting",  "feDisplacementMap",  "feDistantLight",  "feDropShadow",  "feFlood",  "feFuncA",  "feFuncB",  "feFuncG",  "feFuncR",  "feGaussianBlur",  "feImage",  "feMerge",  "feMergeNode",  "feMorphology",  "feOffset",  "fePointLight",  "feSpecularLighting",  "feSpotLight",  "feTile",  "feTurbulence",  "filter",  "foreignObject",  "g",  "hatch",  "hatchpath",  "image",  "line",  "linearGradient",  "marker",  "mask",  "mesh",  "meshgradient",  "meshpatch",  "meshrow",  "metadata",  "mpath",  "path",  "pattern",  "polygon",  "polyline",  "radialGradient",  "rect",  "set",  "stop",  "switch",  "symbol",  "text",  "textPath",  "tspan",  "unknown",  "use",  "view" ]); Elemental.css = function(...args) {  const element = document.createElement("div");  if (args.length == 1) {  if (args instanceof Object) {  Object.assign(element.style, args);  }  } else if (args.length > 1) {  const [strings, ...values] = args;  let finalString = "";  for (const each2 of strings){  finalString += each2;  if (values.length > 0) {  finalString += `${values.shift()}`;  }  }  element.style = finalString;  }  return element.style; }; function appendChildren(element, ...children) {  for (const each2 of children){  if (typeof each2 == "string") {  element.appendChild(new window.Text(each2));  } else if (each2 == null) {  element.appendChild(new window.Text(""));  } else if (!(each2 instanceof Object)) {  element.appendChild(new window.Text(`${each2}`));  } else if (each2 instanceof Node) {  element.appendChild(each2);  } else if (each2 instanceof Array) {  appendChildren(element, ...each2);  } else if (each2 instanceof Function) {  appendChildren(element, each2());  } else if (each2 instanceof Promise) {  const elementPromise = each2;  const placeholder = elementPromise.placeholder || document.createElement("div");  setTimeout(async ()=>placeholder.replaceWith(await elementPromise)  , 0);  element.appendChild(placeholder);  } else if (each2 != null && each2 instanceof Object) {  element.appendChild(each2);  }  }  return element; } function defaultErrorComponentFactory({ children , ...properties }, key, error) {  const element = document.createElement("div");  const errorDetails = document.createElement("code");  const childContainer = document.createElement("div");  element.style.all = "unset";  element.style.display = "flex";  element.style.flexDirection = "column";  element.style.padding = "1.5rem";  element.style.backgroundColor = "#f5a5a8";  element.style.color = "white";  element.style.fontFamily = '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif';  element.style.fontSize = "18px";  element.style.fontWeight = "400";  element.style.overflow = "auto";  element.innerHTML = `I'm sorry, there was an error when loading this part of the page \u{1F641} `;  let errorElementPart;  if (typeof key == "string") {  errorElementPart = `<${key} />`;  } else {  try {  errorElementPart = `<${key.prototype.constructor.name} />`;  } catch (error2) {  errorElementPart = `<${key} />`;  }  }  let errorJsonObject = {};  for (const [key2, value] of Object.entries(properties)){  try {  errorJsonObject[key2] = JSON.parse(JSON.stringify(value));  } catch (error2) {  errorJsonObject[key2] = `${value}`;  }  }  errorDetails.innerHTML = `tag: ${errorElementPart} properties: ${JSON.stringify(errorJsonObject)} error: ${error}`;  errorDetails.style.padding = "1rem";  errorDetails.style.backgroundColor = "#161b22";  errorDetails.style.color = "#789896";  element.appendChild(errorDetails);  childContainer.style.all = "unset";  childContainer.style.display = "flex";  childContainer.style.flexDirection = "column";  childContainer.style.marginTop = "1.3rem";  if (children instanceof Array) {  for (const [key2, value] of Object.entries(children)){  if (typeof each == "string") {  childContainer.appendChild(new window.Text(value));  } else if (value instanceof Node) {  childContainer.appendChild(value);  }  }  }  element.appendChild(childContainer);  return element; } function isConstructor(obj) {  return !!obj.prototype && !!obj.prototype.constructor.name; } const originalHead = document.head; Object.defineProperty(document, "head", {  set: (element)=>appendChildren(originalHead, ...element.childNodes)  ,  get: ()=>originalHead }); const html = new Elemental().html; const css = Elemental.css; const allTags = Elemental.allTags; var ElementalLibrary = {  Elemental,  html,  css,  allTags }; const htmlEventHandlers = new Set([  "onabort",  "onanimationcancel",  "onanimationend",  "onanimationiteration",  "onanimationstart",  "onauxclick",  "onblur",  "onerror",  "onfocus",  "oncancel",  "oncanplay",  "oncanplaythrough",  "onchange",  "onclick",  "onclose",  "oncontextmenu",  "oncuechange",  "ondblclick",  "ondrag",  "ondragend",  "ondragenter",  "ondragleave",  "ondragover",  "ondragstart",  "ondrop",  "ondurationchange",  "onemptied",  "onended",  "onformdata",  "ongotpointercapture",  "oninput",  "oninvalid",  "onkeydown",  "onkeypress",  "onkeyup",  "onload",  "onloadeddata",  "onloadedmetadata",  "onloadend",  "onloadstart",  "onlostpointercapture",  "onmousedown",  "onmouseenter",  "onmouseleave",  "onmousemove",  "onmouseout",  "onmouseover",  "onmouseup",  "onmousewheel",  "onwheel",  "onpause",  "onplay",  "onplaying",  "onpointerdown",  "onpointermove",  "onpointerup",  "onpointercancel",  "onpointerover",  "onpointerout",  "onpointerenter",  "onpointerleave",  "onpointerlockchange",  "onpointerlockerror",  "onprogress",  "onratechange",  "onreset",  "onresize",  "onscroll",  "onsecuritypolicyviolation",  "onseeked",  "onseeking",  "onselect",  "onselectstart",  "onselectionchange",  "onshow",  "onslotchange",  "onstalled",  "onsubmit",  "onsuspend",  "ontimeupdate",  "onvolumechange",  "ontouchcancel",  "ontouchend",  "ontouchmove",  "ontouchstart",  "ontransitioncancel",  "ontransitionend",  "ontransitionrun",  "ontransitionstart",  "onwaiting" ]); const fixedAttributes = new Set([  "accept",  "accept-charset",  "accesskey",  "action",  "align",  "allow",  "alt",  "async",  "autocapitalize",  "autocomplete",  "autofocus",  "autoplay",  "background",  "bgcolor",  "border",  "buffered",  "capture",  "challenge",  "charset",  "checked",  "cite",  "class",  "code",  "codebase",  "color",  "cols",  "colspan",  "content",  "contenteditable",  "contextmenu",  "controls",  "coords",  "crossorigin",  "csp",  "data",  "datetime",  "decoding",  "default",  "defer",  "dir",  "dirname",  "disabled",  "download",  "draggable",  "enctype",  "enterkeyhint",  "for",  "form",  "formaction",  "formenctype",  "formmethod",  "formnovalidate",  "formtarget",  "headers",  "height",  "hidden",  "high",  "href",  "hreflang",  "http-equiv",  "icon",  "id",  "importance",  "integrity",  "intrinsicsize",  "inputmode",  "ismap",  "itemprop",  "keytype",  "kind",  "label",  "lang",  "language",  "loading",  "list",  "loop",  "low",  "manifest",  "max",  "maxlength",  "minlength",  "media",  "method",  "min",  "multiple",  "muted",  "name",  "novalidate",  "open",  "optimum",  "pattern",  "ping",  "placeholder",  "poster",  "preload",  "radiogroup",  "readonly",  "referrerpolicy",  "rel",  "required",  "reversed",  "rows",  "rowspan",  "sandbox",  "scope",  "scoped",  "selected",  "shape",  "size",  "sizes",  "slot",  "span",  "spellcheck",  "src",  "srcdoc",  "srclang",  "srcset",  "start",  "step",  "style",  "summary",  "tabindex",  "target",  "title",  "translate",  "type",  "usemap",  "value",  "width",  "wrap",  ...htmlEventHandlers ]); const isAnHtmlAttribute = (string)=>{  if (fixedAttributes.has(string)) {  return true;  } else if (string.startsWith("data-")) {  return true;  }  return false; }; const cssHmtlOverlap = new Set([  "width",  "height",  "background",  "border",  "color" ]); const splitHtmlCssAttributes = (object)=>{  const htmlAttributes = {};  const cssAttributes = {};  for (const [key, value] of Object.entries(object)){  if (cssHmtlOverlap.has(key)) {  htmlAttributes[key] = value;  cssAttributes[key] = value;  } else if (isAnHtmlAttribute(key)) {  htmlAttributes[key] = value;  } else {  cssAttributes[key] = value;  }  }  return [  htmlAttributes,  cssAttributes  ]; }; const computeDirection = (row, column, reverse)=>{  const output = row ? "row" : "column";  if (!reverse) {  return output;  } else {  return `${output}-reverse`;  } }; const humanPositionToCssPosition = (humanPosition)=>{  if (humanPosition === "relativeToParent") {  return "absolute";  } else if (humanPosition === "relativeToSelf") {  return "relative";  } else if (humanPosition === "relativeToWindow") {  return "fixed";  } else if (humanPosition === "sticky") {  return "sticky";  } else if (typeof humanPosition === "string") {  console.warn(`positionSelf needs to be one of [ 'relativeToParent', 'relativeToSelf', 'relativeToWindow', 'sticky' ] but instead it was: '${humanPosition}'`);  }  return void 0; }; const humanPositionToCssFlexbox = (humanWord)=>{  if (humanWord.match(/^(top|left)$/i)) {  return "flex-start";  } else if (humanWord.match(/^(bottom|right)$/i)) {  return "flex-end";  } else {  return humanWord;  } }; const columnAlignment = (horizontalAlignment, verticalAlignment, innerAlignment, wrap)=>{  if (!wrap) {  return {  justifyContent: verticalAlignment,  alignItems: horizontalAlignment  };  } else {  return {  justifyContent: verticalAlignment,  alignItems: innerAlignment,  alignContent: horizontalAlignment  };  } }; const rowAlignment = (horizontalAlignment, verticalAlignment, innerAlignment, wrap)=>{  if (!wrap) {  return {  justifyContent: horizontalAlignment,  alignItems: verticalAlignment  };  } else {  return {  justifyContent: horizontalAlignment,  alignItems: innerAlignment,  alignContent: verticalAlignment  };  } }; const computeFlexAlignmentAttributes = (directionIsRow, horizontalAlignment, verticalAlignment, innerAlignment, wrap)=>{  horizontalAlignment = humanPositionToCssFlexbox(horizontalAlignment);  verticalAlignment = humanPositionToCssFlexbox(verticalAlignment);  if (directionIsRow) {  return rowAlignment(horizontalAlignment, verticalAlignment, innerAlignment, wrap);  } else {  return columnAlignment(horizontalAlignment, verticalAlignment, innerAlignment, wrap);  } }; const setProperties = (element, properties)=>{  for (const [key, value] of Object.entries(properties)){  try {  const kebabCase = key.replace(/(?<=[a-z])([A-Z])(?=[a-z])/g, (each)=>`-${each.toLowerCase()}`  );  element.setAttribute(kebabCase, value);  } catch (error) {}  element[key] = value;  } }; const elementSymbol = Symbol.for("element"); function appendChildren1(element, ...children) {  for (const each of children){  if (typeof each == "string") {  element.appendChild(new window.Text(each));  } else if (each == null) {  element.appendChild(new window.Text(""));  } else if (!(each instanceof Object)) {  element.appendChild(new window.Text(`${each}`));  } else if (each[elementSymbol]) {  element.appendChild(each[elementSymbol]);  } else if (each instanceof Node) {  element.appendChild(each);  } else if (each instanceof Array) {  appendChildren1(element, ...each);  } else if (each instanceof Function) {  appendChildren1(element, each());  } else if (each instanceof Promise) {  const elementPromise = each;  const placeholder = elementPromise.placeholder || document.createElement("div");  setTimeout(async ()=>placeholder.replaceWith(await elementPromise)  , 0);  element.appendChild(placeholder);  } else if (each != null && each instanceof Object) {  element.appendChild(each);  }  }  return element; } var ContainerLibrary = ({ row , column , reverse , wrap , positionSelf ="relativeToSelf" , verticalAlignment ="top" , horizontalAlignment ="left" , innerAlignment ="center" , textWrapAlignment , children , ...props })=>{  const [htmlAttributes, cssAttributes] = splitHtmlCssAttributes(props);  const element = document.createElement("div");  Object.assign(element.style, {  position: humanPositionToCssPosition(positionSelf) || "relative",  display: "flex",  flexDirection: computeDirection(row, column, reverse),  flexWrap: wrap === "reverse" ? "wrap-reverse" : wrap && "wrap",  textAlign: textWrapAlignment || horizontalAlignment,  ...computeFlexAlignmentAttributes(row, horizontalAlignment, verticalAlignment, innerAlignment, wrap),  ...cssAttributes  });  setProperties(element, {  name: "positioner",  ...htmlAttributes  });  appendChildren1(element, children);  return element; }; return [ElementalLibrary, ContainerLibrary]})()
+        const [ ElementalLibrary, ContainerLibrary ] = (()=>{var e = "\uE000", t = "\uE001"; function o(r2) {  var p2, a1, l, s, c = arguments, i = this, n = 0, d = [], h = 0, u = [], f = 0;  d.root = true;  var g = function(e2, o2, r3) {  o2 === void 0 && (o2 = []);  var p3 = 0;  return (e2 = r3 || e2 !== t ? e2.replace(/\ue001/g, (e3)=>u[f++]  ) : u[f++].slice(1, -1)) ? (e2.replace(/\ue000/g, (t2, r4)=>(r4 && o2.push(e2.slice(p3, r4)), p3 = r4 + 1, o2.push(c[++h]))  ), p3 < e2.length && o2.push(e2.slice(p3)), o2.length > 1 ? o2 : o2[0]) : e2;  }, m = ()=>{  [d, s, ...p2] = d, d.push(i(s, ...p2));  };  return r2.join(e).replace(/<!--[^]*-->/g, "").replace(/<!\[CDATA\[[^]*\]\]>/g, "").replace(/('|")[^\1]*?\1/g, (e2)=>(u.push(e2), t)  ).replace(/\s+/g, " ").replace(/(?:^|>)([^<]*)(?:$|<)/g, (e2, t2, r3, p3)=>{  var c2, i2;  if (r3 && p3.slice(n, r3).replace(/(\S)\/$/, "$1 /").split(" ").map((e3, t3)=>{  if (e3[0] === "/") c2 = i2 || e3.slice(1) || 1;  else if (t3) {  if (e3) {  var r4 = d[2] || (d[2] = {});  e3.slice(0, 3) === "..." ? Object.assign(r4, arguments[++h]) : ([a1, l] = e3.split("="), r4[g(a1)] = !l || g(l));  }  } else {  for(i2 = g(e3); o.close[d[1] + i2];)m();  d = [  d,  i2,  null  ], o.empty[i2] && (c2 = i2);  }  }), c2) for(m(); s !== c2 && o.close[s];)m();  n = r3 + e2.length, t2 && t2 !== " " && g((s = 0, t2), d, true);  }), d.root || m(), d.length > 1 ? d : d[0]; } o.empty = {}, o.close = {}, "area base br col command embed hr img input keygen link meta param source track wbr ! !doctype ? ?xml".split(" ").map((e2)=>o.empty[e2] = o.empty[e2.toUpperCase()] = true ); var r = {  li: "",  dt: "dd",  dd: "dt",  p: "address article aside blockquote details div dl fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr main menu nav ol pre section table",  rt: "rp",  rp: "rt",  optgroup: "",  option: "optgroup",  caption: "tbody thead tfoot tr colgroup",  colgroup: "thead tbody tfoot tr caption",  thead: "tbody tfoot caption",  tbody: "tfoot caption",  tfoot: "caption",  tr: "tbody tfoot",  td: "th tr",  th: "td tr tbody" }, p = function(e2) {  [  ...r[e2].split(" "),  e2  ].map((t2)=>{  o.close[e2] = o.close[e2.toUpperCase()] = o.close[e2 + t2] = o.close[e2.toUpperCase() + t2] = o.close[e2 + t2.toUpperCase()] = o.close[e2.toUpperCase() + t2.toUpperCase()] = true;  }); }; for(var a in r)p(a); const xhtm = o; class Elemental {  constructor(components = {}, options = {}){  const { middleware: middleware2 , errorComponentFactory } = options;  this.components = components || {};  this.middleware = middleware2 || {};  this.errorComponentFactory = errorComponentFactory || defaultErrorComponentFactory;  this.html = xhtm.bind((...args)=>this.createElement(...args)  );  this.css = Elemental.css;  }  createElement(...args) {  Elemental.debug && console.debug(`args is:`, args);  for (const middleware2 of (this.middleware[Elemental.allTags] || []).concat(this.middleware[args[0]] || [])){  try {  args = eachMiddleWare(args);  } catch (error) {  console.error("[elemental] one of the middleware functions failed:", eachMiddleWare, args);  }  }  let [key, properties, ...children] = args;  Elemental.debug && console.debug(`key, properties, children is:`, key, properties, children);  if (this.components[key] instanceof Function) {  key = this.components[key];  }  if (key instanceof Function) {  let output;  try {  output = isConstructor(key) ? new key({  ...properties,  children  }) : key({  ...properties,  children  });  } catch (error) {  return this.errorComponentFactory({  ...properties,  children  }, key, error);  }  if (output instanceof Promise) {  const elementPromise = output;  const placeholder = elementPromise.placeholder || document.createElement("div");  setTimeout(async ()=>placeholder.replaceWith(await elementPromise)  , 0);  return placeholder;  } else {  return output;  }  }  const isSvg = Elemental.exclusivelySvgElements.has(key);  const element = isSvg ? document.createElementNS("http://www.w3.org/2000/svg", key) : document.createElement(key);  if (properties instanceof Object) {  for (const [key2, value] of Object.entries(properties)){  try {  if (isSvg) {  const kebabCase = key2.replace(/(?<=[a-z])([A-Z])(?=[a-z])/g, (each2)=>`-${each2.toLowerCase()}`  );  element.setAttribute(kebabCase, value);  } else {  element.setAttribute(key2.toLowerCase(), value);  }  } catch (error) {}  try {  element[key2] = value;  } catch (error1) {}  }  }  return appendChildren(element, ...children);  }  extend(additionalComponents = {}, options = {}) {  const { additionalMiddleware , ...other } = options;  return new Elemental({  ...this.components,  ...additionalComponents  }, {  middleware: {  ...this.middleware,  ...middleware  },  ...other  });  } } Elemental.allTags = Symbol.for("allTags"); Elemental.exclusivelySvgElements = new Set([  "svg",  "animate",  "animateMotion",  "animateTransform",  "circle",  "clipPath",  "defs",  "desc",  "discard",  "ellipse",  "feBlend",  "feColorMatrix",  "feComponentTransfer",  "feComposite",  "feConvolveMatrix",  "feDiffuseLighting",  "feDisplacementMap",  "feDistantLight",  "feDropShadow",  "feFlood",  "feFuncA",  "feFuncB",  "feFuncG",  "feFuncR",  "feGaussianBlur",  "feImage",  "feMerge",  "feMergeNode",  "feMorphology",  "feOffset",  "fePointLight",  "feSpecularLighting",  "feSpotLight",  "feTile",  "feTurbulence",  "filter",  "foreignObject",  "g",  "hatch",  "hatchpath",  "image",  "line",  "linearGradient",  "marker",  "mask",  "mesh",  "meshgradient",  "meshpatch",  "meshrow",  "metadata",  "mpath",  "path",  "pattern",  "polygon",  "polyline",  "radialGradient",  "rect",  "set",  "stop",  "switch",  "symbol",  "text",  "textPath",  "tspan",  "unknown",  "use",  "view" ]); Elemental.css = function(...args) {  const element = document.createElement("div");  if (args.length == 1) {  if (args instanceof Object) {  Object.assign(element.style, args);  }  } else if (args.length > 1) {  const [strings, ...values] = args;  let finalString = "";  for (const each2 of strings){  finalString += each2;  if (values.length > 0) {  finalString += `${values.shift()}`;  }  }  element.style = finalString;  }  return element.style; }; function appendChildren(element, ...children) {  for (const each2 of children){  if (typeof each2 == "string") {  element.appendChild(new window.Text(each2));  } else if (each2 == null) {  element.appendChild(new window.Text(""));  } else if (!(each2 instanceof Object)) {  element.appendChild(new window.Text(`${each2}`));  } else if (each2 instanceof Node) {  element.appendChild(each2);  } else if (each2 instanceof Array) {  appendChildren(element, ...each2);  } else if (each2 instanceof Function) {  appendChildren(element, each2());  } else if (each2 instanceof Promise) {  const elementPromise = each2;  const placeholder = elementPromise.placeholder || document.createElement("div");  setTimeout(async ()=>placeholder.replaceWith(await elementPromise)  , 0);  element.appendChild(placeholder);  } else if (each2 != null && each2 instanceof Object) {  element.appendChild(each2);  }  }  return element; } function defaultErrorComponentFactory({ children , ...properties }, key, error) {  const element = document.createElement("div");  const errorDetails = document.createElement("code");  const childContainer = document.createElement("div");  element.style.all = "unset";  element.style.display = "flex";  element.style.flexDirection = "column";  element.style.padding = "1.5em";  element.style.backgroundColor = "#f5a5a8";  element.style.color = "white";  element.style.fontFamily = '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif';  element.style.fontSize = "18px";  element.style.fontWeight = "400";  element.style.overflow = "auto";  element.innerHTML = `I'm sorry, there was an error when loading this part of the page \u{1F641} `;  let errorElementPart;  if (typeof key == "string") {  errorElementPart = `<${key} />`;  } else {  try {  errorElementPart = `<${key.prototype.constructor.name} />`;  } catch (error2) {  errorElementPart = `<${key} />`;  }  }  let errorJsonObject = {};  for (const [key2, value] of Object.entries(properties)){  try {  errorJsonObject[key2] = JSON.parse(JSON.stringify(value));  } catch (error2) {  errorJsonObject[key2] = `${value}`;  }  }  errorDetails.innerHTML = `tag: ${errorElementPart} properties: ${JSON.stringify(errorJsonObject)} error: ${error}`;  errorDetails.style.padding = "1em";  errorDetails.style.backgroundColor = "#161b22";  errorDetails.style.color = "#789896";  element.appendChild(errorDetails);  childContainer.style.all = "unset";  childContainer.style.display = "flex";  childContainer.style.flexDirection = "column";  childContainer.style.marginTop = "1.3em";  if (children instanceof Array) {  for (const [key2, value] of Object.entries(children)){  if (typeof each == "string") {  childContainer.appendChild(new window.Text(value));  } else if (value instanceof Node) {  childContainer.appendChild(value);  }  }  }  element.appendChild(childContainer);  return element; } function isConstructor(obj) {  return !!obj.prototype && !!obj.prototype.constructor.name; } const originalHead = document.head; Object.defineProperty(document, "head", {  set: (element)=>appendChildren(originalHead, ...element.childNodes)  ,  get: ()=>originalHead }); const html = new Elemental().html; const css = Elemental.css; const allTags = Elemental.allTags; var ElementalLibrary = {  Elemental,  html,  css,  allTags }; const htmlEventHandlers = new Set([  "onabort",  "onanimationcancel",  "onanimationend",  "onanimationiteration",  "onanimationstart",  "onauxclick",  "onblur",  "onerror",  "onfocus",  "oncancel",  "oncanplay",  "oncanplaythrough",  "onchange",  "onclick",  "onclose",  "oncontextmenu",  "oncuechange",  "ondblclick",  "ondrag",  "ondragend",  "ondragenter",  "ondragleave",  "ondragover",  "ondragstart",  "ondrop",  "ondurationchange",  "onemptied",  "onended",  "onformdata",  "ongotpointercapture",  "oninput",  "oninvalid",  "onkeydown",  "onkeypress",  "onkeyup",  "onload",  "onloadeddata",  "onloadedmetadata",  "onloadend",  "onloadstart",  "onlostpointercapture",  "onmousedown",  "onmouseenter",  "onmouseleave",  "onmousemove",  "onmouseout",  "onmouseover",  "onmouseup",  "onmousewheel",  "onwheel",  "onpause",  "onplay",  "onplaying",  "onpointerdown",  "onpointermove",  "onpointerup",  "onpointercancel",  "onpointerover",  "onpointerout",  "onpointerenter",  "onpointerleave",  "onpointerlockchange",  "onpointerlockerror",  "onprogress",  "onratechange",  "onreset",  "onresize",  "onscroll",  "onsecuritypolicyviolation",  "onseeked",  "onseeking",  "onselect",  "onselectstart",  "onselectionchange",  "onshow",  "onslotchange",  "onstalled",  "onsubmit",  "onsuspend",  "ontimeupdate",  "onvolumechange",  "ontouchcancel",  "ontouchend",  "ontouchmove",  "ontouchstart",  "ontransitioncancel",  "ontransitionend",  "ontransitionrun",  "ontransitionstart",  "onwaiting" ]); const fixedAttributes = new Set([  "accept",  "accept-charset",  "accesskey",  "action",  "align",  "allow",  "alt",  "async",  "autocapitalize",  "autocomplete",  "autofocus",  "autoplay",  "background",  "bgcolor",  "border",  "buffered",  "capture",  "challenge",  "charset",  "checked",  "cite",  "class",  "code",  "codebase",  "color",  "cols",  "colspan",  "content",  "contenteditable",  "contextmenu",  "controls",  "coords",  "crossorigin",  "csp",  "data",  "datetime",  "decoding",  "default",  "defer",  "dir",  "dirname",  "disabled",  "download",  "draggable",  "enctype",  "enterkeyhint",  "for",  "form",  "formaction",  "formenctype",  "formmethod",  "formnovalidate",  "formtarget",  "headers",  "height",  "hidden",  "high",  "href",  "hreflang",  "http-equiv",  "icon",  "id",  "importance",  "integrity",  "intrinsicsize",  "inputmode",  "ismap",  "itemprop",  "keytype",  "kind",  "label",  "lang",  "language",  "loading",  "list",  "loop",  "low",  "manifest",  "max",  "maxlength",  "minlength",  "media",  "method",  "min",  "multiple",  "muted",  "name",  "novalidate",  "open",  "optimum",  "pattern",  "ping",  "placeholder",  "poster",  "preload",  "radiogroup",  "readonly",  "referrerpolicy",  "rel",  "required",  "reversed",  "rows",  "rowspan",  "sandbox",  "scope",  "scoped",  "selected",  "shape",  "size",  "sizes",  "slot",  "span",  "spellcheck",  "src",  "srcdoc",  "srclang",  "srcset",  "start",  "step",  "style",  "summary",  "tabindex",  "target",  "title",  "translate",  "type",  "usemap",  "value",  "width",  "wrap",  ...htmlEventHandlers ]); const isAnHtmlAttribute = (string)=>{  if (fixedAttributes.has(string)) {  return true;  } else if (string.startsWith("data-")) {  return true;  }  return false; }; const cssHmtlOverlap = new Set([  "width",  "height",  "background",  "border",  "color" ]); const splitHtmlCssAttributes = (object)=>{  const htmlAttributes = {};  const cssAttributes = {};  for (const [key, value] of Object.entries(object)){  if (cssHmtlOverlap.has(key)) {  htmlAttributes[key] = value;  cssAttributes[key] = value;  } else if (isAnHtmlAttribute(key)) {  htmlAttributes[key] = value;  } else {  cssAttributes[key] = value;  }  }  return [  htmlAttributes,  cssAttributes  ]; }; const computeDirection = (row, column, reverse)=>{  const output = row ? "row" : "column";  if (!reverse) {  return output;  } else {  return `${output}-reverse`;  } }; const humanPositionToCssPosition = (humanPosition)=>{  if (humanPosition === "relativeToParent") {  return "absolute";  } else if (humanPosition === "relativeToSelf") {  return "relative";  } else if (humanPosition === "relativeToWindow") {  return "fixed";  } else if (humanPosition === "sticky") {  return "sticky";  } else if (typeof humanPosition === "string") {  console.warn(`positionSelf needs to be one of [ 'relativeToParent', 'relativeToSelf', 'relativeToWindow', 'sticky' ] but instead it was: '${humanPosition}'`);  }  return void 0; }; const humanPositionToCssFlexbox = (humanWord)=>{  if (humanWord.match(/^(top|left)$/i)) {  return "flex-start";  } else if (humanWord.match(/^(bottom|right)$/i)) {  return "flex-end";  } else {  return humanWord;  } }; const columnAlignment = (horizontalAlignment, verticalAlignment, innerAlignment, wrap)=>{  if (!wrap) {  return {  justifyContent: verticalAlignment,  alignItems: horizontalAlignment  };  } else {  return {  justifyContent: verticalAlignment,  alignItems: innerAlignment,  alignContent: horizontalAlignment  };  } }; const rowAlignment = (horizontalAlignment, verticalAlignment, innerAlignment, wrap)=>{  if (!wrap) {  return {  justifyContent: horizontalAlignment,  alignItems: verticalAlignment  };  } else {  return {  justifyContent: horizontalAlignment,  alignItems: innerAlignment,  alignContent: verticalAlignment  };  } }; const computeFlexAlignmentAttributes = (directionIsRow, horizontalAlignment, verticalAlignment, innerAlignment, wrap)=>{  horizontalAlignment = humanPositionToCssFlexbox(horizontalAlignment);  verticalAlignment = humanPositionToCssFlexbox(verticalAlignment);  if (directionIsRow) {  return rowAlignment(horizontalAlignment, verticalAlignment, innerAlignment, wrap);  } else {  return columnAlignment(horizontalAlignment, verticalAlignment, innerAlignment, wrap);  } }; const setProperties = (element, properties)=>{  for (const [key, value] of Object.entries(properties)){  try {  const kebabCase = key.replace(/(?<=[a-z])([A-Z])(?=[a-z])/g, (each)=>`-${each.toLowerCase()}`  );  element.setAttribute(kebabCase, value);  } catch (error) {}  element[key] = value;  } }; const elementSymbol = Symbol.for("element"); function appendChildren1(element, ...children) {  for (const each of children){  if (typeof each == "string") {  element.appendChild(new window.Text(each));  } else if (each == null) {  element.appendChild(new window.Text(""));  } else if (!(each instanceof Object)) {  element.appendChild(new window.Text(`${each}`));  } else if (each[elementSymbol]) {  element.appendChild(each[elementSymbol]);  } else if (each instanceof Node) {  element.appendChild(each);  } else if (each instanceof Array) {  appendChildren1(element, ...each);  } else if (each instanceof Function) {  appendChildren1(element, each());  } else if (each instanceof Promise) {  const elementPromise = each;  const placeholder = elementPromise.placeholder || document.createElement("div");  setTimeout(async ()=>placeholder.replaceWith(await elementPromise)  , 0);  element.appendChild(placeholder);  } else if (each != null && each instanceof Object) {  element.appendChild(each);  }  }  return element; } var ContainerLibrary = ({ row , column , reverse , wrap , positionSelf ="relativeToSelf" , verticalAlignment ="top" , horizontalAlignment ="left" , innerAlignment ="center" , textWrapAlignment , children , ...props })=>{  const [htmlAttributes, cssAttributes] = splitHtmlCssAttributes(props);  const element = document.createElement("div");  Object.assign(element.style, {  position: humanPositionToCssPosition(positionSelf) || "relative",  display: "flex",  flexDirection: computeDirection(row, column, reverse),  flexWrap: wrap === "reverse" ? "wrap-reverse" : wrap && "wrap",  textAlign: textWrapAlignment || horizontalAlignment,  ...computeFlexAlignmentAttributes(row, horizontalAlignment, verticalAlignment, innerAlignment, wrap),  ...cssAttributes  });  setProperties(element, {  name: "positioner",  ...htmlAttributes  });  appendChildren1(element, children);  return element; }; return [ElementalLibrary, ContainerLibrary]})()
         const { Elemental } = ElementalLibrary
     
         // 
@@ -163,7 +163,7 @@
     // 
     // 
     document.body = html`
-        <body>
+        <body font-size=15px>
             <Container row wrap height="fit-content" width="100%" background="var(--soft-gray-gradient)">
                 <Container
                     name="Bio-Area"
@@ -172,35 +172,35 @@
                     horizontalAlignment="center"
                     verticalAlignment="space-between"
                     height="100vh"
-                    min-height="40rem"
+                    min-height="40em"
                     background="var(--charcoal)"
-                    min-width=14rem
-                    max-width=26rem
+                    min-width=14em
+                    max-width=24em
                     overflow=auto
                     >
                         
-                        <Container name="Bio" width="100%" color=white font-weight="100" font-size=1rem padding-bottom="1.3rem">
+                        <Container name="Bio" width="100%" color=white font-weight="100" font-size=1em padding-bottom="1.3em">
                             <img style="width: 100%" src="https://user-images.githubusercontent.com/17692058/132935289-ede56d87-d623-46a2-86b1-22925edcb9bb.jpg">
                             <Container border-top="2px solid white" width=100% />
                             
-                            <Title margin-left="1rem" underline color=white thin margin-top=2rem>
+                            <Title margin-left="1em" underline color=white thin margin-top=2em>
                                 Contact Info
                             </Title>
-                            <Container padding="0.5rem 3rem 1rem">
+                            <Container padding="0.5em 3em 1em">
                                 <span>Email: <Space/> <b><a>jeff.hykin@tamu.edu</a> </b> </span>
                                 <span>Phone: <Space/> <b><a>828-338-9080</a> </b> </span>
-                                <Container height="0.5rem" />
+                                <Container height="0.5em" />
                                 <a href="https://github.com/jeff-hykin">GitHub.com/Jeff-Hykin</a>
                                 <a href="https://www.linkedin.com/in/jeff-hykin">LinkedIn.com/in/Jeff-Hykin</a>
                             </Container>
                         </Container>
                         
-                        <Container name="References" padding="1rem" width=100% horizontalAlignment="center">
-                            <Title color="white" align-self=flex-start underline thin margin-bottom=1.5rem>
+                        <Container name="References" padding="1em" width=100% horizontalAlignment="center">
+                            <Title color="white" align-self=flex-start underline thin margin-bottom=1.5em>
                                 References
                             </Title>
                             
-                            <Card width="100%" max-width=20rem padding="1rem 1.2rem" background-color="var(--charcoal-on-charcoal)" color="white" font-weight="100" margin-bottom=1rem >
+                            <Card width="100%" max-width=20em padding="1em 1.2em" background-color="var(--charcoal-on-charcoal)" color="white" font-weight="100" margin-bottom=1em >
                                 <Title underline size="18pt">
                                     Dr. Guni Sharon
                                 </Title>
@@ -208,7 +208,7 @@
                                 <span>     Email:   <b> <a>guni@tamu.edu</a> </b> </span>
                             </Card>
                             
-                            <Card width="100%" max-width=20rem padding="1rem 1.2rem" background-color="var(--charcoal-on-charcoal)" color="white" font-weight="100" margin-bottom=1rem>
+                            <Card width="100%" max-width=20em padding="1em 1.2em" background-color="var(--charcoal-on-charcoal)" color="white" font-weight="100" margin-bottom=1em>
                                 <Title underline size="18pt">
                                     Devin Rabon
                                 </Title>
@@ -226,27 +226,27 @@
                     flex-shrink="0"
                     horizontalAlignment="center"
                     verticalAlignment="top"
-                    padding="1rem"
+                    padding="1em"
                     height="100vh"
-                    min-height="40rem"
+                    min-height="40em"
                     max-width=100%
                     overflow="auto"
                     flex-basis="min-content"
                     >
-                        <Container name="Content-Area-Width-Reducer" padding="12vh 1rem" padding-bottom="0" width="100%" max-width="80rem" min-height="fit-content" flex-grow="1"  >
-                            <Container name="Primary-Content" row wrap horizontalAlignment="left" width="100%" flex-grow=1 innerAlignment="top" min-height=15rem >
+                        <Container name="Content-Area-Width-Reducer" padding="12vh 1em" padding-bottom="0" width="100%" max-width="80em" min-height="fit-content" flex-grow="1"  >
+                            <Container name="Primary-Content" row wrap horizontalAlignment="left" width="100%" flex-grow=1 innerAlignment="top" min-height=15em >
                                 <style>
                                     div [name="Primary-Content"] > * {
-                                        margin-right: 3rem;
-                                        margin-bottom: 3rem;
+                                        margin-right: 3em;
+                                        margin-bottom: 3em;
                                         flex-grow: 1;
-                                        transform: translateX(1.5rem);
-                                        min-width: 15rem;
-                                        width: 19rem;
-                                        max-width: 27rem;
+                                        transform: translateX(1.5em);
+                                        min-width: 15em;
+                                        width: 19em;
+                                        max-width: 27em;
                                     }
                                     div[name="line"] {
-                                        height: 1rem;
+                                        height: 1em;
                                     }
                                 </style>
                                 
@@ -273,11 +273,11 @@
                                     `}</span>
                                     <Card>
                                         <Container row horizontalAlignment="space-between" width="100%">
-                                            <Title size=0.95rem underline color="gray">iLab Website</Title>
-                                            <div style="min-width: 2rem;"/>
-                                            <span style="font-size: 0.86rem; font-weight: bold;" ><a href="https://drive.google.com/file/d/1Gnjfu19px7_KUCrCgwQz_xvv6KPRDzMT/view?t=0m46s"> Short Video Demo </a> </span>
+                                            <Title size=0.95em underline color="gray">iLab Website</Title>
+                                            <div style="min-width: 2em;"/>
+                                            <span style="font-size: 0.86em; font-weight: bold;" ><a href="https://drive.google.com/file/d/1Gnjfu19px7_KUCrCgwQz_xvv6KPRDzMT/view?t=0m46s"> Short Video Demo </a> </span>
                                         </Container>
-                                        <span style="font-size: 0.85em;transform: translateX(1rem);">
+                                        <span style="font-size: 0.85em;transform: translateX(1em);">
                                             <li>A Deep Learning course tool at Texas A&M</li>
                                             <li>Sole developer (UX, frontend, backend, dev-ops)</li>
                                             <li>Uses Vue, Node, Mongo DB</li>
@@ -286,26 +286,26 @@
                                     </Card> 
                                     <Card>
                                         <Container row horizontalAlignment="space-between" width="100%">
-                                            <Title size=0.95rem underline color="gray">EFH (Software Consulting)</Title>
-                                            <div style="min-width: 2rem;"/>
-                                            <span style="font-size: 0.86rem; font-weight: bold;" >
+                                            <Title size=0.95em underline color="gray">EFH (Software Consulting)</Title>
+                                            <div style="min-width: 2em;"/>
+                                            <span style="font-size: 0.86em; font-weight: bold;" >
                                                 <a href="https://jeffhykin.wixsite.com/resume/copy-of-work"> Full Details </a>
                                             </span>
                                         </Container>
-                                        <span style="font-size: 0.85em;transform: translateX(1rem);">
+                                        <span style="font-size: 0.85em;transform: translateX(1em);">
                                             <li>1 of 5 core developers</li>
                                             <li>>$1 million project</li>
                                             <li>Scrum & Agile</li>
                                             <li>
-                                                <span style="display: inline-block; vertical-align: top; max-width: 16rem">Significant contribution to 13 of 22 pages</span>
+                                                <span style="display: inline-block; vertical-align: top; max-width: 16em">Significant contribution to 13 of 22 pages</span>
                                             </li>
                                         </span>
                                     </Card>
                                     <Card>
                                         <Container row horizontalAlignment="space-between" width="100%">
-                                            <Title size=0.95rem underline color="gray">Vulnerabilities Visualized</Title>
-                                            <div style="min-width: 2rem;"/>
-                                            <span style="font-size: 0.86rem; font-weight: bold;" >
+                                            <Title size=0.95em underline color="gray">Vulnerabilities Visualized</Title>
+                                            <div style="min-width: 2em;"/>
+                                            <span style="font-size: 0.86em; font-weight: bold;" >
                                                 <a href="https://github.com/jeff-hykin/vulnerabilities_visualized">Repository</a>
                                             </span>
                                         </Container>
@@ -315,9 +315,9 @@
                                     </Card>
                                     <Card>
                                         <Container row horizontalAlignment="space-between" width="100%">
-                                            <Title size=0.95rem underline color="gray">Human Computer Interaction Project</Title>
-                                            <div style="min-width: 2rem;"/>
-                                            <span style="font-size: 0.86rem; font-weight: bold;" >
+                                            <Title size=0.95em underline color="gray">Human Computer Interaction Project</Title>
+                                            <div style="min-width: 2em;"/>
+                                            <span style="font-size: 0.86em; font-weight: bold;" >
                                                 <a href="https://jeff-hykin.github.io/hci-project/">link</a>
                                             </span>
                                         </Container>
@@ -328,9 +328,9 @@
                                     </Card>
                                     <Card>
                                         <Container row horizontalAlignment="space-between" width="100%">
-                                            <Title size=0.95rem underline color="gray">Resh</Title>
-                                            <div style="min-width: 2rem;"/>
-                                            <span style="font-size: 0.86rem; font-weight: bold;" >
+                                            <Title size=0.95em underline color="gray">Resh</Title>
+                                            <div style="min-width: 2em;"/>
+                                            <span style="font-size: 0.86em; font-weight: bold;" >
                                                 <a href="https://github.com/jeff-hykin/resh">link</a>
                                             </span>
                                         </Container>
@@ -349,41 +349,41 @@
                                 
                                 <MainCategory title="Work History">
                                     <Card>
-                                        <Title size=0.95rem underline color="gray">Research: Reinforcement Learning</Title>
-                                        <span>Organization: <span style="max-width: 12rem; display: inline-block;"><b>Pi Star Lab at Texas A&M</b></span></span>
+                                        <Title size=0.95em underline color="gray">Research: Reinforcement Learning</Title>
+                                        <span>Organization: <span style="max-width: 12em; display: inline-block;"><b>Pi Star Lab at Texas A&M</b></span></span>
                                         <span>Role: <b>Graduate Researcher</b></span>
                                         <span>Advisor: <b>Dr. Guni Sharon </b></span>
                                         <span>Duration: <b>(May 2021 - Present)</b></span>
                                     </Card>
                                     <Card>
-                                        <Title size=0.95rem underline color="gray">Research: Emotion Recognition</Title>
-                                        <span>Organization: <span style="max-width: 12rem; display: inline-block;"><b>Information Innovation Lab at Texas A&M</b></span></span>
+                                        <Title size=0.95em underline color="gray">Research: Emotion Recognition</Title>
+                                        <span>Organization: <span style="max-width: 12em; display: inline-block;"><b>Information Innovation Lab at Texas A&M</b></span></span>
                                         <span>Role: <b>Graduate Researcher</b></span>
                                         <span>Advisor: <b>Dr. Anxio Jiang</b></span>
                                         <span>Duration: <b>(May 2019 - May 2021)</b></span>
                                     </Card>
                                     <Card>
-                                        <Title size=0.95rem underline color="gray">Software Engineering & Consulting</Title>
-                                        <span>Organization: <span style="max-width: 12rem; display: inline-block;"><b>FrogSlayer</b></span></span>
+                                        <Title size=0.95em underline color="gray">Software Engineering & Consulting</Title>
+                                        <span>Organization: <span style="max-width: 12em; display: inline-block;"><b>FrogSlayer</b></span></span>
                                         <span>Role: <b>Software Dev</b></span>
                                         <span>Duration: <b>(Jan 2018 - Jan 2019)</b></span>
                                     </Card>
                                 </MainCategory>
                                 
                             </Container>
-                            <Container name="Secondary-Content" row wrap horizontalAlignment="left" width="100%" padding="1rem" flex-grow=1 innerAlignment="top" min-height=15rem >
+                            <Container name="Secondary-Content" row wrap horizontalAlignment="left" width="100%" padding="1em" flex-grow=1 innerAlignment="top" min-height=15em >
                                 <style>
                                     div [name="Secondary-Content"] > * {
-                                        margin-bottom: 3rem;
+                                        margin-bottom: 3em;
                                         flex-grow: 1;
-                                        transform: translateX(1.5rem);
+                                        transform: translateX(1.5em);
                                     }
                                 </style>
-                                <Container name="Acheivements" padding="1rem" flex-grow="0" margin-right="5rem" margin-bottom="5rem">
-                                    <Title align-self=flex-start underline thin margin-bottom=1.5rem>
+                                <Container name="Acheivements" padding="1em" flex-grow="0" margin-right="5em" margin-bottom="5em">
+                                    <Title align-self=flex-start underline thin margin-bottom=1.5em>
                                         Achievements
                                     </Title>
-                                    <Container name="Acheivements-Card" horizontalAlignment="left" color="var(--charcoal-on-charcoal)" margin-left="2.2rem">
+                                    <Container name="Acheivements-Card" horizontalAlignment="left" color="var(--charcoal-on-charcoal)" margin-left="2.2em">
                                         <AcheivementToken> Eagle Scout </AcheivementToken>
                                         <AcheivementToken> <a href="https://github.com/jeff-hykin/better-cpp-syntax">Extension</a><Space />with +9,000,000 Downloads </AcheivementToken>
                                         <AcheivementToken> RoboMasters North American 2nd Place Team </AcheivementToken>
@@ -395,29 +395,29 @@
                                         <AcheivementToken> +5 Python Pip Packages </AcheivementToken>
                                     </Container>
                                 </Container>
-                                <Container name="Skills" padding="1rem" flex-basis="min-content" flex-grow=3>
-                                    <Title align-self=flex-start underline thin margin-bottom=1.5rem>
+                                <Container name="Skills" padding="1em" flex-basis="min-content" flex-grow=3>
+                                    <Title align-self=flex-start underline thin margin-bottom=1.5em>
                                         Skill Sets
                                     </Title>
                                     <Container row wrap name="Skills-Inner" innerAlignment="top" >
                                          <style>
                                             div [name="Skills-Inner"] > div > * {
-                                                padding: 1rem;
+                                                padding: 1em;
                                                 flex-basis: min-content;
-                                                max-width: 22rem;
-                                                min-width: 13rem;
+                                                max-width: 22em;
+                                                min-width: 13em;
                                                 max-height: fit-content;
                                                 flex-grow: 0;
                                             }
                                             div [name="Skills-Inner"] > * {
                                                 flex-basis: min-content;
-                                                max-width: 24rem;
-                                                min-width: 13rem;
+                                                max-width: 24em;
+                                                min-width: 13em;
                                                 flex-grow: 1;
                                             }
                                         </style>
                                             <Container flex-grow=3>
-                                                <Card name="Human-Skills" margin=0.4rem row wrap background="#934773" horizontalAlignment="center">
+                                                <Card name="Human-Skills" margin=0.4em row wrap background="#934773" horizontalAlignment="center">
                                                     <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
                                                         Human Skills
                                                     </Title>
@@ -426,7 +426,7 @@
                                                     <Chip title="(lead of 7/8 academic projects)"> Leadership </Chip>
                                                 </Card>
                                                 
-                                                <Card name="Technical-Areas" margin=0.4rem row wrap background="cornflowerblue" horizontalAlignment="center">
+                                                <Card name="Technical-Areas" margin=0.4em row wrap background="cornflowerblue" horizontalAlignment="center">
                                                     <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
                                                         Technical Areas
                                                     </Title>
@@ -444,7 +444,7 @@
                                             
                                             <Container flex-grow=6>
                                                 
-                                                <Card margin=0.4rem row wrap background="#7a4793" horizontalAlignment="center">
+                                                <Card margin=0.4em row wrap background="#7a4793" horizontalAlignment="center">
                                                     <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
                                                         Programming Languages
                                                     </Title>
@@ -467,7 +467,7 @@
                                                     <Chip>Applescript</Chip>
                                                 </Card>
                                                 
-                                                <Card margin=0.4rem row wrap background="darkcyan" horizontalAlignment="center">
+                                                <Card margin=0.4em row wrap background="darkcyan" horizontalAlignment="center">
                                                     <Title min-width="100%" underline color="whitesmoke" opacity="0.8" size=18 text-align="left">
                                                         Specific Tools
                                                     </Title>
@@ -478,7 +478,7 @@
                                                     <Chip>Electron</Chip>
                                                     <Chip>Deno</Chip>
                                                     <Chip>Nix</Chip>
-                                                    <Chip padding="0.6rem 1.1rem" max-width="100%" min-width="100%">
+                                                    <Chip padding="0.6em 1.1em" max-width="100%" min-width="100%">
                                                         <Container row wrap width=100% horizontalAlignment="center">
                                                             <Chip>React</Chip>
                                                             <Chip>Vue</Chip>
@@ -493,7 +493,7 @@
                                                             <Chip color="transparent" min-width="100%" text-align="center"><u>Npm Packages</u></Chip>
                                                         </Container>
                                                     </Chip>
-                                                    <Chip padding="0.6rem 1.1rem" max-width="100%" min-width="100%">
+                                                    <Chip padding="0.6em 1.1em" max-width="100%" min-width="100%">
                                                         <Container row wrap width=100% horizontalAlignment="center">
                                                             <Chip>numpy</Chip>
                                                             <Chip>opencv</Chip>
@@ -533,12 +533,12 @@
         function Title({underline, thin, size, style, children, color, ...props}) {
             style = {
                 flexGrow: 0,
-                fontSize: size||"1.5rem",
-                marginBottom: "0.7rem",
+                fontSize: size||"1.5em",
+                marginBottom: "0.7em",
                 // add underline or not
                 ...(underline ? {
                     borderBottom: "2px solid "+(color||"gray"),
-                    fontSize: size||"1.3rem",
+                    fontSize: size||"1.3em",
                 }:{}),
                 ...(thin ? {
                     fontWeight: 100,
@@ -564,9 +564,9 @@
             return html`
                 <Container
                     name=${name}
-                    border-radius="1rem"
+                    border-radius="1em"
                     box-shadow="0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24)"
-                    padding="1.5rem 2rem"
+                    padding="1.5em 2em"
                     background="var(--card-background, white)"
                     ...${props}
                     >
@@ -579,13 +579,13 @@
             return html`
                 <Container
                     name=${name}
-                    border-radius="2rem"
-                    padding="0.35rem 0.7rem"
-                    margin="0.15rem"
+                    border-radius="2em"
+                    padding="0.35em 0.7em"
+                    margin="0.15em"
                     background=${color||"rgba(255,255,255,0.25)"}
                     backdrop-filter=${color?"":"saturate(180%) brightness(1.05)"}
                     color="white"
-                    font-size="0.8rem"
+                    font-size="0.8em"
                     display="inline-block"
                     max-width="max-content"
                     min-width="max-content"
@@ -600,17 +600,17 @@
         function AcheivementToken({children, ...props}) {
             return html`
                 <Container
-                    border-radius="2rem"
+                    border-radius="2em"
                     border="2px solid white"
                     box-shadow="0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24)"
-                    margin-bottom="1rem"
+                    margin-bottom="1em"
                     ...${props}
                     > 
                         <Container
-                            border-radius="2rem"
+                            border-radius="2em"
                             border="5px solid #E5C07B"
-                            padding="0.6rem 1rem"
-                            font-size="1rem"
+                            padding="0.6em 1em"
+                            font-size="1em"
                             background-color="white"
                             row
                             > 
@@ -623,18 +623,18 @@
         function MainCategory({title, children, ...props}) {
             for (const each of children) {
                 each.style.width = "90%"
-                each.style.fontSize = "1rem"
-                each.style.marginBottom = "1rem"
+                each.style.fontSize = "1em"
+                each.style.marginBottom = "1em"
                 each.style.fontWeight = "300"
-                each.style.marginRight = "2rem"
-                each.style.maxWidth = "27rem"
+                each.style.marginRight = "2em"
+                each.style.maxWidth = "27em"
             }
             return html`
                 <Container>
                     <Title color="black" underline thin>
                         ${title}
                     </Title>
-                    <Container max-height="22rem" overflow=auto width=110% horizontalAlignment="center" >
+                    <Container max-height="22em" overflow=auto width=110% horizontalAlignment="center" >
                         ${children}
                     </Container>
                 </Container>
