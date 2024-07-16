@@ -642,7 +642,7 @@
                     <Title color="black" underline thin>
                         ${title}
                     </Title>
-                    <Container max-height="22em" overflow=auto width=110% horizontalAlignment="center" padding-top="0.5em">
+                    <Container max-height="${screen.width < 1000 ?  "none" : "22em"}" overflow=auto width=110% horizontalAlignment="center" padding-top="0.5em">
                         ${children}
                     </Container>
                 </Container>
