@@ -29,4 +29,4 @@ k=l
 h.type="checkbox"
 h.checked=u&(1n<<B(k))
 h.onchange=_=>(_.target.checked?u|=(1n<<B(k)):u&=~(1n<<B(k)),ws.send(\`\${u}\`))
-i[a](h)})})()</script>`,{headers:new Headers({"content-type":"html"})})||(r=Deno.upgradeWebSocket(r),s.push(r.socket),r.socket.onmessage=e=>(s.map(_=>{try{_.send(e.data)}catch{}}),u=B(e.data)),r.response)))
+i[a](h)})})()</script>`,{headers:{"content-type":"html"}})||(r=Deno.upgradeWebSocket(r),s.push(r.socket),r.socket.onmessage=e=>(s.map(_=>{try{_.send(e.data)}catch{}}),u=B(e.data)),r.response)))
