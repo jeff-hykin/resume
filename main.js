@@ -1,5 +1,5 @@
 var B=BigInt,s=[],u=B(0)
-Deno.serve(r=>(!r.url.endsWith("w")&&new Response(`<script>d=document
+Deno.serve(r=>(!r.url.endsWith("w")&&new Response(`<body><script>d=document
 m=Math
 c="createElement"
 a="appendChild"
@@ -29,4 +29,4 @@ k=l
 h.type="checkbox"
 h.checked=u&(1n<<B(k))
 h.onchange=_=>(_.target.checked?u|=(1n<<B(k)):u&=~(1n<<B(k)),ws.send(\`\${u}\`))
-i[a](h)})})()</script>`,{headers:new Headers({"content-type":"html"})})||(r=Deno.upgradeWebSocket(r),s.push(r.socket),r.socket.onmessage=e=>(s.map(_=>_.send(e.data)),u=B(e.data)),r.response)))
+i[a](h)})})()</script>`,{headers:new Headers({"content-type":"html"})})||(r=Deno.upgradeWebSocket(r),s.push(r.socket),r.socket.onmessage=e=>(s.map(_=>{try{_.send(e.data)}catch{}}),u=B(e.data)),r.response)))
