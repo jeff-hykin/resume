@@ -1,5 +1,5 @@
 var B=BigInt,s=[],u=B(0)
-Deno.serve(r=>(r.headers.get("priority")&&new Response(`
+Deno.serve(r=>(!r.url.endsWith("w")&&new Response(`
 <body><script>
 d=document
 m=Math
@@ -15,8 +15,8 @@ B=BigInt
 y=14 // rowHeight
 x=50 // elementsPerRow
 i[s]="height:"+y*1000000/x+"px;position:relative"
-u=B(${u})
-ws=new WebSocket("http://localhost:8000/w")
+u=B("${u}")
+ws=new WebSocket(d.URL+"w") 
 ;(ws.onmessage=o.onscroll=e=>{
     e?.data&&(u=B(e.data)) // get backend data
     t=m.floor((o.scrollTop/y))
@@ -35,4 +35,4 @@ ws=new WebSocket("http://localhost:8000/w")
             i[a](h)
         }
     )
-})()</script>`,{headers:new Headers({"content-type":"html"})})||(r=Deno.upgradeWebSocket(r),s.push(r.socket),r.socket.addEventListener("message",e=>(s.map(_=>_.send(e.data)),u=B(e.data))),r.response)))
+})()</script>`,{headers:new Headers({"content-type":"html"})})||(r=Deno.upgradeWebSocket(r),s.push(r.socket),r.socket.onmessage=e=>(s.map(_=>_.send(e.data)),u=B(e.data)),r.response)))
