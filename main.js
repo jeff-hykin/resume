@@ -3,16 +3,15 @@ Deno.serve(r=>(!r.url.endsWith("w")&&new Response(`<body><script>d=document
 m=Math
 c="createElement"
 a="appendChild"
-s="style"
 o=d[c]("div")
 i=d[c]("div")
-o[s]="height:80vh;overflow:auto"
+o.style="height:80vh;overflow:auto"
 o[a](i)
 d.body[a](o)
 B=BigInt
 y=14
 x=50
-i[s]="height:"+y*1000000/x+"px;position:relative"
+i.style="height:"+y*1000000/x+"px;position:relative"
 u=B("${u}")
 ws=new WebSocket(d.URL+"w")
 ;(ws.onmessage=o.onscroll=e=>{e?.data&&(u=B(e.data))
@@ -24,7 +23,7 @@ l=t*x+k
 r=m.floor(l/x)
 k=l%x
 h=d[c]("input")
-h[s]=\`position:absolute;top:\${r*y}px;left:\${k*14}px\`
+h.style=\`position:absolute;top:\${r*y}px;left:\${k*14}px\`
 k=l
 h.type="checkbox"
 h.checked=u&(1n<<B(k))
