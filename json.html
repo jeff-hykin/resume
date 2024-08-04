@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<head>
+    <title>Jeff Hykin</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://unpkg.com/css-baseline/css/3.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+        :root {
+            --gray-pallet-background: rgb(30, 37, 53);
+            --red-pallet-background: lightcoral;
+            --off-white: hsl(0, 0%, 87.8%);
+            --charcoal: hsl(180, 0%, 31%);
+            --charcoal-on-charcoal: hsl(0deg 0% 50%);
+            --soft-gray-gradient: linear-gradient(-110deg, whitesmoke, var(--off-white));
+            /* misc */
+            --red-pallet-font: white;
+            --decent-color-1: lightcoral;
+            --decent-color-2: salmon;
+            --decent-color-3: lightpink;
+            --decent-color-4: lightsalmon;
+            --decent-color-5: coral;
+            --decent-color-6: lightcyan;
+            --decent-color-7: lightblue;
+            --decent-color-8: lightsteelblue;
+            --decent-color-9: skyblue;
+            --decent-color-10: lightskyblue;
+            --decent-color-11: cornflowerblue;
+            --decent-color-12: dodgerblue;
+            --decent-color-13: aquamarine;
+            --decent-color-14: turquoise;
+            --decent-color-15: darkturquoise;
+            --decent-color-16: lightseagreen;
+            --decent-color-17: darkcyan;
+            --decent-color-18: teal;
+            --decent-color-19: mediumspringgreen;
+            --decent-color-20: lightgreen;
+            --decent-color-21: cadetblue;
+            --decent-color-22: darkorchid;
+            --decent-color-23: blueviolet;
+        }
+        body {
+            font-size: 0.9em;
+            font-family: Roboto;
+        }
+        .animate {
+            transition: all 0.5s ease-in-out 0s;
+        }
+        .weak-shadow {
+            transition: all 0.3s ease-in-out 0s;
+            box-shadow: 0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24);
+        }
+        .weak-shadow:hover {
+            box-shadow: 0 8px 17px 2px rgba(0,0,0,0.10),0 6px 30px 5px rgba(0,0,0,0.08),0 8px 10px -7px rgba(0,0,0,0.16);
+        }
+        button {
+            border-radius: 1em;
+            border: none;
+            background-color: cornflowerblue;
+            padding: 0.5em 1em;
+            color: white;
+        }
+        a {
+            color: lightskyblue;
+            text-decoration: underline;
+        }
+        span {
+            vertical-align: text-top;
+        }
+    </style>
+</head>
+<!--                                   -->
+<!-- Synchonous/Fast loading animation -->
+<!--                                   -->
+    <body>
+        <div style="display: flex;justify-content: center;align-items: center;height: 100vh;">
+            <div style="width: 50px;height: 50px;border: 10px solid #dddddd;border-top-color: #009579;border-radius: 50%;transform: rotate(0.16turn);" id="good-component--initial-loader">
+            </div>
+        </div>
+    </body>
+    <script>
+        // 
+        // Synchonous/Fast loading animation
+        // 
+            const animateLoader = ()=>{
+            const element = document.getElementById("good-component--initial-loader")
+                element && element.animate(
+                    [
+                        { transform: 'rotate(0turn)' },
+                        { transform: 'rotate(1turn)' },
+                    ],
+                    {
+                        duration: 1000,
+                        iterations: Infinity,
+                        easing: 'ease',
+                    },
+                )
+            }
+            document.body ? animateLoader() : document.addEventListener("DOMContentLoaded", animateLoader)
+    </script>
+
+<!--                -->
+<!-- The main code  -->
+<!--                -->
+<script type="module">//;(async () => {
+    // 
+    // 
+    // Initialize
+    // 
+    // 
+        import { html as initalHtml } from "https://cdn.skypack.dev/-/@!!!!!/elemental@v0.5.40-DV5IBrcN2nkO6U1jH4KY/dist=es2019,mode=imports/optimized/@!!!!!/elemental.js"
+    
+        // 
+        // Custom elements
+        // 
+        const html = initalHtml.extend({
+            JsonEditor,
+        })
+        
+        // 
+        // animations
+        // 
+        const [ fadeIn, fadeOut ] = [
+            [
+                [
+                    { offset: 0.0, opacity: 0, },
+                    { offset: 0.1, opacity: 0, },
+                    { offset: 1.0, opacity: 1, },
+                ], {
+                    duration: 1000,
+                    easing: 'ease-out',
+                    iterations: 1
+                }
+            ],
+            [
+                [
+                    { offset: 0.0, opacity: 1, },
+                    { offset: 0.1, opacity: 1, },
+                    { offset: 1.0, opacity: 0, },
+                ], {
+                    duration: 1000,
+                    easing: 'ease-out',
+                    iterations: 1
+                }
+            ],
+        ]
+    
+    // 
+    // 
+    // Main Code
+    // 
+    // 
+    document.body = html`
+        <body font-size=15px>
+            <JsonEditor />
+        </body>
+    `
+    document.body.animate(...fadeIn)
+    
+    // 
+    // 
+    // Components
+    // 
+    // 
+        function InnerJsonValue({ onEdit, nullify, type, parentPath, value, notify }) {
+            if (type == "bool") {
+                value = !!`${value}`.match(/^t/)
+                const toggle =()=>{
+                    value = !value
+                    input.checked = value
+                    message.innerHTML = `${value}`
+                    onEdit(parentPath, value) 
+                }
+                const input = html`<input
+                    type="checkbox"
+                    checked=${value}
+                    onchange=${toggle}
+                    onkeydown=${(e)=>{
+                        if (e.key == "Enter" || e.key == " ") {
+                            toggle()
+                        }
+                    }}
+                />`
+                const message = html`<span margin-left="0.3em">${value}</span>`
+                const returnElement = html`<span
+                    contenteditable=${false}
+                    onclick=${toggle}
+                    >
+                        ${input}
+                        ${message}
+                </span>`
+                onEdit(parentPath, value)
+                returnElement.attachFocus = ()=>input.focus()
+                return returnElement
+            } else if (type == "number") {
+                let backspacedOnceOnEmpty = false
+                let previousValue = value
+                const output = html`
+                    <input
+                        contenteditable=${false}
+                        oninput=${(e)=>{
+                            // no invalid numbers
+                            if (e.target.value == "") {
+                                if (e.inputType == "insertText") {
+                                    e.target.value = previousValue
+                                } else {
+                                    if (previousValue == "0" && backspacedOnceOnEmpty) {
+                                        nullify()
+                                    }
+                                    if (previousValue == "0") {
+                                        backspacedOnceOnEmpty = true
+                                        notify("Press backspace again to nullify")
+                                    }
+                                    e.target.value = "0"
+                                    previousValue = "0"
+                                }
+                            } else {
+                                previousValue = e.target.value
+                                backspacedOnceOnEmpty = false
+                            }
+                            onEdit(parentPath, e.target.value)
+                        }}
+                        onkeydown=${(e)=>{
+                            if (e.key == "Backspace") {
+                                
+                                console.log(`e is:`,e)
+                            }
+                        }}
+                        type="number"
+                        value=${value}
+                        />
+                `
+                output.attachFocus = ()=>{
+                    // selection range doesnt work for number input for some reason
+                    output.type = "text"
+                    try {
+                        output.focus()
+                        output.setSelectionRange(1, 1)
+                    } catch (error) {
+                        
+                    }
+                    output.type = "number"
+                }
+                onEdit(parentPath, value-0)
+                return output
+            } else if (type == "string") {
+                onEdit(parentPath, value-0)
+                return html`
+                    <textarea contenteditable=${false} oninput=${({target})=>onEdit(parentPath, target.value)} value=${value} />
+                `
+            } else if (type == "array") {
+                return html`[not implemented yet]`
+            } else if (type == "object") {
+                return html`[not implemented yet]`
+            } else {
+                return html`[unknown type: ${type}]`
+            }
+        }
+        function JsonEditor({onEdit=()=>0, value, parentPath=[], notify=()=>0}) {
+            const nullify = ()=>{
+                element.innerHTML = "null"
+                onEdit(parentPath, null)
+                try {
+                    element.focus()
+                } catch (error) {
+                    
+                }
+            }
+            const element = html`
+                <div
+                    name="JsonEditor"
+                    contenteditable=${true}
+                    caret-color="transparent"
+                    onbeforeinput=${(e)=>{
+                        if (e.target == element) {
+                            e.preventDefault()
+                            console.log(e)
+                            if (value == null && e.data) {
+                                let innerElement
+                                if (e.data=="{") {
+                                    innerElement = InnerJsonValue({ onEdit, type: "object", parentPath, value: {}, nullify, notify })
+                                } else if (e.data=="[") {
+                                    innerElement = InnerJsonValue({ onEdit, type: "array", parentPath, value: [], nullify, notify  })
+                                } else if (e.data=="\"" || e.data=="'") {
+                                    innerElement = InnerJsonValue({ onEdit, type: "string", parentPath, value: "", nullify, notify  })
+                                } else if (e.data.match(/^[0-9\-\.]/)) {
+                                    innerElement = InnerJsonValue({ onEdit, type: "number", parentPath, value: e.data, nullify, notify  })
+                                } else if (e.data == "t" || e.data == "f") {
+                                    innerElement = InnerJsonValue({ onEdit, type: "bool", parentPath, value: e.data, nullify, notify  })
+                                }
+                                if (innerElement) {
+                                    element.innerHTML = ""
+                                    element.appendChild(html`<div>
+                                        ${innerElement}
+                                        <button
+                                            style="
+                                                position: absolute;
+                                                top: 0;
+                                                right: 0;
+                                                padding: 0.5em;
+                                                border: none;
+                                                border-radius: 1em; 
+                                                background: var(--red, red);
+                                                color: var(--white, white);
+                                                font-size: 0.8em;
+                                            "
+                                            onclick=${nullify}
+                                            tabindex="-1"
+                                            >
+                                                nullify
+                                        </button>
+                                    </div>`)
+                                    innerElement.attachFocus && innerElement.attachFocus()
+                                    // innerElement.setSelectionRange(innerElement.value.length, innerElement.value.length)
+                                }
+                            }
+                        }
+                    }}
+                    border-radius="1em"
+                    box-shadow="0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24)"
+                    padding="1.5em 2em"
+                    background="var(--card-background, white)"
+                    >
+                        null
+                </div>
+            `
+            return element
+        }
+        document.body.children[0].focus()
+// })()
+</script>
