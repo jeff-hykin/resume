@@ -208,6 +208,7 @@
                                 } else {
                                     if (previousValue == "0" && backspacedOnceOnEmpty) {
                                         nullify()
+                                        return
                                     }
                                     if (previousValue == "0") {
                                         backspacedOnceOnEmpty = true
@@ -246,10 +247,31 @@
                 onEdit(parentPath, value-0)
                 return output
             } else if (type == "string") {
-                onEdit(parentPath, value-0)
-                return html`
-                    <textarea contenteditable=${false} oninput=${({target})=>onEdit(parentPath, target.value)} value=${value} />
+                let backspacedOnceOnEmpty = 0
+                const output = html`
+                    <textarea
+                        contenteditable=${false}
+                        oninput=${(e)=>{
+                            value = e.target.value
+                            backspacedOnceOnEmpty = false
+                            onEdit(parentPath, value)
+                        }}
+                        onkeydown=${(e)=>{
+                            if (value == "" && e.key == "Backspace") {
+                                backspacedOnceOnEmpty++
+                                if (backspacedOnceOnEmpty > 2) {
+                                    nullify()
+                                } else if (backspacedOnceOnEmpty == 1) {
+                                    notify("Press backspace twice more to nullify")
+                                }
+                            }
+                        }}
+                        value=${value}
+                        />
                 `
+                output.attachFocus = ()=>output.focus()
+                onEdit(parentPath, value)
+                return output
             } else if (type == "array") {
                 return html`[not implemented yet]`
             } else if (type == "object") {
@@ -258,7 +280,7 @@
                 return html`[unknown type: ${type}]`
             }
         }
-        function JsonEditor({onEdit=()=>0, value, parentPath=[], notify=()=>0}) {
+        function JsonEditor({onEdit=()=>0, value, parentPath=[], notify=(message)=>console.log(message)}) {
             const nullify = ()=>{
                 element.innerHTML = "null"
                 onEdit(parentPath, null)
