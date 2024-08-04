@@ -164,14 +164,14 @@
     // Components
     // 
     // 
-        function InnerJsonValue({ onEdit, nullify, type, parentPath, value, notify }) {
-            if (type == "bool") {
+        function InnerJsonValue({ onEdit, nullify, type, getParentPath, value, notify }) {
+            if (type == "boolean") {
                 value = !!`${value}`.match(/^t/)
                 const toggle =()=>{
                     value = !value
                     input.checked = value
                     message.innerHTML = `${value}`
-                    onEdit(parentPath, value) 
+                    onEdit(getParentPath(), value) 
                 }
                 const input = html`<input
                     type="checkbox"
@@ -191,7 +191,7 @@
                         ${input}
                         ${message}
                 </span>`
-                onEdit(parentPath, value)
+                onEdit(getParentPath(), value)
                 returnElement.attachFocus = ()=>input.focus()
                 return returnElement
             } else if (type == "number") {
@@ -221,7 +221,7 @@
                                 previousValue = e.target.value
                                 backspacedOnceOnEmpty = false
                             }
-                            onEdit(parentPath, e.target.value)
+                            onEdit(getParentPath(), e.target.value)
                         }}
                         onkeydown=${(e)=>{
                             if (e.key == "Backspace") {
@@ -244,7 +244,7 @@
                     }
                     output.type = "number"
                 }
-                onEdit(parentPath, value-0)
+                onEdit(getParentPath(), value-0)
                 return output
             } else if (type == "string") {
                 let backspacedOnceOnEmpty = 0
@@ -254,7 +254,7 @@
                         oninput=${(e)=>{
                             value = e.target.value
                             backspacedOnceOnEmpty = false
-                            onEdit(parentPath, value)
+                            onEdit(getParentPath(), value)
                         }}
                         onkeydown=${(e)=>{
                             if (value == "" && e.key == "Backspace") {
@@ -270,24 +270,203 @@
                         />
                 `
                 output.attachFocus = ()=>output.focus()
-                onEdit(parentPath, value)
+                onEdit(getParentPath(), value)
                 return output
             } else if (type == "array") {
-                return html`[not implemented yet]`
+                let arrayValue = value
+                let arrayContainer
+                
+                const emptyMessage = html`<span style="color: var(--gray, gray)"></span>`
+                const updateEmptyMessage = ()=>{
+                    if (arrayValue.length == 0) {
+                        emptyMessage.innerHTML = "(empty list)"
+                    } else {
+                        emptyMessage.innerHTML = ""
+                    }
+                }
+                const InsertButton = ({getIndex})=>html`<button
+                    style="
+                        padding: 0.5em;
+                        border: none;
+                        border-radius: 1em; 
+                        background: var(--green, darkcyan);
+                        color: var(--white, white);
+                        font-size: 0.8em;
+                        margin-left: ${!getIndex?`0`: `calc(var(--remove-button-size, 2.5em) + 0.5em)`};
+                    "
+                    onclick=${()=>{
+                        insertValue({ index:getIndex? getIndex():0, value: null })
+                    }}
+                    tabindex="-1"
+                    >
+                        insert
+                </button>`
+                
+                const insertValue = ({index, value})=>{
+                    let type = typeof each
+                    if (value == null) {
+                        type = "null"
+                    } else if (value instanceof Array) {
+                        type = "array"
+                    }
+                    const editorElement = JsonEditor({
+                        onEdit: (parentPath, value)=>{
+                            arrayValue[parentPath.slice(-1)] = value
+                            onEdit(getParentPath, arrayValue)
+                        },
+                        value,
+                        getParentPath: ()=>[...getParentPath(), returnElement.index],
+                        notify,
+                        type, 
+                    })
+                    const remove = ()=>{
+                        // prevent multiple removals (fast clicks)
+                        if (returnElement.removed) {
+                            return
+                        }
+                        returnElement.removed = true
+                        arrayValue.splice(returnElement.index, 1)
+                        arrayContainer.removeChild(returnElement)
+                        let index = 0
+                        for (const each of arrayContainer.children) {
+                            each.index = index++
+                        }
+                        updateEmptyMessage()
+                        onEdit(getParentPath(), arrayValue)
+                    }
+                    const removeElement = html`<button
+                        style="
+                            padding: 0.5em;
+                            border: none;
+                            border-radius: var(--remove-button-size, 2.5em); 
+                            background: var(--red, red);
+                            color: var(--white, white);
+                            height: var(--remove-button-size, 2.5em);
+                            width: var(--remove-button-size, 2.5em);
+                            font-size: 0.8em;
+                            margin-right: 0.5em;
+                        "
+                        onclick=${remove}
+                        onkeydown=${(e)=>{
+                            if (e.key == "Enter") {
+                                remove()
+                            }
+                        }}
+                        tabindex="-1"
+                        >
+                            X
+                    </button>`
+                    
+                    const returnElement = html`<div style="position: relative; display: flex; flex-direction: column; gap: 0.5em;">
+                        <div style="position: relative; display: flex; flex-direction: row; align-items: center;">
+                            ${removeElement}
+                            ${editorElement}
+                        </div>
+                        ${InsertButton({getIndex:()=>returnElement.index+1})}
+                    </div>`
+                    returnElement.index = index
+                    
+                    // insertion logic
+                    if (index >= arrayValue.length) {
+                        index = arrayValue.length
+                        arrayValue.push(value)
+                        arrayContainer.appendChild(returnElement)
+                    } else {
+                        arrayValue.splice(index, 0, value)
+                        arrayContainer.insertBefore(returnElement, arrayContainer.children[index])
+                    }
+                    // update index of self and others
+                    let elementIndex = 0
+                    for (const each of arrayContainer.children) {
+                        each.index = elementIndex++
+                    }
+                    updateEmptyMessage()
+                    return returnElement
+                }
+                
+                arrayContainer = html`
+                    <div name="list" style="position: relative; display: flex; flex-direction: column; gap: 0.5em;">
+                        ${emptyMessage}
+                        ${InsertButton({})}
+                    </div>
+                `
+                
+                let elementIndex = -1
+                for (const each of arrayValue) {
+                    elementIndex++
+                    insertValue({ index: elementIndex, value: each })
+                }
+                updateEmptyMessage()
+                onEdit(getParentPath(), value)
+                return arrayContainer
             } else if (type == "object") {
                 return html`[not implemented yet]`
             } else {
                 return html`[unknown type: ${type}]`
             }
         }
-        function JsonEditor({onEdit=()=>0, value, parentPath=[], notify=(message)=>console.log(message)}) {
+        function JsonEditor({onEdit=()=>0, value, getParentPath=()=>[], notify=(message)=>console.log(message)}) {
             const nullify = ()=>{
                 element.innerHTML = "null"
-                onEdit(parentPath, null)
+                onEdit(getParentPath(), null)
                 try {
                     element.focus()
                 } catch (error) {
                     
+                }
+            }
+            const setValue = ({type, newValue})=>{
+                let innerElement
+                if (type=="object") {
+                    innerElement = InnerJsonValue({ onEdit, type: "object", getParentPath, value: newValue, nullify, notify })
+                } else if (type=="array") {
+                    innerElement = InnerJsonValue({ onEdit, type: "array", getParentPath, value: newValue, nullify, notify  })
+                } else if (type=="string") {
+                    if (newValue == value) {
+                        return
+                    }
+                    innerElement = InnerJsonValue({ onEdit, type: "string", getParentPath, value: newValue, nullify, notify  })
+                } else if (type=="number") {
+                    if (newValue == value) {
+                        return
+                    }
+                    innerElement = InnerJsonValue({ onEdit, type: "number", getParentPath, value: newValue, nullify, notify  })
+                } else if (type=="boolean") {
+                    if (newValue == value) {
+                        return
+                    }
+                    innerElement = InnerJsonValue({ onEdit, type: "boolean", getParentPath, value: newValue, nullify, notify  })
+                } else {
+                    if (newValue == value) {
+                        return
+                    }
+                    nullify()
+                }
+                if (innerElement) {
+                    element.innerHTML = ""
+                    element.appendChild(html`<div>
+                        ${innerElement}
+                        <button
+                            style="
+                                position: absolute;
+                                top: 0;
+                                right: 0;
+                                padding: 0.5em;
+                                border: none;
+                                border-radius: 1em; 
+                                background: var(--red, red);
+                                color: var(--white, white);
+                                font-size: 0.8em;
+                                box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
+                                transform: translate(25%, -25%);
+                            "
+                            onclick=${nullify}
+                            tabindex="-1"
+                            >
+                                nullify
+                        </button>
+                    </div>`)
+                    innerElement.attachFocus && innerElement.attachFocus()
                 }
             }
             const element = html`
@@ -302,48 +481,25 @@
                             if (value == null && e.data) {
                                 let innerElement
                                 if (e.data=="{") {
-                                    innerElement = InnerJsonValue({ onEdit, type: "object", parentPath, value: {}, nullify, notify })
+                                    setValue({ type: "object", newValue: {} })
                                 } else if (e.data=="[") {
-                                    innerElement = InnerJsonValue({ onEdit, type: "array", parentPath, value: [], nullify, notify  })
+                                    setValue({ type: "array", newValue: [] })
                                 } else if (e.data=="\"" || e.data=="'") {
-                                    innerElement = InnerJsonValue({ onEdit, type: "string", parentPath, value: "", nullify, notify  })
+                                    setValue({ type: "string", newValue: "" })
                                 } else if (e.data.match(/^[0-9\-\.]/)) {
-                                    innerElement = InnerJsonValue({ onEdit, type: "number", parentPath, value: e.data, nullify, notify  })
+                                    setValue({ type: "number", newValue: e.data })
                                 } else if (e.data == "t" || e.data == "f") {
-                                    innerElement = InnerJsonValue({ onEdit, type: "bool", parentPath, value: e.data, nullify, notify  })
-                                }
-                                if (innerElement) {
-                                    element.innerHTML = ""
-                                    element.appendChild(html`<div>
-                                        ${innerElement}
-                                        <button
-                                            style="
-                                                position: absolute;
-                                                top: 0;
-                                                right: 0;
-                                                padding: 0.5em;
-                                                border: none;
-                                                border-radius: 1em; 
-                                                background: var(--red, red);
-                                                color: var(--white, white);
-                                                font-size: 0.8em;
-                                            "
-                                            onclick=${nullify}
-                                            tabindex="-1"
-                                            >
-                                                nullify
-                                        </button>
-                                    </div>`)
-                                    innerElement.attachFocus && innerElement.attachFocus()
-                                    // innerElement.setSelectionRange(innerElement.value.length, innerElement.value.length)
+                                    setValue({ type: "boolean", newValue: e.data == "t" })
                                 }
                             }
                         }
                     }}
+                    width="fit-content"
                     border-radius="1em"
                     box-shadow="0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24)"
                     padding="1.5em 2em"
                     background="var(--card-background, white)"
+                    position="relative"
                     >
                         null
                 </div>
