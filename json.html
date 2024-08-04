@@ -164,7 +164,26 @@
     // Components
     // 
     // 
-        function InnerJsonValue({ onEdit, nullify, type, getParentPath, value, notify }) {
+        const focusOn = async (element)=>{
+            if (!element) {
+                return
+            }
+            const tabindex = element.getAttribute("tabindex")
+            element.setAttribute("tabindex", -1)
+            console.debug(`element is:`,element)
+            element.focus()
+            
+            let cap = 100
+            while (document.activeElement != element) {
+                await new Promise(resolve => setTimeout(resolve, 100))
+                element.focus()
+                if (cap-- <= 0) {
+                    break
+                }
+            }
+            element.tabindex = tabindex
+        }
+        function InnerJsonValue({ onEdit, nullify, type, getParentPath, value, notify, root }) {
             if (type == "boolean") {
                 value = !!`${value}`.match(/^t/)
                 const toggle =()=>{
@@ -192,14 +211,31 @@
                         ${message}
                 </span>`
                 onEdit(getParentPath(), value)
-                returnElement.attachFocus = ()=>input.focus()
+                returnElement.attachFocus = ()=>focusOn(input)
                 return returnElement
             } else if (type == "number") {
                 let backspacedOnceOnEmpty = false
                 let previousValue = value
-                const output = html`
+                const getWidth = ()=>`${(`${value}`.length+2)*0.8}em`
+                const measuringTape = document.createElement("span")
+                measuringTape.style.position = "absolute"
+                measuringTape.style.pointerEvents = "none"
+                measuringTape.style.opacity = "0"
+                measuringTape.innerHTML = `${value}`
+                const updateWidth = ()=>{
+                    try {
+                        returnElement.parentElement.insertBefore(measuringTape, returnElement)
+                    } catch (error) {}
+                    try {
+                        returnElement.style.width = `calc(${window.getComputedStyle(measuringTape).width} + 2.2em)`
+                    } catch (error) {
+                        returnElement.style.width = "min-content"
+                    }
+                }
+                const returnElement = html`
                     <input
                         contenteditable=${false}
+                        style="text-align: right; border: none; caret-color: initial; width: ${getWidth()};"
                         oninput=${(e)=>{
                             // no invalid numbers
                             if (e.target.value == "") {
@@ -221,6 +257,9 @@
                                 previousValue = e.target.value
                                 backspacedOnceOnEmpty = false
                             }
+                            value = e.target.value
+                            measuringTape.innerHTML = `${e.target.value}`
+                            updateWidth()
                             onEdit(getParentPath(), e.target.value)
                         }}
                         onkeydown=${(e)=>{
@@ -233,19 +272,19 @@
                         value=${value}
                         />
                 `
-                output.attachFocus = ()=>{
+                returnElement.attachFocus = ()=>{
                     // selection range doesnt work for number input for some reason
-                    output.type = "text"
+                    returnElement.type = "text"
+                    focusOn(returnElement)
                     try {
-                        output.focus()
-                        output.setSelectionRange(1, 1)
+                        returnElement.setSelectionRange(1, 1)
                     } catch (error) {
-                        
                     }
-                    output.type = "number"
+                    returnElement.type = "number"
                 }
+                updateWidth()
                 onEdit(getParentPath(), value-0)
-                return output
+                return returnElement
             } else if (type == "string") {
                 let backspacedOnceOnEmpty = 0
                 const output = html`
@@ -269,7 +308,7 @@
                         value=${value}
                         />
                 `
-                output.attachFocus = ()=>output.focus()
+                output.attachFocus = ()=>focusOn(output)
                 onEdit(getParentPath(), value)
                 return output
             } else if (type == "array") {
@@ -303,6 +342,8 @@
                 </button>`
                 
                 const insertValue = ({index, value})=>{
+                    let returnElement
+                    console.debug(`inserting value:`,value)
                     let type = typeof each
                     if (value == null) {
                         type = "null"
@@ -310,14 +351,15 @@
                         type = "array"
                     }
                     const editorElement = JsonEditor({
-                        onEdit: (parentPath, value)=>{
-                            arrayValue[parentPath.slice(-1)] = value
+                        onEdit: (parentPath, newValue)=>{
+                            arrayValue[parentPath.slice(-1)] = newValue
                             onEdit(getParentPath, arrayValue)
                         },
                         value,
-                        getParentPath: ()=>[...getParentPath(), returnElement.index],
+                        getParentPath: ()=>[...getParentPath(), returnElement?returnElement.index:index],
                         notify,
-                        type, 
+                        type,
+                        root,
                     })
                     const remove = ()=>{
                         // prevent multiple removals (fast clicks)
@@ -327,7 +369,7 @@
                         returnElement.removed = true
                         arrayValue.splice(returnElement.index, 1)
                         arrayContainer.removeChild(returnElement)
-                        let index = 0
+                        let index = -2
                         for (const each of arrayContainer.children) {
                             each.index = index++
                         }
@@ -357,7 +399,7 @@
                             X
                     </button>`
                     
-                    const returnElement = html`<div style="position: relative; display: flex; flex-direction: column; gap: 0.5em;">
+                    returnElement = html`<div style="position: relative; display: flex; flex-direction: column; gap: 0.5em;">
                         <div style="position: relative; display: flex; flex-direction: row; align-items: center;">
                             ${removeElement}
                             ${editorElement}
@@ -376,11 +418,16 @@
                         arrayContainer.insertBefore(returnElement, arrayContainer.children[index])
                     }
                     // update index of self and others
-                    let elementIndex = 0
+                    let elementIndex = -2
                     for (const each of arrayContainer.children) {
                         each.index = elementIndex++
                     }
                     updateEmptyMessage()
+                    try {
+                        editorElement.attachFocus()
+                    } catch (error) {
+                        console.error(error)
+                    }
                     return returnElement
                 }
                 
@@ -405,12 +452,18 @@
                 return html`[unknown type: ${type}]`
             }
         }
-        function JsonEditor({onEdit=()=>0, value, getParentPath=()=>[], notify=(message)=>console.log(message)}) {
+        function JsonEditor({onEdit=()=>0, value, getParentPath=()=>[], notify=(message)=>console.log(message), root=null}) {
+            const parentOnEdit = onEdit
+            onEdit = (path, newValue)=>{
+                console.debug(`JsonEditor onEdit value is:`,newValue)
+                value = newValue
+                parentOnEdit(path, newValue)
+            }
             const nullify = ()=>{
                 element.innerHTML = "null"
                 onEdit(getParentPath(), null)
                 try {
-                    element.focus()
+                    focusOn(element)
                 } catch (error) {
                     
                 }
@@ -418,24 +471,24 @@
             const setValue = ({type, newValue})=>{
                 let innerElement
                 if (type=="object") {
-                    innerElement = InnerJsonValue({ onEdit, type: "object", getParentPath, value: newValue, nullify, notify })
+                    innerElement = InnerJsonValue({ onEdit, type: "object", getParentPath, value: newValue, nullify, notify, root })
                 } else if (type=="array") {
-                    innerElement = InnerJsonValue({ onEdit, type: "array", getParentPath, value: newValue, nullify, notify  })
+                    innerElement = InnerJsonValue({ onEdit, type: "array", getParentPath, value: newValue, nullify, notify, root  })
                 } else if (type=="string") {
                     if (newValue == value) {
                         return
                     }
-                    innerElement = InnerJsonValue({ onEdit, type: "string", getParentPath, value: newValue, nullify, notify  })
+                    innerElement = InnerJsonValue({ onEdit, type: "string", getParentPath, value: newValue, nullify, notify, root  })
                 } else if (type=="number") {
                     if (newValue == value) {
                         return
                     }
-                    innerElement = InnerJsonValue({ onEdit, type: "number", getParentPath, value: newValue, nullify, notify  })
+                    innerElement = InnerJsonValue({ onEdit, type: "number", getParentPath, value: newValue, nullify, notify, root  })
                 } else if (type=="boolean") {
                     if (newValue == value) {
                         return
                     }
-                    innerElement = InnerJsonValue({ onEdit, type: "boolean", getParentPath, value: newValue, nullify, notify  })
+                    innerElement = InnerJsonValue({ onEdit, type: "boolean", getParentPath, value: newValue, nullify, notify, root  })
                 } else {
                     if (newValue == value) {
                         return
@@ -473,8 +526,23 @@
                 <div
                     name="JsonEditor"
                     contenteditable=${true}
+                    onfocus=${(e)=>{
+                        if (e.target == element) {
+                            console.log(`JsonEditor.onfocus ${JSON.stringify(getParentPath())} e is:`,e)
+                            element.setAttribute("contenteditable", true)
+                            e.stopPropagation()
+                        }
+                    }}
+                    onclick=${(e)=>{
+                        if (e.target == element) {
+                            console.log(`JsonEditor.onclick ${JSON.stringify(getParentPath())} e is:`,e)
+                            focusOn(element)
+                            e.stopPropagation()
+                        }
+                    }}
                     caret-color="transparent"
                     onbeforeinput=${(e)=>{
+                        // console.debug(`JsonEditor.onbeforeinput ${JSON.stringify(getParentPath())} value is:`,value)
                         if (e.target == element) {
                             e.preventDefault()
                             console.log(e)
@@ -504,6 +572,29 @@
                         null
                 </div>
             `
+            if (!root) {
+                root = element
+            }
+            if (value != null) {
+                let type = typeof each
+                if (value instanceof Array) {
+                    type = "array"
+                }
+                setValue({ type, newValue: value })
+            }
+            element.attachFocus = ()=>{
+                // can't focus parents are non-content editable
+                let parent = element.parentElement
+                while (parent && parent != root) {
+                    parent.setAttribute("contenteditable", false)
+                    parent = parent.parentElement
+                }
+                if (parent == root) {
+                    parent.setAttribute("contenteditable", false)
+                }
+                focusOn(element)
+            }
+            
             return element
         }
         document.body.children[0].focus()
