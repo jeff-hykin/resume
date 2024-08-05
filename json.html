@@ -2014,7 +2014,6 @@
             }
             const tabindex = element.getAttribute("tabindex")
             element.setAttribute("tabindex", -1)
-            console.debug(`element is:`,element)
             element.focus()
             
             let cap = 100
@@ -2026,6 +2025,43 @@
                 }
             }
             element.tabindex = tabindex
+        }
+        function getType(value) {
+            let type = typeof value
+            if (value == null) {
+                return "null"
+            } else if (value instanceof Array) {
+                return "array"
+            }
+            return type
+        }
+        function EditJsonString({ onEdit, nullify, type, getParentPath, value, notify, root }) {
+            let backspacedOnceOnEmpty = 0
+            const output = html`
+                <textarea
+                    style="border: none; height: 1.7em; box-sizing: content-box;"
+                    contenteditable=${false}
+                    oninput=${(e)=>{
+                        value = e.target.value
+                        backspacedOnceOnEmpty = false
+                        onEdit(getParentPath(), value)
+                    }}
+                    onkeydown=${(e)=>{
+                        if (value == "" && e.key == "Backspace") {
+                            backspacedOnceOnEmpty++
+                            if (backspacedOnceOnEmpty > 2) {
+                                nullify()
+                            } else if (backspacedOnceOnEmpty == 1) {
+                                notify("Press backspace twice more to nullify")
+                            }
+                        }
+                    }}
+                    value=${value}
+                    />
+            `
+            output.attachFocus = ()=>focusOn(output)
+            onEdit(getParentPath(), value)
+            return output
         }
         function InnerJsonValue({ onEdit, nullify, type, getParentPath, value, notify, root }) {
             if (type == "boolean") {
@@ -2130,31 +2166,7 @@
                 onEdit(getParentPath(), value-0)
                 return returnElement
             } else if (type == "string") {
-                let backspacedOnceOnEmpty = 0
-                const output = html`
-                    <textarea
-                        contenteditable=${false}
-                        oninput=${(e)=>{
-                            value = e.target.value
-                            backspacedOnceOnEmpty = false
-                            onEdit(getParentPath(), value)
-                        }}
-                        onkeydown=${(e)=>{
-                            if (value == "" && e.key == "Backspace") {
-                                backspacedOnceOnEmpty++
-                                if (backspacedOnceOnEmpty > 2) {
-                                    nullify()
-                                } else if (backspacedOnceOnEmpty == 1) {
-                                    notify("Press backspace twice more to nullify")
-                                }
-                            }
-                        }}
-                        value=${value}
-                        />
-                `
-                output.attachFocus = ()=>focusOn(output)
-                onEdit(getParentPath(), value)
-                return output
+                return EditJsonString({ onEdit, nullify, type, getParentPath, value, notify, root })
             } else if (type == "array") {
                 let arrayValue = value
                 let arrayContainer
@@ -2192,12 +2204,7 @@
                 
                 const insertValue = ({index, value})=>{
                     let returnElement
-                    let type = typeof each
-                    if (value == null) {
-                        type = "null"
-                    } else if (value instanceof Array) {
-                        type = "array"
-                    }
+                    const type = getType(value)
                     const editorElement = JsonEditor({
                         onEdit: (parentPath, newValue)=>{
                             arrayValue[parentPath.slice(-1)] = newValue
@@ -2318,156 +2325,405 @@
                 updateEmptyMessage()
                 onEdit(getParentPath(), value)
                 return arrayContainer
+            // 
+            // 
+            // object
+            // 
+            // 
             } else if (type == "object") {
-                return html`[not implemented yet]`
+                let objectValue = value
+                let objectContainer
+                
+                const emptyMessage = html`<span style="color: var(--gray, gray)"></span>`
+                const updateEmptyMessage = ()=>{
+                    if (Object.keys(objectValue).length == 0) {
+                        emptyMessage.innerHTML = "(empty named list)"
+                    } else {
+                        emptyMessage.innerHTML = ""
+                    }
+                }
+                
+                const InsertButton = ({getIndex})=>{
+                    const button = html`<button
+                        style="
+                            transition: all 0.25s ease-in-out 0s;
+                            padding: 0.5em;
+                            border: none;
+                            border-radius: 1em; 
+                            background: var(--green, darkcyan);
+                            color: var(--white, white);
+                            font-size: 0.8em;
+                            margin-left: ${!getIndex?`0`: `calc(var(--remove-button-size, 2.1em) + 0.5em)`};
+                        "
+                        onclick=${()=>{
+                            insertValue({ index:getIndex? getIndex():0, value: null })
+                        }}
+                        tabindex="-1"
+                        >
+                            insert
+                    </button>`
+                    
+                    return button
+                }
+                
+                const KeyInput = ({key, onEdit})=>{
+                    let backspacedOnceOnEmpty = 0
+                    const output = html`
+                        <textarea
+                            contenteditable=${false}
+                            oninput=${(e)=>{
+                                value = e.target.value
+                                backspacedOnceOnEmpty = false
+                                onEdit(getParentPath(), value)
+                            }}
+                            onkeydown=${(e)=>{
+                                if (value == "" && e.key == "Backspace") {
+                                    backspacedOnceOnEmpty++
+                                    if (backspacedOnceOnEmpty > 2) {
+                                        nullify()
+                                    } else if (backspacedOnceOnEmpty == 1) {
+                                        notify("Press backspace twice more to nullify")
+                                    }
+                                }
+                            }}
+                            value=${value}
+                            />
+                    `
+                    output.attachFocus = ()=>focusOn(output)
+                    onEdit(getParentPath(), value)
+                    return output
+                }
+                
+                const insertValue = ({index, key, value})=>{
+                    // 
+                    // figure out key
+                    // 
+                    let noInitialKey = false
+                    if (key == null) {
+                        noInitialKey = true
+                        // grab unique key
+                        while (Object.keys(objectValue).includes(key)) {
+                            key = `${Math.random()}`.replace(".", "")
+                        }
+                    }
+                    
+                    // 
+                    // figure out value
+                    // 
+                    let returnElement
+                    const type = getType(value)
+                    // 
+                    // create key editor
+                    // 
+                    const keyEditor = JsonEditor({
+                        
+                    })
+                    
+                    // 
+                    // create value editor
+                    // 
+                    const valueEditor = JsonEditor({
+                        // when the child is edited
+                        onEdit: (parentPath, newValue)=>{
+                            // say that the parent is edited
+                            objectValue[parentPath.slice(-1)] = newValue
+                            onEdit(getParentPath, objectValue)
+                        },
+                        value,
+                        getParentPath: ()=>[...getParentPath(), returnElement?returnElement.key:key],
+                        notify,
+                        type,
+                        root,
+                    })
+                    const remove = ()=>{
+                        // prevent multiple removals (fast clicks)
+                        if (returnElement.removed) {
+                            return
+                        }
+                        returnElement.removed = true
+                        objectValue.splice(returnElement.index, 1)
+                        objectContainer.removeChild(returnElement)
+                        let index = -2
+                        for (const each of objectContainer.children) {
+                            each.index = index++
+                        }
+                        updateEmptyMessage()
+                        onEdit(getParentPath(), objectValue)
+                    }
+                    const removeElement = html`<button
+                        style="
+                            padding: 0.5em;
+                            border: none;
+                            border-radius: var(--remove-button-size, 2.1em); 
+                            background: var(--red, red);
+                            color: var(--white, white);
+                            z-index: 1;
+                            height: var(--remove-button-size, 2.1em);
+                            width: var(--remove-button-size, 2.1em);
+                            font-size: 0.8em;
+                            margin-right: 0.5em;
+                        "
+                        onclick=${remove}
+                        onkeydown=${(e)=>{
+                            if (e.key == "Enter") {
+                                remove()
+                            }
+                        }}
+                        tabindex="-1"
+                        >
+                            X
+                    </button>`
+                    
+                    const insertButton = InsertButton({getIndex:()=>returnElement.index+1})
+                    returnElement = html`<div style="position: relative; display: flex; flex-direction: column; gap: 0.5em;">
+                        <div style="position: relative; display: flex; flex-direction: row; align-items: center;">
+                            ${removeElement}
+                            ${valueEditor}
+                        </div>
+                        ${insertButton}
+                    </div>`
+                    returnElement.index = index
+                    returnElement.key = key
+                    
+                    addDynamicStyleFlags({
+                        element: returnElement,
+                        styleFunc: (element)=>{
+                            insertButton.style.opacity = element.isHovered ? 1 : 0
+                            insertButton.style.maxHeight = element.isHovered ? "2.1em" : "0"
+                            insertButton.style.marginTop = element.isHovered ? "0" : "-1.5em"
+                            
+                            console.debug(`element.isFocused is:`,element.isFocused)
+                            
+                            valueEditor.style.border = element.isFocused ? "solid cornflowerblue 1px" : "none"
+                        },
+                        flagKeys: {
+                            isHovered: [ "mouseover", "mouseout" ],
+                            isFocused: [ "focus", "blur" ],
+                        }
+                    })
+                    
+                    // insertion logic
+                    if (index >= objectValue.length) {
+                        index = arrayValue.length
+                        arrayValue.push(value)
+                        objectContainer.appendChild(returnElement)
+                    } else {
+                        arrayValue.splice(index, 0, value)
+                        objectContainer.insertBefore(returnElement, objectContainer.children[index])
+                    }
+                    // update index of self and others
+                    let elementIndex = -2
+                    for (const each of objectContainer.children) {
+                        each.index = elementIndex++
+                    }
+                    updateEmptyMessage()
+                    try {
+                        valueEditor.attachFocus()
+                    } catch (error) {
+                        console.error(error)
+                    }
+                    return returnElement
+                }
+                
+                const rootInsertButton = InsertButton({})
+                objectContainer = html`
+                    <div name="list" style="position: relative; display: flex; flex-direction: column; gap: 0.5em;">
+                        ${emptyMessage}
+                        ${rootInsertButton}
+                    </div>
+                `
+                addDynamicStyleFlags({
+                    element: objectContainer,
+                    styleFunc: (element)=>{
+                        rootInsertButton.style.opacity = element.isHovered ? 1 : 0
+                    },
+                    flagKeys: {
+                        isHovered: [ "mouseover", "mouseout" ],
+                        // isFocused: [ "focus", "blur" ],
+                    }
+                })
+                
+                let elementIndex = -1
+                for (const each of arrayValue) {
+                    elementIndex++
+                    insertValue({ index: elementIndex, value: each })
+                }
+                updateEmptyMessage()
+                onEdit(getParentPath(), value)
+                return objectContainer
             } else {
                 return html`[unknown type: ${type}]`
             }
         }
         function JsonEditor({onEdit=()=>0, value, getParentPath=()=>[], notify=(message)=>console.log(message), root=null}) {
-            const parentOnEdit = onEdit
-            onEdit = (path, newValue)=>{
-                console.debug(`JsonEditor onEdit value is:`,newValue)
-                value = newValue
-                parentOnEdit(path, newValue)
-            }
-            const nullify = ()=>{
-                element.innerHTML = "null"
-                onEdit(getParentPath(), null)
-                try {
-                    focusOn(element)
-                } catch (error) {
+            const object = {
+                getParentPath,
+                notify,
+                root,
+                element: null,
+                isRoot: root == null,
+                parentOnEdit: onEdit,
+                onEdit: (path, newValue)=>{
+                    value = newValue
+                    object.parentOnEdit(path, newValue)
+                },
+                nullify: ()=>{
+                    object.element.innerHTML = "null"
+                    object.onEdit(getParentPath(), null)
+                    try {
+                        focusOn(object.element)
+                    } catch (error) {
+                        
+                    }
+                },
+                onFocus: (eventObject)=>{
+                    if (eventObject.target == object.element) {
+                        object.element.setAttribute("contenteditable", true)
+                        eventObject.stopPropagation()
+                    }
+                },
+                onClick: (eventObject)=>{
+                    if (eventObject.target == object.element) {
+                        focusOn(object.element)
+                        eventObject.stopPropagation()
+                    }
+                },
+                onBeforeInput: (eventObject)=>{
+                    if (eventObject.target == object.element) {
+                        eventObject.preventDefault() // this prevent contenteditable from acting like contenteditable (just allows us to capture the keypress)
+                        if (value == null && eventObject.data) {
+                            let innerElement
+                            if (eventObject.data=="{") {
+                                object.setValue({ type: "object", newValue: {} })
+                            } else if (eventObject.data=="[") {
+                                object.setValue({ type: "array", newValue: [] })
+                            } else if (eventObject.data=="\"" || eventObject.data=="'") {
+                                object.setValue({ type: "string", newValue: "" })
+                            } else if (eventObject.data.match(/^[0-9\-\.]/)) {
+                                object.setValue({ type: "number", newValue: eventObject.data })
+                            } else if (eventObject.data == "t" || eventObject.data == "f") {
+                                object.setValue({ type: "boolean", newValue: eventObject.data == "t" })
+                            }
+                        }
+                    }
+                },
+                attachFocus: ()=>{
+                    // can't focus until parents are non-content editable
+                    let parent = object.element.parentElement
+                    while (parent && parent != root) {
+                        parent.setAttribute("contenteditable", false)
+                        parent = parent.parentElement
+                    }
+                    if (parent == root) {
+                        parent.setAttribute("contenteditable", false)
+                    }
+                    focusOn(object.element)
+                },
+                setValue: ({type, newValue})=>{
+                    const { element, onEdit, getParentPath, notify, nullify } = object
+                    if (object.isRoot) {
+                        root = element
+                    }
                     
-                }
+                    let innerElement
+                    if (type=="object") {
+                        innerElement = InnerJsonValue({ onEdit, type: "object", getParentPath, value: newValue, nullify, notify, root })
+                    } else if (type=="array") {
+                        innerElement = InnerJsonValue({ onEdit, type: "array", getParentPath, value: newValue, nullify, notify, root  })
+                    } else if (type=="string") {
+                        if (newValue == value) {
+                            return
+                        }
+                        innerElement = InnerJsonValue({ onEdit, type: "string", getParentPath, value: newValue, nullify, notify, root  })
+                    } else if (type=="number") {
+                        if (newValue == value) {
+                            return
+                        }
+                        innerElement = InnerJsonValue({ onEdit, type: "number", getParentPath, value: newValue, nullify, notify, root  })
+                    } else if (type=="boolean") {
+                        if (newValue == value) {
+                            return
+                        }
+                        innerElement = InnerJsonValue({ onEdit, type: "boolean", getParentPath, value: newValue, nullify, notify, root  })
+                    } else {
+                        if (newValue == value) {
+                            return
+                        }
+                        object.nullify()
+                    }
+                    if (innerElement) {
+                        element.innerHTML = ""
+                        element.appendChild(html`<div>
+                            ${innerElement}
+                            <button
+                                style="
+                                    position: absolute;
+                                    top: 0;
+                                    right: 0;
+                                    padding: 0.5em;
+                                    border: none;
+                                    border-radius: 1em; 
+                                    background: var(--red, red);
+                                    color: var(--white, white);
+                                    font-size: 0.8em;
+                                    box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
+                                    transform: translate(25%, -25%);
+                                "
+                                onclick=${object.nullify}
+                                tabindex="-1"
+                                >
+                                    nullify
+                            </button>
+                        </div>`)
+                        innerElement.attachFocus && innerElement.attachFocus()
+                    }
+                },
             }
-            const setValue = ({type, newValue})=>{
-                let innerElement
-                if (type=="object") {
-                    innerElement = InnerJsonValue({ onEdit, type: "object", getParentPath, value: newValue, nullify, notify, root })
-                } else if (type=="array") {
-                    innerElement = InnerJsonValue({ onEdit, type: "array", getParentPath, value: newValue, nullify, notify, root  })
-                } else if (type=="string") {
-                    if (newValue == value) {
-                        return
-                    }
-                    innerElement = InnerJsonValue({ onEdit, type: "string", getParentPath, value: newValue, nullify, notify, root  })
-                } else if (type=="number") {
-                    if (newValue == value) {
-                        return
-                    }
-                    innerElement = InnerJsonValue({ onEdit, type: "number", getParentPath, value: newValue, nullify, notify, root  })
-                } else if (type=="boolean") {
-                    if (newValue == value) {
-                        return
-                    }
-                    innerElement = InnerJsonValue({ onEdit, type: "boolean", getParentPath, value: newValue, nullify, notify, root  })
-                } else {
-                    if (newValue == value) {
-                        return
-                    }
-                    nullify()
-                }
-                if (innerElement) {
-                    element.innerHTML = ""
-                    element.appendChild(html`<div>
-                        ${innerElement}
-                        <button
-                            style="
-                                position: absolute;
-                                top: 0;
-                                right: 0;
-                                padding: 0.5em;
-                                border: none;
-                                border-radius: 1em; 
-                                background: var(--red, red);
-                                color: var(--white, white);
-                                font-size: 0.8em;
-                                box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
-                                transform: translate(25%, -25%);
-                            "
-                            onclick=${nullify}
-                            tabindex="-1"
-                            >
-                                nullify
-                        </button>
-                    </div>`)
-                    innerElement.attachFocus && innerElement.attachFocus()
-                }
-            }
-            const element = html`
+            object.element = html`
                 <div
                     name="JsonEditor"
                     contenteditable=${true}
-                    onfocus=${(e)=>{
-                        if (e.target == element) {
-                            console.log(`JsonEditor.onfocus ${JSON.stringify(getParentPath())} e is:`,e)
-                            element.setAttribute("contenteditable", true)
-                            e.stopPropagation()
-                        }
-                    }}
-                    onclick=${(e)=>{
-                        if (e.target == element) {
-                            console.log(`JsonEditor.onclick ${JSON.stringify(getParentPath())} e is:`,e)
-                            focusOn(element)
-                            e.stopPropagation()
-                        }
-                    }}
-                    caret-color="transparent"
-                    onbeforeinput=${(e)=>{
-                        // console.debug(`JsonEditor.onbeforeinput ${JSON.stringify(getParentPath())} value is:`,value)
-                        if (e.target == element) {
-                            e.preventDefault()
-                            console.log(e)
-                            if (value == null && e.data) {
-                                let innerElement
-                                if (e.data=="{") {
-                                    setValue({ type: "object", newValue: {} })
-                                } else if (e.data=="[") {
-                                    setValue({ type: "array", newValue: [] })
-                                } else if (e.data=="\"" || e.data=="'") {
-                                    setValue({ type: "string", newValue: "" })
-                                } else if (e.data.match(/^[0-9\-\.]/)) {
-                                    setValue({ type: "number", newValue: e.data })
-                                } else if (e.data == "t" || e.data == "f") {
-                                    setValue({ type: "boolean", newValue: e.data == "t" })
-                                }
-                            }
-                        }
-                    }}
-                    width="fit-content"
-                    border-radius="1em"
-                    box-shadow="0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24)"
-                    padding="0.5em 1em"
-                    background="var(--card-background, white)"
-                    position="relative"
+                    onfocus=${object.onFocus}
+                    onclick=${object.onClick}
+                    onbeforeinput=${object.onBeforeInput}
+                    style=${`
+                        position: relative;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.5em;
+                        box-shadow: 0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24);
+                        caret-color: transparent;
+                        width: fit-content;
+                        border-radius: 1em;
+                        padding: 0.5em 1em;
+                        background: var(--card-background, white);
+                        position: relative;
+                        margin: ${object.isRoot?"0.5em":"0"};
+                    `}
                     >
                         null
                 </div>
             `
-            if (!root) {
-                root = element
-            }
-            if (value != null) {
-                let type = typeof each
-                if (value instanceof Array) {
-                    type = "array"
-                }
-                setValue({ type, newValue: value })
-            }
-            element.attachFocus = ()=>{
-                // can't focus parents are non-content editable
-                let parent = element.parentElement
-                while (parent && parent != root) {
-                    parent.setAttribute("contenteditable", false)
-                    parent = parent.parentElement
-                }
-                if (parent == root) {
-                    parent.setAttribute("contenteditable", false)
-                }
-                focusOn(element)
-            }
+            //
+            // init
+            //
+            object.element.attachFocus = object.attachFocus
+            object.setValue({ type: getType(value), newValue: value })
             
-            return element
+            // 
+            // dynamic styles
+            // 
+            addDynamicStyleFlags({
+                element: object.element,
+                styleFunc: ({ isFocused })=>{
+                    object.element.style.border = isFocused ? "solid cornflowerblue 1px" : "none"
+                },
+                flagKeys: {
+                    isFocused: [ "focus", "blur" ],
+                },
+            })
+            
+            return object.element
         }
         document.body.children[0].focus()
 // })()
