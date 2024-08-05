@@ -2239,7 +2239,7 @@
                     }
                 },
                 refreshIndicies: ()=>{
-                    let elementIndex = -object.prefixedElementCount
+                    let elementIndex = 0
                     for (const each of object.element.children) {
                         if (each.object) {
                             each.object.index = elementIndex++
@@ -2251,17 +2251,23 @@
                     object.updateEmptyMessage()
                 },
                 insertValue: ({index, value})=>{
+                    if (index < 0) {
+                        throw Error(`index cannot be negative`)
+                    }
                     const itemEntryElement = ItemEntry({ index, value })
                     const insertedObject = itemEntryElement.object
                     
                     // insertion logic
                     if (insertedObject.index >= object.value.length) {
+                        console.debug(`insertedObject.index >= object.value.length is:`,insertedObject.index >= object.value.length)
+                        console.log(`appending`)
                         insertedObject.index = object.value.length
                         object.value.push(value)
                         object.element.appendChild(insertedObject.element)
                     } else {
-                        object.value.splice(insertedObject.index, 0, value)
-                        object.element.insertBefore(insertedObject.element, object.element.children[insertedObject.index])
+                        console.debug(`insertedObject.index is:`,insertedObject.index)
+                        object.value.splice(insertedObject.index+1, 0, value)
+                        object.element.insertBefore(insertedObject.element, object.element.children[object.prefixedElementCount+(insertedObject.index+1)])
                     }
                     object.afterElementChange()
                     
@@ -2285,6 +2291,8 @@
                         
                     "
                     onclick=${()=>{
+                        console.log(`getIndex is:`,getIndex)
+                        console.log(`getInde&&getIndex() is:`,getIndex&&getIndex())
                         object.insertValue({ index:getIndex? getIndex():0, value: null })
                     }}
                     tabindex="-1"
@@ -2620,13 +2628,18 @@
                 },
                 onClick: (eventObject)=>{
                     if (eventObject.target == object.element) {
-                        focusOn(object.element)
+                        object.attachFocus()
                         eventObject.stopPropagation()
                     }
                 },
                 onBeforeInput: (eventObject)=>{
+                    // console.debug(`onBeforeInput: eventObject is:`,eventObject)
+                    // console.debug(`eventObject.target == object.element is:`,eventObject.target == object.element)
                     if (eventObject.target == object.element) {
                         eventObject.preventDefault() // this prevent contenteditable from acting like contenteditable (just allows us to capture the keypress)
+                        // console.debug(`${JSON.stringify(object.getParentPath())} value == null && eventObject.data is:`,value == null && eventObject.data)
+                        // console.debug(`${JSON.stringify(object.getParentPath())} value is:`,value)
+                        // console.debug(`${JSON.stringify(object.getParentPath())} eventObject.data is:`,eventObject.data)
                         if (value == null && eventObject.data) {
                             let innerElement
                             if (eventObject.data=="{") {
