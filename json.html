@@ -2059,6 +2059,29 @@
                 </button>
             `
         }
+        function NullifyButton({ children, action, ...other }) {
+            return html`
+                <button
+                    style="
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        padding: 0.5em;
+                        border: none;
+                        border-radius: 1em; 
+                        background: var(--gray, gray);
+                        color: var(--white, white);
+                        font-size: 0.8em;
+                        box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
+                        transform: translate(45%, -25%);
+                    "
+                    onclick=${action}
+                    tabindex="-1"
+                    >
+                        nullify
+                </button>
+            `
+        }
         function EditJsonBoolean({ onEdit, nullify, type, getParentPath, value, notify, root }) {
             const object = {
                 onEdit,
@@ -2221,7 +2244,6 @@
             return output
         }
         function EditJsonArray({ onEdit, nullify, type, getParentPath, value, notify, root }) {
-            // FIXME
             const object = {
                 onEdit,
                 nullify,
@@ -2267,7 +2289,7 @@
                     } else {
                         console.debug(`insertedObject.index is:`,insertedObject.index)
                         object.value.splice(insertedObject.index+1, 0, value)
-                        object.element.insertBefore(insertedObject.element, object.element.children[object.prefixedElementCount+(insertedObject.index+1)])
+                        object.element.insertBefore(insertedObject.element, object.element.children[object.prefixedElementCount+(insertedObject.index)])
                     }
                     object.afterElementChange()
                     
@@ -2282,13 +2304,19 @@
                 <button
                     style="
                         transition: all 0.25s ease-in-out 0s;
-                        padding: 0.5em;
+                        padding: 1px calc(20% + 10px);
                         border: none;
                         border-radius: 1em; 
                         background: var(--green, darkcyan);
                         color: var(--white, white);
                         font-size: 0.8em;
-                        
+                        width: 70%;
+                        height: fit-content;
+                        align-self: center;
+                        display: flex;
+                        justify-content: center;
+                        margin-top: 0.5em;
+                        margin-bottom: 0;
                     "
                     onclick=${()=>{
                         console.log(`getIndex is:`,getIndex)
@@ -2335,7 +2363,7 @@
                     removeElement: null,
                     insertButton: null,
                 }
-                insertedObject.element = html`<div style="position: relative; display: flex; flex-direction: column; gap: 0.5em;">
+                insertedObject.element = html`<div style="position: relative; display: flex; flex-direction: column; gap: 0em;">
                     <div style="position: relative; display: flex; flex-direction: row; align-items: center;">
                         ${insertedObject.removeElement = RemoveButton({
                             onclick: object.remove,
@@ -2362,7 +2390,7 @@
                     styleFunc: (element)=>{
                         insertedObject.insertButton.style.opacity = element.isHovered ? 1 : 0
                         insertedObject.insertButton.style.maxHeight = element.isHovered ? "2.1em" : "0"
-                        insertedObject.insertButton.style.marginTop = element.isHovered ? "0" : "-1.5em"
+                        insertedObject.insertButton.style.marginBottom = element.isHovered ? "0.5em" : "0"
                         insertedObject.removeElement.style.opacity = element.isHovered ? 1 : 0
                     },
                     flagKeys: {
@@ -2377,11 +2405,12 @@
             }
             
             object.element = html`
-                <div name="list" style="position: relative; display: flex; flex-direction: column; gap: 0.5em;">
-                    ${object.emptyMessageElement = html`<span style="color: var(--gray, gray)"></span>`}
+                <div name="list" style="position: relative; display: flex; flex-direction: column; gap: 0em;">
+                    ${object.emptyMessageElement = html`<span style="color: var(--gray, gray); width: 100%; text-align: center;"></span>`}
                     ${object.rootInsertButtonElement = InsertButton({})}
                 </div>
             `
+            object.rootInsertButtonElement.style.marginBottom = "0.5em"
             addDynamicStyleFlags({
                 element: object.element,
                 styleFunc: (element)=>{
@@ -2405,179 +2434,7 @@
             return object.element
         }
         function EditJsonObject({ onEdit, nullify, type, getParentPath, value, notify, root }) {
-            const object = {
-                onEdit,
-                nullify,
-                getParentPath,
-                notify,
-                root,
-                value,
-                prefixedElementCount: 2,
-                arrayValue: value,
-                updateEmptyMessage: ()=>{
-                    if (object.arrayValue.length == 0) {
-                        object.emptyMessageElement.innerHTML = "(empty list)"
-                    } else {
-                        object.emptyMessageElement.innerHTML = ""
-                    }
-                },
-                refreshIndicies: ()=>{
-                    let elementIndex = -object.prefixedElementCount
-                    for (const each of object.element.children) {
-                        if (each.object) {
-                            each.object.index = elementIndex++
-                        }
-                    }
-                },
-                afterElementChange: ()=>{
-                    object.refreshIndicies()
-                    object.updateEmptyMessage()
-                },
-                insertValue: ({index, value})=>{
-                    const itemEntryElement = ItemEntry({ index, value })
-                    const insertedObject = itemEntryElement.object
-                    
-                    // insertion logic
-                    if (insertedObject.index >= object.value.length) {
-                        insertedObject.index = object.value.length
-                        object.value.push(value)
-                        object.element.appendChild(insertedObject.element)
-                    } else {
-                        object.value.splice(insertedObject.index, 0, value)
-                        object.element.insertBefore(insertedObject.element, object.element.children[insertedObject.index])
-                    }
-                    object.afterElementChange()
-                    
-                    itemEntryElement.attachFocus()
-                },
-                element: null,
-                emptyMessageElement: null,
-                rootInsertButtonElement: null,
-            }
-            
-            const InsertButton = ({getIndex})=>html`
-                <button
-                    style="
-                        transition: all 0.25s ease-in-out 0s;
-                        padding: 0.5em;
-                        border: none;
-                        border-radius: 1em; 
-                        background: var(--green, darkcyan);
-                        color: var(--white, white);
-                        font-size: 0.8em;
-                        margin-left: ${!getIndex?`0`: `calc(var(--remove-button-size, 2.1em) + 0.5em)`};
-                    "
-                    onclick=${()=>{
-                        object.insertValue({ index:getIndex? getIndex():0, value: null })
-                    }}
-                    tabindex="-1"
-                    >
-                        insert
-                </button>
-            `
-            
-            const ItemEntry = ({index, value})=>{
-                const arrayObject = object
-                const insertedObject = {
-                    index,
-                    removed: false,
-                    get value() {
-                        return object.value[insertedObject.index]
-                    },
-                    getParentPath: ()=>[...getParentPath(), insertedObject.index],
-                    onEdit: (parentPath, newValue)=>{
-                        object.value[insertedObject.index] = newValue
-                        onEdit(getParentPath(), object.value)
-                    },
-                    remove: ()=>{
-                        // prevent multiple removals (fast clicks)
-                        if (insertedObject.removed) {
-                            return
-                        }
-                        insertedObject.removed = true
-                        arrayObject.value.splice(insertedObject.index, 1)
-                        arrayObject.element.removeChild(insertedObject.element)
-                        arrayObject.afterElementChange()
-                        // triggers a parent edit
-                        arrayObject.onEdit(arrayObject.getParentPath(), arrayObject.value)
-                    },
-                    attachFocus: ()=>{
-                        focusOn(insertedObject.editorElement)
-                    },
-                    
-                    element: null,
-                    editorElement: null,
-                    removeElement: null,
-                    insertButton: null,
-                }
-                insertedObject.element = html`<div style="position: relative; display: flex; flex-direction: column; gap: 0.5em;">
-                    <div style="position: relative; display: flex; flex-direction: row; align-items: center;">
-                        ${insertedObject.removeElement = RemoveButton({
-                            onclick: object.remove,
-                            onkeydown: (e)=>(e.key == "Enter")&&object.remove(),
-                            children: html`X`,
-                        })}
-                        
-                        ${insertedObject.editorElement = JsonEditor({
-                            onEdit: insertedObject.onEdit,
-                            getParentPath: insertedObject.getParentPath,
-                            value,
-                            notify,
-                            root,
-                        })}
-                    </div>
-                    
-                    ${insertedObject.insertButton = InsertButton({
-                        getIndex:()=>insertedObject.index+1
-                    })}
-                </div>`
-                
-                addDynamicStyleFlags({
-                    element: insertedObject.element,
-                    styleFunc: (element)=>{
-                        insertedObject.insertButton.style.opacity = element.isHovered ? 1 : 0
-                        insertedObject.insertButton.style.maxHeight = element.isHovered ? "2.1em" : "0"
-                        insertedObject.insertButton.style.marginTop = element.isHovered ? "0" : "-1.5em"
-                        insertedObject.removeElement.style.opacity = element.isHovered ? 1 : 0
-                    },
-                    flagKeys: {
-                        isHovered: [ "mouseover", "mouseout" ],
-                        // isFocused: [ "focus", "blur" ],
-                    }
-                })
-                
-                insertedObject.element.attachFocus = insertedObject.attachFocus
-                insertedObject.element.object = insertedObject
-                return insertedObject.element
-            }
-            
-            object.element = html`
-                <div name="list" style="position: relative; display: flex; flex-direction: column; gap: 0.5em;">
-                    ${object.emptyMessageElement = html`<span style="color: var(--gray, gray)"></span>`}
-                    ${object.rootInsertButtonElement = InsertButton({})}
-                </div>
-            `
-            addDynamicStyleFlags({
-                element: object.element,
-                styleFunc: (element)=>{
-                    object.rootInsertButtonElement.style.opacity = element.isHovered ? 1 : 0
-                },
-                flagKeys: {
-                    isHovered: [ "mouseover", "mouseout" ],
-                    // isFocused: [ "focus", "blur" ],
-                }
-            })
-            
-            let elementIndex = -1
-            for (const each of object.value) {
-                elementIndex++
-                object.insertValue({ index: elementIndex, value: each })
-            }
-            object.afterElementChange()
-            onEdit(getParentPath(), value)
-            
-            object.element.object = object
-            return object.element
+            return html`[object editor not implemented]`
         }
         function InnerJsonValue({ onEdit, nullify, type, getParentPath, value, notify, root }) {
             if (type == "boolean") {
@@ -2588,11 +2445,6 @@
                 return EditJsonString({ onEdit, nullify, type, getParentPath, value, notify, root })
             } else if (type == "array") {
                 return EditJsonArray({ onEdit, nullify, type, getParentPath, value, notify, root })
-            // 
-            // 
-            // object
-            // 
-            // 
             } else if (type == "object") {
                 return EditJsonObject({ onEdit, nullify, type, getParentPath, value, notify, root })
             } else {
@@ -2704,25 +2556,7 @@
                         element.innerHTML = ""
                         element.appendChild(html`<div>
                             ${innerElement}
-                            <button
-                                style="
-                                    position: absolute;
-                                    top: 0;
-                                    right: 0;
-                                    padding: 0.5em;
-                                    border: none;
-                                    border-radius: 1em; 
-                                    background: var(--red, red);
-                                    color: var(--white, white);
-                                    font-size: 0.8em;
-                                    box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
-                                    transform: translate(25%, -25%);
-                                "
-                                onclick=${object.nullify}
-                                tabindex="-1"
-                                >
-                                    nullify
-                            </button>
+                            ${NullifyButton({ action: object.nullify })}
                         </div>`)
                         innerElement.attachFocus && innerElement.attachFocus()
                     }
@@ -2739,7 +2573,7 @@
                         position: relative;
                         display: flex;
                         flex-direction: column;
-                        gap: 0.5em;
+                        gap: 0em;
                         box-shadow: 0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24);
                         caret-color: transparent;
                         width: fit-content;
