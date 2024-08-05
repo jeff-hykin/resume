@@ -2255,10 +2255,9 @@
                 root,
                 value,
                 prefixedElementCount: 2,
-                arrayValue: value,
                 updateEmptyMessage: ()=>{
-                    if (object.arrayValue.length == 0) {
-                        object.emptyMessageElement.innerHTML = "(empty list)"
+                    if (object.value.length == 0) {
+                        object.emptyMessageElement.innerHTML = "[empty list]"
                     } else {
                         object.emptyMessageElement.innerHTML = ""
                     }
@@ -2435,7 +2434,191 @@
             return object.element
         }
         function EditJsonObject({ onEdit, nullify, type, getParentPath, value, notify, root }) {
-            return html`[object editor not implemented]`
+            const object = {
+                onEdit,
+                nullify,
+                getParentPath,
+                notify,
+                root,
+                value,
+                prefixedElementCount: 2,
+                updateEmptyMessage: ()=>{
+                    if (Object.keys(object.value).length == 0) {
+                        object.emptyMessageElement.innerHTML = "{empty named list}"
+                    } else {
+                        object.emptyMessageElement.innerHTML = ""
+                    }
+                },
+                refreshIndicies: ()=>{
+                    let elementIndex = 0
+                    for (const each of object.element.children) {
+                        if (each.object) {
+                            each.object.index = elementIndex++
+                        }
+                    }
+                },
+                afterElementChange: ()=>{
+                    object.refreshIndicies()
+                    object.updateEmptyMessage()
+                },
+                insertValue: ({index, value})=>{
+                    if (index < 0) {
+                        throw Error(`index cannot be negative`)
+                    }
+                    const itemEntryElement = ItemEntry({ index, value })
+                    const insertedObject = itemEntryElement.object
+                    
+                    // insertion logic
+                    if (insertedObject.index >= object.value.length) {
+                        insertedObject.index = object.value.length
+                        object.value.push(value)
+                        object.element.appendChild(insertedObject.element)
+                    } else {
+                        object.value.splice(insertedObject.index+1, 0, value)
+                        object.element.insertBefore(insertedObject.element, object.element.children[object.prefixedElementCount+(insertedObject.index)])
+                    }
+                    object.afterElementChange()
+                    
+                    itemEntryElement.attachFocus()
+                },
+                element: null,
+                emptyMessageElement: null,
+                rootInsertButtonElement: null,
+            }
+            
+            const InsertButton = ({getIndex})=>html`
+                <button
+                    style="
+                        transition: all 0.25s ease-in-out 0s;
+                        padding: 1px calc(20% + 10px);
+                        border: none;
+                        border-radius: 1em; 
+                        background: var(--green, darkcyan);
+                        color: var(--white, white);
+                        font-size: 0.8em;
+                        width: 70%;
+                        height: fit-content;
+                        align-self: center;
+                        display: flex;
+                        justify-content: center;
+                        margin-top: 0.5em;
+                        margin-bottom: 0;
+                    "
+                    onclick=${()=>{
+                        console.log(`getIndex is:`,getIndex)
+                        console.log(`getInde&&getIndex() is:`,getIndex&&getIndex())
+                        object.insertValue({ index:getIndex? getIndex():0, value: null })
+                    }}
+                    tabindex="-1"
+                    >
+                        insert
+                </button>
+            `
+            
+            const ItemEntry = ({index, value})=>{
+                const arrayObject = object
+                const insertedObject = {
+                    index,
+                    removed: false,
+                    get value() {
+                        return object.value[insertedObject.index]
+                    },
+                    getParentPath: ()=>[...getParentPath(), insertedObject.index],
+                    onEdit: (parentPath, newValue)=>{
+                        object.value[insertedObject.index] = newValue
+                        onEdit(getParentPath(), object.value)
+                    },
+                    remove: ()=>{
+                        // prevent multiple removals (fast clicks)
+                        if (insertedObject.removed) {
+                            return
+                        }
+                        insertedObject.removed = true
+                        console.debug(`removing insertedObject.index is:`,insertedObject.index)
+                        arrayObject.value.splice(insertedObject.index, 1)
+                        arrayObject.element.removeChild(insertedObject.element)
+                        arrayObject.afterElementChange()
+                        // triggers a parent edit
+                        arrayObject.onEdit(arrayObject.getParentPath(), arrayObject.value)
+                    },
+                    attachFocus: ()=>{
+                        focusOn(insertedObject.editorElement)
+                    },
+                    
+                    element: null,
+                    editorElement: null,
+                    removeElement: null,
+                    insertButton: null,
+                }
+                insertedObject.element = html`<div style="position: relative; display: flex; flex-direction: column; gap: 0em;">
+                    <div style="position: relative; display: flex; flex-direction: row; align-items: center;">
+                        ${insertedObject.removeElement = RemoveButton({
+                            onclick: insertedObject.remove,
+                            onkeydown: (e)=>(e.key == "Enter")&&insertedObject.remove(),
+                            children: html`X`,
+                        })}
+                        
+                        ${insertedObject.editorElement = JsonEditor({
+                            onEdit: insertedObject.onEdit,
+                            getParentPath: insertedObject.getParentPath,
+                            value,
+                            notify,
+                            root,
+                        })}
+                    </div>
+                    
+                    ${insertedObject.insertButton = InsertButton({
+                        getIndex:()=>insertedObject.index+1
+                    })}
+                </div>`
+                
+                addDynamicStyleFlags({
+                    element: insertedObject.element,
+                    styleFunc: (element)=>{
+                        insertedObject.insertButton.style.opacity = element.isHovered ? 1 : 0
+                        insertedObject.insertButton.style.maxHeight = element.isHovered ? "2.1em" : "0"
+                        insertedObject.insertButton.style.marginBottom = element.isHovered ? "0.5em" : "0"
+                        insertedObject.removeElement.style.opacity = element.isHovered ? 1 : 0
+                    },
+                    flagKeys: {
+                        isHovered: [ "mouseover", "mouseout" ],
+                        // isFocused: [ "focus", "blur" ],
+                    }
+                })
+                
+                insertedObject.element.attachFocus = insertedObject.attachFocus
+                insertedObject.element.object = insertedObject
+                return insertedObject.element
+            }
+            
+            object.element = html`
+                <div name="list" style="position: relative; display: flex; flex-direction: column; gap: 0em;">
+                    ${object.emptyMessageElement = html`<span style="color: var(--gray, gray); width: 100%; text-align: center;"></span>`}
+                    ${object.rootInsertButtonElement = InsertButton({})}
+                </div>
+            `
+            object.rootInsertButtonElement.style.marginBottom = "0.5em"
+            addDynamicStyleFlags({
+                element: object.element,
+                styleFunc: (element)=>{
+                    object.rootInsertButtonElement.style.opacity = element.isHovered ? 1 : 0
+                },
+                flagKeys: {
+                    isHovered: [ "mouseover", "mouseout" ],
+                    // isFocused: [ "focus", "blur" ],
+                }
+            })
+            
+            let elementIndex = -1
+            for (const each of object.value) {
+                elementIndex++
+                object.insertValue({ index: elementIndex, value: each })
+            }
+            object.afterElementChange()
+            onEdit(getParentPath(), value)
+            
+            object.element.object = object
+            return object.element
         }
         function InnerJsonValue({ onEdit, nullify, type, getParentPath, value, notify, root }) {
             if (type == "boolean") {
