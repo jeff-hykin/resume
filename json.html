@@ -2036,6 +2036,7 @@
             return type
         }
         function RemoveButton({ children, ...other }) {
+            console.debug(`other is:`,other)
             return html`
                 <button
                     style="
@@ -2053,7 +2054,9 @@
                         margin-right: 0.5em;
                     "
                     tabindex="-1"
-                    ...${other}
+                    onclick=${()=>{ console.log(`other.onclick is:`,other.onclick); other.onclick && other.onclick() }}
+                    onkeydown=${other.onkeydown}
+                    
                     >
                         ${children}
                 </button>
@@ -2281,13 +2284,10 @@
                     
                     // insertion logic
                     if (insertedObject.index >= object.value.length) {
-                        console.debug(`insertedObject.index >= object.value.length is:`,insertedObject.index >= object.value.length)
-                        console.log(`appending`)
                         insertedObject.index = object.value.length
                         object.value.push(value)
                         object.element.appendChild(insertedObject.element)
                     } else {
-                        console.debug(`insertedObject.index is:`,insertedObject.index)
                         object.value.splice(insertedObject.index+1, 0, value)
                         object.element.insertBefore(insertedObject.element, object.element.children[object.prefixedElementCount+(insertedObject.index)])
                     }
@@ -2348,6 +2348,7 @@
                             return
                         }
                         insertedObject.removed = true
+                        console.debug(`removing insertedObject.index is:`,insertedObject.index)
                         arrayObject.value.splice(insertedObject.index, 1)
                         arrayObject.element.removeChild(insertedObject.element)
                         arrayObject.afterElementChange()
@@ -2366,8 +2367,8 @@
                 insertedObject.element = html`<div style="position: relative; display: flex; flex-direction: column; gap: 0em;">
                     <div style="position: relative; display: flex; flex-direction: row; align-items: center;">
                         ${insertedObject.removeElement = RemoveButton({
-                            onclick: object.remove,
-                            onkeydown: (e)=>(e.key == "Enter")&&object.remove(),
+                            onclick: insertedObject.remove,
+                            onkeydown: (e)=>(e.key == "Enter")&&insertedObject.remove(),
                             children: html`X`,
                         })}
                         
