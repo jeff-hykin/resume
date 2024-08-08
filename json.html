@@ -2054,7 +2054,7 @@
                         margin-right: 0.5em;
                     "
                     tabindex="-1"
-                    onclick=${()=>{ console.log(`other.onclick is:`,other.onclick); other.onclick && other.onclick() }}
+                    onclick=${()=>{ other.onclick && other.onclick() }}
                     onkeydown=${other.onkeydown}
                     
                     >
@@ -2318,8 +2318,6 @@
                         margin-bottom: 0;
                     "
                     onclick=${()=>{
-                        console.log(`getIndex is:`,getIndex)
-                        console.log(`getInde&&getIndex() is:`,getIndex&&getIndex())
                         object.insertValue({ index:getIndex? getIndex():0, value: null })
                     }}
                     tabindex="-1"
@@ -2443,6 +2441,7 @@
                 value,
                 prefixedElementCount: 2,
                 updateEmptyMessage: ()=>{
+                    console.debug(`Object.keys(object.value).length is:`,Object.keys(object.value).length)
                     if (Object.keys(object.value).length == 0) {
                         object.emptyMessageElement.innerHTML = "{empty named list}"
                     } else {
@@ -2461,22 +2460,47 @@
                     object.refreshIndicies()
                     object.updateEmptyMessage()
                 },
-                insertValue: ({index, value})=>{
+                generateKey: ()=>{
+                    let key = 0
+                    const keys = Object.keys(object.value)
+                    console.debug(`keys is:`,keys)
+                    while (keys.includes(`${key}`)) {
+                        key++
+                    }
+                    console.debug(`return key is:`,key)
+                    return `${key}`
+                },
+                insertValue: ({index, key, value})=>{
+                    if (key == null || Object.keys(object.value).includes(key)) {
+                        key = object.generateKey()
+                    }
                     if (index < 0) {
                         throw Error(`index cannot be negative`)
                     }
-                    const itemEntryElement = ItemEntry({ index, value })
+                    const itemEntryElement = ItemEntry({ index, key, value })
                     const insertedObject = itemEntryElement.object
                     
+                    console.debug(`before inserting ${key}: object.value is:`,object.value)
                     // insertion logic
-                    if (insertedObject.index >= object.value.length) {
-                        insertedObject.index = object.value.length
-                        object.value.push(value)
+                    if (insertedObject.index >= Object.keys(object.value).length) {
+                        insertedObject.index = Object.keys(object.value).length
+                        object.value[key] = value
+                        itemEntryElement.index = insertedObject.index
                         object.element.appendChild(insertedObject.element)
                     } else {
-                        object.value.splice(insertedObject.index+1, 0, value)
+                        const newObject = {}
+                        let loopIndex = -1
+                        for (const [eachKey, eachValue] of Object.entries(object.value)) {
+                            loopIndex++
+                            if (loopIndex == index) {
+                                newObject[key] = value
+                            }
+                            newObject[eachKey] = eachValue
+                        }
+                        object.value = newObject
                         object.element.insertBefore(insertedObject.element, object.element.children[object.prefixedElementCount+(insertedObject.index)])
                     }
+                    console.debug(`after inserting ${key}: object.value is:`,object.value)
                     object.afterElementChange()
                     
                     itemEntryElement.attachFocus()
@@ -2505,8 +2529,6 @@
                         margin-bottom: 0;
                     "
                     onclick=${()=>{
-                        console.log(`getIndex is:`,getIndex)
-                        console.log(`getInde&&getIndex() is:`,getIndex&&getIndex())
                         object.insertValue({ index:getIndex? getIndex():0, value: null })
                     }}
                     tabindex="-1"
@@ -2514,19 +2536,73 @@
                         insert
                 </button>
             `
+            function KeyEntry({ initialKey, insertedObject }) {
+                let backspacedOnceOnEmpty = 0
+                let previousKeyName = initialKey
+                const output = html`
+                    <textarea
+                        style="border: none; height: 1em; width: 8rem; margin-right: 0.5em; margin-left: 1em; box-sizing: content-box;"
+                        contenteditable=${false}
+                        oninput=${(e)=>{
+                            let keyName = e.target.value
+                            backspacedOnceOnEmpty = false
+                            const otherKeys = Object.keys(object.value).filter(key=>key!=previousKeyName)
+                            if (keyName == "") {
+                                notify("Empy key, please change")
+                                output.invalid = true
+                                return
+                            } else if (otherKeys.includes(keyName)) {
+                                notify("Duplicate key, please change")
+                                output.invalid = true
+                                return
+                            } else {
+                                output.invalid = false
+                                insertedObject.key = keyName
+                                // preserve key order
+                                const newObject = {}
+                                for (const [eachKey, eachValue] of Object.entries(object.value)) {
+                                    if (eachKey == previousKeyName) {
+                                        newObject[keyName] = eachValue
+                                    } else {
+                                        newObject[eachKey] = eachValue
+                                    }
+                                }
+                                previousKeyName = keyName
+                                object.value = newObject
+                                onEdit(getParentPath(), value)
+                            }
+                        }}
+                        onkeydown=${(e)=>{
+                            if (value == "" && e.key == "Backspace") {
+                                backspacedOnceOnEmpty++
+                                if (backspacedOnceOnEmpty > 2) {
+                                    insertedObject.remove()
+                                } else if (backspacedOnceOnEmpty == 1) {
+                                    notify("Press backspace twice more to remove this item")
+                                }
+                            }
+                        }}
+                        value=${initialKey}
+                        />
+                `
+                output.attachFocus = ()=>focusOn(output)
+                onEdit(getParentPath(), value)
+                return output
+            }
             
-            const ItemEntry = ({index, value})=>{
-                const arrayObject = object
+            const ItemEntry = ({index, key, value})=>{
+                const namedListObject = object
                 const insertedObject = {
                     index,
+                    key,
                     removed: false,
                     get value() {
-                        return object.value[insertedObject.index]
+                        return namedListObject.value[insertedObject.key]
                     },
-                    getParentPath: ()=>[...getParentPath(), insertedObject.index],
+                    getParentPath: ()=>[...getParentPath(), insertedObject.key],
                     onEdit: (parentPath, newValue)=>{
-                        object.value[insertedObject.index] = newValue
-                        onEdit(getParentPath(), object.value)
+                        namedListObject.value[insertedObject.key] = newValue
+                        onEdit(getParentPath(), namedListObject.value)
                     },
                     remove: ()=>{
                         // prevent multiple removals (fast clicks)
@@ -2534,18 +2610,22 @@
                             return
                         }
                         insertedObject.removed = true
-                        console.debug(`removing insertedObject.index is:`,insertedObject.index)
-                        arrayObject.value.splice(insertedObject.index, 1)
-                        arrayObject.element.removeChild(insertedObject.element)
-                        arrayObject.afterElementChange()
+                        delete namedListObject.value[insertedObject.key]
+                        namedListObject.element.removeChild(insertedObject.element)
+                        namedListObject.afterElementChange()
                         // triggers a parent edit
-                        arrayObject.onEdit(arrayObject.getParentPath(), arrayObject.value)
+                        namedListObject.onEdit(namedListObject.getParentPath(), namedListObject.value)
                     },
                     attachFocus: ()=>{
-                        focusOn(insertedObject.editorElement)
+                        focusOn(insertedObject.keyElement)
+                        // select text of key
+                        try {
+                            insertedObject.keyElement.setSelectionRange(0, insertedObject.keyElement.value.length)
+                        } catch (error) {
+                        }
                     },
-                    
                     element: null,
+                    keyElement: null,
                     editorElement: null,
                     removeElement: null,
                     insertButton: null,
@@ -2557,6 +2637,8 @@
                             onkeydown: (e)=>(e.key == "Enter")&&insertedObject.remove(),
                             children: html`X`,
                         })}
+                        
+                        ${insertedObject.keyElement = KeyEntry({ initialKey: object.generateKey(), insertedObject, })}
                         
                         ${insertedObject.editorElement = JsonEditor({
                             onEdit: insertedObject.onEdit,
@@ -2575,14 +2657,15 @@
                 addDynamicStyleFlags({
                     element: insertedObject.element,
                     styleFunc: (element)=>{
-                        insertedObject.insertButton.style.opacity = element.isHovered ? 1 : 0
-                        insertedObject.insertButton.style.maxHeight = element.isHovered ? "2.1em" : "0"
-                        insertedObject.insertButton.style.marginBottom = element.isHovered ? "0.5em" : "0"
-                        insertedObject.removeElement.style.opacity = element.isHovered ? 1 : 0
+                        let show = element.isFocused || element.isHovered
+                        insertedObject.insertButton.style.opacity = show ? 1 : 0
+                        insertedObject.insertButton.style.maxHeight = show ? "2.1em" : "0"
+                        insertedObject.insertButton.style.marginBottom = show ? "0.5em" : "0"
+                        insertedObject.removeElement.style.opacity = show ? 1 : 0
                     },
                     flagKeys: {
                         isHovered: [ "mouseover", "mouseout" ],
-                        // isFocused: [ "focus", "blur" ],
+                        isFocused: [ "focus", "blur" ],
                     }
                 })
                 
@@ -2610,9 +2693,9 @@
             })
             
             let elementIndex = -1
-            for (const each of object.value) {
+            for (const [key, value] of Object.entries(object.value)) {
                 elementIndex++
-                object.insertValue({ index: elementIndex, value: each })
+                object.insertValue({ index: elementIndex, key, value })
             }
             object.afterElementChange()
             onEdit(getParentPath(), value)
@@ -2673,8 +2756,14 @@
                         eventObject.preventDefault() // this prevent contenteditable from acting like contenteditable (just allows us to capture the keypress)
                         
                         // probably should refactor this, i=insert
-                        if (object?.innerElement?.object?.value instanceof Array && eventObject?.data == "i") {
-                            object.innerElement.object.insertValue({ index: object.innerElement.object.length, value: null })
+                        if (object?.innerElement?.object?.value instanceof Object && eventObject?.data == "i") {
+                            let length
+                            if (object.innerElement.object instanceof Array) {
+                                length = object.innerElement.object.length
+                            } else if (object.innerElement.object instanceof Object) {
+                                length = Object.keys(object.innerElement.object).length
+                            }
+                            object.innerElement.object.insertValue({ index: length, value: null })
                             return
                         }
                         // console.debug(`${JSON.stringify(object.getParentPath())} value == null && eventObject.data is:`,value == null && eventObject.data)
