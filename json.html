@@ -2222,7 +2222,7 @@
             let backspacedOnceOnEmpty = 0
             const output = html`
                 <textarea
-                    style="border: none; height: 1.7em; box-sizing: content-box; caret-color: black;"
+                    style="border: none; height: 1.7em; box-sizing: content-box; caret-color: initial;"
                     contenteditable=${false}
                     oninput=${(e)=>{
                         value = e.target.value
@@ -2242,6 +2242,11 @@
                     value=${value}
                     />
             `
+            output.onfocus = ()=>{
+                if (output?.parentElement) {
+                    output.parentElement.setAttribute("contenteditable", false)
+                }
+            }
             output.attachFocus = ()=>focusOn(output)
             onEdit(getParentPath(), value)
             return output
@@ -2538,7 +2543,7 @@
                 let previousKeyName = initialKey
                 const output = html`
                     <textarea
-                        style="border: none; height: 1em; width: 6rem; margin-right: 0.5em; margin-left: 1em; box-sizing: content-box; caret-color: black;"
+                        style="border: none; height: 1em; width: 6rem; margin-right: 0.5em; margin-left: 1em; box-sizing: content-box; caret-color: initial;"
                         contenteditable=${false}
                         oninput=${(e)=>{
                             let keyName = e.target.value
@@ -2582,6 +2587,14 @@
                         value=${initialKey}
                         />
                 `
+                output.onfocus = ()=>{
+                    let parent = output.parentElement
+                    while (parent && parent != root) {
+                        parent.setAttribute("contenteditable", false)
+                        parent = parent.parentElement
+                    }
+                    root.setAttribute("contenteditable", false)
+                }
                 output.attachFocus = ()=>focusOn(output)
                 onEdit(getParentPath(), value)
                 return output
@@ -2627,8 +2640,8 @@
                     removeElement: null,
                     insertButton: null,
                 }
-                insertedObject.element = html`<div style="position: relative; display: flex; flex-direction: column; gap: 0em;">
-                    <div style="position: relative; display: flex; flex-direction: row; align-items: center;">
+                insertedObject.element = html`<div style="position: relative; display: flex; flex-direction: column; gap: 0em; caret-color: transparent;">
+                    <div style="position: relative; display: flex; flex-direction: row; align-items: center; caret-color: transparent;">
                         ${insertedObject.removeElement = RemoveButton({
                             onclick: insertedObject.remove,
                             onkeydown: (e)=>(e.key == "Enter")&&insertedObject.remove(),
@@ -2672,7 +2685,7 @@
             }
             
             object.element = html`
-                <div name="list" style="position: relative; display: flex; flex-direction: column; gap: 0em;">
+                <div name="list" style="position: relative; display: flex; flex-direction: column; gap: 0em; caret-color: transparent;">
                     ${object.emptyMessageElement = html`<span style="color: var(--gray, gray); width: 100%; text-align: center;"></span>`}
                     ${object.rootInsertButtonElement = InsertButton({})}
                 </div>
