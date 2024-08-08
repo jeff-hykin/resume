@@ -2036,7 +2036,6 @@
             return type
         }
         function RemoveButton({ children, ...other }) {
-            console.debug(`other is:`,other)
             return html`
                 <button
                     style="
@@ -2482,7 +2481,6 @@
                     const itemEntryElement = ItemEntry({ index, key, value })
                     const insertedObject = itemEntryElement.object
                     
-                    console.debug(`before inserting ${key}: object.value is:`,object.value)
                     // insertion logic
                     if (insertedObject.index >= Object.keys(object.value).length) {
                         insertedObject.index = Object.keys(object.value).length
