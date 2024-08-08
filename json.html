@@ -2640,7 +2640,6 @@
                 getParentPath,
                 notify,
                 root,
-                element: null,
                 isRoot: root == null,
                 parentOnEdit: onEdit,
                 onEdit: (path, newValue)=>{
@@ -2669,10 +2668,15 @@
                     }
                 },
                 onBeforeInput: (eventObject)=>{
-                    // console.debug(`onBeforeInput: eventObject is:`,eventObject)
                     // console.debug(`eventObject.target == object.element is:`,eventObject.target == object.element)
                     if (eventObject.target == object.element) {
                         eventObject.preventDefault() // this prevent contenteditable from acting like contenteditable (just allows us to capture the keypress)
+                        
+                        // probably should refactor this, i=insert
+                        if (object?.innerElement?.object?.value instanceof Array && eventObject?.data == "i") {
+                            object.innerElement.object.insertValue({ index: object.innerElement.object.length, value: null })
+                            return
+                        }
                         // console.debug(`${JSON.stringify(object.getParentPath())} value == null && eventObject.data is:`,value == null && eventObject.data)
                         // console.debug(`${JSON.stringify(object.getParentPath())} value is:`,value)
                         // console.debug(`${JSON.stringify(object.getParentPath())} eventObject.data is:`,eventObject.data)
@@ -2737,6 +2741,7 @@
                         object.nullify()
                     }
                     if (innerElement) {
+                        object.innerElement = innerElement
                         element.innerHTML = ""
                         element.appendChild(html`<div>
                             ${innerElement}
@@ -2745,6 +2750,9 @@
                         innerElement.attachFocus && innerElement.attachFocus()
                     }
                 },
+                
+                element: null,
+                innerElement: null,
             }
             object.element = html`
                 <div
