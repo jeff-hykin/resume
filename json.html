@@ -2222,7 +2222,7 @@
             let backspacedOnceOnEmpty = 0
             const output = html`
                 <textarea
-                    style="border: none; height: 1.7em; box-sizing: content-box;"
+                    style="border: none; height: 1.7em; box-sizing: content-box; caret-color: black;"
                     contenteditable=${false}
                     oninput=${(e)=>{
                         value = e.target.value
@@ -2441,7 +2441,6 @@
                 value,
                 prefixedElementCount: 2,
                 updateEmptyMessage: ()=>{
-                    console.debug(`Object.keys(object.value).length is:`,Object.keys(object.value).length)
                     if (Object.keys(object.value).length == 0) {
                         object.emptyMessageElement.innerHTML = "{empty named list}"
                     } else {
@@ -2461,14 +2460,12 @@
                     object.updateEmptyMessage()
                 },
                 generateKey: ()=>{
-                    let key = 0
+                    let key = 1
                     const keys = Object.keys(object.value)
-                    console.debug(`keys is:`,keys)
-                    while (keys.includes(`${key}`)) {
+                    while (keys.includes(`key${key}`)) {
                         key++
                     }
-                    console.debug(`return key is:`,key)
-                    return `${key}`
+                    return `key${key}`
                 },
                 insertValue: ({index, key, value})=>{
                     if (key == null || Object.keys(object.value).includes(key)) {
@@ -2541,7 +2538,7 @@
                 let previousKeyName = initialKey
                 const output = html`
                     <textarea
-                        style="border: none; height: 1em; width: 8rem; margin-right: 0.5em; margin-left: 1em; box-sizing: content-box;"
+                        style="border: none; height: 1em; width: 6rem; margin-right: 0.5em; margin-left: 1em; box-sizing: content-box; caret-color: black;"
                         contenteditable=${false}
                         oninput=${(e)=>{
                             let keyName = e.target.value
