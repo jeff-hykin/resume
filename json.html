@@ -2095,11 +2095,13 @@
                 value: !!`${value}`.match(/^t/),
                 toggle: ()=>{
                     object.value = !object.value
-                    input.checked = object.value
                     object.messageElement.innerHTML = `${object.value}`
                     onEdit(getParentPath(), object.value) 
                 },
                 inputKeyDown: (eventObject)=>{
+                    // if (eventObject.key == "Tab") {
+                    // 
+                    // }
                     if (eventObject.key == "Enter" || eventObject.key == " ") {
                         object.toggle()
                     }
@@ -2120,7 +2122,7 @@
                         onkeydown=${object.inputKeyDown}
                     />`}
                     
-                    ${object.messageElement = html`<span margin-left="0.3em">
+                    ${object.messageElement = html`<span margin-left="0.3em" margin-right="0.5em">
                         ${object.value}
                     </span>`}
             </span>`
@@ -2129,7 +2131,7 @@
             // init
             // 
             object.element.object = object
-            object.element.attachFocus = ()=>focusOn(input)
+            object.element.attachFocus = ()=>focusOn(object.element)
             onEdit(getParentPath(), object.value)
             return object.element
         }
