@@ -2007,14 +2007,14 @@
                 input=true
                 contenteditable
                 inputmode=${type||"text"}
-                white-space="nowrap"
+                white-space="pre"
                 display="block"
                 min-height="1.05em"
                 min-width="1.05em"
                 overflow="auto"
                 scrollbar-width="none"
                 ...${other}
-                >${value}</span>
+                >${value+"\n"}</span>
             `
             // by default only allow plaintext paste
             if (!allowHtmlPaste) {
@@ -2050,10 +2050,10 @@
             }
             Object.defineProperty(element, "value", {
                 get() {
-                    return element.innerText
+                    return [...element.childNodes].map(each=>each?.data ?? each?.innerText ?? "").join("")
                 },
                 set(newValue) {
-                    element.innerText = newValue
+                    element.innerText = newValue+"\n"
                 },
             })
             return element
@@ -2261,17 +2261,23 @@
                                 eventObject.preventDefault()
                             }
                         }
+                        console.debug(`this.jsonValue is:`,this.jsonValue)
+                        console.debug(`this.jsonValue.length is:`,JSON.parse(this.jsonValue).length)
                         if (eventObject.key == "Backspace") {
-                            if (this.jsonValue == '""') {
-                                this.backspacedOnEmptyCount++
-                                
-                                if (this.backspacedOnEmptyCount == 1) {
-                                    notify("Press backspace one more time to nullify")
+                            if (this.jsonValue.length == 3) {
+                                this.inputElement.value = ""
+                                this.jsonValue = '""'
+                            } else {
+                                if (this.jsonValue == '""') {
+                                    this.backspacedOnEmptyCount++
+                                    if (this.backspacedOnEmptyCount == 1) {
+                                        notify("Press backspace one more time to nullify")
+                                    }
+                                    if (this.backspacedOnEmptyCount >= 2) {
+                                        element.nullify()
+                                    }
+                                    eventObject.preventDefault()
                                 }
-                                if (this.backspacedOnEmptyCount >= 2) {
-                                    element.nullify()
-                                }
-                                eventObject.preventDefault()
                             }
                         }
                     },
@@ -2504,123 +2510,6 @@
         // 
         // old
         // 
-            function EditJsonNumber({ onEdit, nullify, type, getParentPath, value, notify, root }) {
-                const object = {
-                    onEdit,
-                    nullify,
-                    type,
-                    getParentPath,
-                    notify,
-                    root,
-                    value,
-                    previousValue: value,
-                    backspacedOnceOnEmpty: false,
-                    getWidth: ()=>`${(`${object.value}`.length+2)*0.8}em`,
-                    updateWidth: ()=>{
-                        const { element, measuringTapeElement } = object
-                        try {
-                            element.parentElement.insertBefore(measuringTapeElement, element)
-                        } catch (error) {}
-                        try {
-                            element.style.width = `calc(${window.getComputedStyle(measuringTapeElement).width} + 2.2em)`
-                        } catch (error) {
-                            element.style.width = "min-content"
-                        }
-                    },
-                    attachFocus: ()=>{
-                        // selection range doesnt work for number input for some reason
-                        object.element.type = "text"
-                        focusOn(object.element)
-                        try {
-                            object.element.setSelectionRange(1, 1)
-                        } catch (error) {
-                        }
-                        object.element.type = "number"
-                    },
-                    onInput: (eventObject)=>{
-                        // no invalid numbers
-                        if (eventObject.target.value == "") {
-                            if (eventObject.inputType == "insertText") {
-                                eventObject.target.value = object.previousValue
-                            } else {
-                                if (object.previousValue == "0" && object.backspacedOnceOnEmpty) {
-                                    nullify()
-                                    return
-                                }
-                                if (object.previousValue == "0") {
-                                    object.backspacedOnceOnEmpty = true
-                                    notify("Press backspace again to nullify")
-                                }
-                                eventObject.target.value = "0"
-                                object.previousValue = "0"
-                            }
-                        } else {
-                            object.previousValue = eventObject.target.value
-                            object.backspacedOnceOnEmpty = false
-                        }
-                        object.value = eventObject.target.value
-                        object.measuringTapeElement.innerHTML = `${eventObject.target.value}`
-                        object.updateWidth()
-                        object.onEdit(object.getParentPath(), eventObject.target.value)
-                    },
-                    
-                    element: null,
-                    measuringTapeElement: html`<span style="position: absolute; pointer-events: none; opacity: 0;">
-                        ${value}
-                    </span>`,
-                }
-                object.element = html`
-                    <input
-                        contenteditable=${false}
-                        style="text-align: right; border: none; width: ${object.getWidth()};"
-                        oninput=${object.onInput}
-                        type="number"
-                        value=${value}
-                        />
-                `
-                
-                // 
-                // init
-                // 
-                object.element.attachFocus = object.attachFocus
-                object.updateWidth()
-                onEdit(getParentPath(), value-0)
-                object.element.object = object
-                return object.element
-            }
-            function EditJsonString({ onEdit, nullify, type, getParentPath, value, notify, root }) {
-                let backspacedOnceOnEmpty = 0
-                const output = html`
-                    <textarea
-                        style="border: none; height: 1.7em; box-sizing: content-box;"
-                        contenteditable=${false}
-                        oninput=${(e)=>{
-                            value = e.target.value
-                            backspacedOnceOnEmpty = false
-                            onEdit(getParentPath(), value)
-                        }}
-                        onkeydown=${(e)=>{
-                            if (value == "" && e.key == "Backspace") {
-                                backspacedOnceOnEmpty++
-                                if (backspacedOnceOnEmpty > 2) {
-                                    nullify()
-                                } else if (backspacedOnceOnEmpty == 1) {
-                                    notify("Press backspace twice more to nullify")
-                                }
-                            }
-                        }}
-                        value=${value}
-                        />
-                `
-                output.onfocus = ()=>{
-                    if (output?.parentElement) {
-                        output.parentElement.setAttribute("contenteditable", false)
-                    }
-                }
-                output.attachFocus = ()=>focusOn(output)
-                onEdit(getParentPath(), value)
-                return output
-            }
             function EditJsonArray({ onEdit, nullify, type, getParentPath, value, notify, root }) {
                 const object = {
                     onEdit,
