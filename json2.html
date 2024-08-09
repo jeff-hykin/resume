@@ -2002,15 +2002,16 @@
         })
         
         const ExpandingTextBox = ({ value, type, allowHtmlPaste=false, ...other})=>{
+            // TODO: fix the scrollbar width problem (breaks on safari)
             const element = html`<span
                 input=true
                 contenteditable
                 inputmode=${type||"text"}
-                whitespace="no-wrap"
-                display="flex"
+                white-space="nowrap"
+                display="block"
                 min-height="1.05em"
                 min-width="1.05em"
-                overflow="scroll"
+                overflow="auto"
                 scrollbar-width="none"
                 ...${other}
                 >${value}</span>
@@ -2235,7 +2236,62 @@
                         `
                     },
                 })
-                const JsonString = ({ jsonValue })=>attachToElement({ $element() { return html`<span>not implemented</span>` }})
+                const JsonString = ({ jsonValue })=>attachToElement({
+                    jsonValue: jsonValue,
+                    backspacedOnEmptyCount: 0,
+                    onBeforeInput(eventObject) {
+                        // newlines as \n not <br>
+                        if (eventObject.inputType == "insertParagraph") {
+                            eventObject.preventDefault()
+                            document.execCommand("insertText", false, "\n")
+                        }
+                    },
+                    onInput(eventObject) {
+                        this.jsonValue = JSON.stringify(eventObject.target.value)
+                        if (this.jsonValue != '""') {
+                            this.backspacedOnEmptyCount = 0
+                        }
+                    },
+                    onFocus(eventObject) {
+                        this.inputElement.select()
+                    },
+                    onKeydown(eventObject) {
+                        if (eventObject.key == "Tab") {
+                            if (element.focusOnNext(this.$element) != "top") {
+                                eventObject.preventDefault()
+                            }
+                        }
+                        if (eventObject.key == "Backspace") {
+                            if (this.jsonValue == '""') {
+                                this.backspacedOnEmptyCount++
+                                
+                                if (this.backspacedOnEmptyCount == 1) {
+                                    notify("Press backspace one more time to nullify")
+                                }
+                                if (this.backspacedOnEmptyCount >= 2) {
+                                    element.nullify()
+                                }
+                                eventObject.preventDefault()
+                            }
+                        }
+                    },
+                    
+                    $element() {
+                        this.inputElement = ExpandingTextBox({
+                            value: JSON.parse(this.jsonValue),
+                            oninput: this.onInput,
+                            onbeforeinput: this.onBeforeInput,
+                            onkeydown: this.onKeydown,
+                            style: `text-align: left; margin-right: 1em;`,
+                        })
+                        return html`
+                            <div onfocus=${this.onFocus}>
+                                ${this.inputElement}
+                                ${nullifyButton}
+                            </div>
+                        `
+                    },
+                })
                 const JsonArray = ({ jsonValue })=>attachToElement({ $element() { return html`<span>not implemented</span>` }}) // TODO: needs .focusOnNext(from)
                 const JsonObject = ({ jsonValue })=>attachToElement({ $element() { return html`<span>not implemented</span>` }}) // TODO: needs .focusOnNext(from)
             
@@ -2268,17 +2324,17 @@
                     newValue = newValue.trimStart()
                     if (newValue.startsWith("{")) {
                         this.isNull = false
-                        this.valueElement = JsonObject({ jsonValue: newValue })
+                        this.valueElement = JsonObject({ jsonValue: `{}` })
                         this.$element.innerHTML = ""
                         this.$element.appendChild(this.valueElement)
                     } else if (newValue.startsWith("[")) {
                         this.isNull = false
-                        this.valueElement = JsonArray({ jsonValue: newValue })
+                        this.valueElement = JsonArray({ jsonValue: `[]` })
                         this.$element.innerHTML = ""
                         this.$element.appendChild(this.valueElement)
                     } else if (newValue.startsWith("\"")) {
                         this.isNull = false
-                        this.valueElement = JsonString({ jsonValue: newValue })
+                        this.valueElement = JsonString({ jsonValue: '""' })
                         this.$element.innerHTML = ""
                         this.$element.appendChild(this.valueElement)
                     } else if (newValue.match(/^[0-9\-\.]/)) {
@@ -2322,6 +2378,7 @@
                         } else if (eventObject.key=="\"" || eventObject.key=="'") {
                             valueWasSet = true
                             this.jsonValue = '""'
+                            eventObject.preventDefault()
                         } else if (eventObject.key.match(/^[0-9\-\.]/)) {
                             valueWasSet = true
                             this.jsonValue = eventObject.key // note: this allows invalid JSON, e.g. "-."
