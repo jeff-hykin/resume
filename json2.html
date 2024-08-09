@@ -1,75 +1,8 @@
 <!DOCTYPE html>
 <head>
-    <title>Jeff Hykin</title>
+    <title>JsonEditor</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://unpkg.com/css-baseline/css/3.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto');
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
-        :root {
-            --gray-pallet-background: rgb(30, 37, 53);
-            --red-pallet-background: lightcoral;
-            --off-white: hsl(0, 0%, 87.8%);
-            --charcoal: hsl(180, 0%, 31%);
-            --charcoal-on-charcoal: hsl(0deg 0% 50%);
-            --soft-gray-gradient: linear-gradient(-110deg, whitesmoke, var(--off-white));
-            /* misc */
-            --red-pallet-font: white;
-            --decent-color-1: lightcoral;
-            --decent-color-2: salmon;
-            --decent-color-3: lightpink;
-            --decent-color-4: lightsalmon;
-            --decent-color-5: coral;
-            --decent-color-6: lightcyan;
-            --decent-color-7: lightblue;
-            --decent-color-8: lightsteelblue;
-            --decent-color-9: skyblue;
-            --decent-color-10: lightskyblue;
-            --decent-color-11: cornflowerblue;
-            --decent-color-12: dodgerblue;
-            --decent-color-13: aquamarine;
-            --decent-color-14: turquoise;
-            --decent-color-15: darkturquoise;
-            --decent-color-16: lightseagreen;
-            --decent-color-17: darkcyan;
-            --decent-color-18: teal;
-            --decent-color-19: mediumspringgreen;
-            --decent-color-20: lightgreen;
-            --decent-color-21: cadetblue;
-            --decent-color-22: darkorchid;
-            --decent-color-23: blueviolet;
-        }
-        body {
-            font-size: 0.9em;
-            font-family: Roboto;
-        }
-        .animate {
-            transition: all 0.5s ease-in-out 0s;
-        }
-        .weak-shadow {
-            transition: all 0.3s ease-in-out 0s;
-            box-shadow: 0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24);
-        }
-        .weak-shadow:hover {
-            box-shadow: 0 8px 17px 2px rgba(0,0,0,0.10),0 6px 30px 5px rgba(0,0,0,0.08),0 8px 10px -7px rgba(0,0,0,0.16);
-        }
-        button {
-            border-radius: 1em;
-            border: none;
-            background-color: cornflowerblue;
-            padding: 0.5em 1em;
-            color: white;
-        }
-        a {
-            color: lightskyblue;
-            text-decoration: underline;
-        }
-        span {
-            vertical-align: text-top;
-        }
-    </style>
 </head>
 <!--                                   -->
 <!-- Synchonous/Fast loading animation -->
@@ -1990,32 +1923,7 @@
                 })
             }
         }
-    
-    // 
-    // 
-    // Components
-    // 
-    // 
-        const isJsonEditorElement = Symbol("isJsonEditorElement")
-        window.addEventListener("keydown", (eventObject)=>{
-            console.debug(`eventObject is:`,eventObject)
-            if (eventObject.target?.[isJsonEditorElement]) {
-                const object = eventObject.target.object
-                // 
-                // insert
-                // 
-                if (eventObject.key == "i" && object?.innerElement) {
-                    eventObject.preventDefault()
-                    let length
-                    if (object.innerElement.object instanceof Array) {
-                        length = object.innerElement.object.length
-                    } else if (object.innerElement.object instanceof Object) {
-                        length = Object.keys(object.innerElement.object).length
-                    }
-                    object.innerElement.object.insertValue({ index: length, value: null })
-                }
-            }
-        })
+        
         const focusOn = async (element)=>{
             if (!element) {
                 return
@@ -2034,14 +1942,405 @@
             }
             element.tabindex = tabindex
         }
-        function getType(value) {
-            let type = typeof value
-            if (value == null) {
-                return "null"
-            } else if (value instanceof Array) {
-                return "array"
+        
+        function attachToElement(thing) {
+            // bind everything
+            for (const key of Object.keys(Object.getOwnPropertyDescriptors(thing))) {
+                if (thing[key] instanceof Function) {
+                    const func = thing[key]
+                    thing[key] = (...args)=>func.apply(thing, args)
+                }
             }
-            return type
+            // generate element
+            if (thing.$element instanceof Function) {
+                thing.$element = thing.$element()
+            }
+            // forward everything from the element to the thing
+            for (const key of Object.keys(Object.getOwnPropertyDescriptors(thing))) {
+                try {
+                    Object.defineProperty(
+                        thing.$element,
+                        key,
+                        {
+                            get() {
+                                return thing[key]
+                            },
+                            set(value) {
+                                thing[key] = value 
+                            } 
+                        })
+                } catch (error) {
+                    console.warn(`failed to defineProperty on element ${thing.$element} for key: ${key}`)
+                }
+            }
+            thing.$element.$object = thing
+            return thing.$element
+        }
+        
+    
+    // 
+    // 
+    // Components
+    // 
+    // 
+        const isJsonEditorElement = Symbol("isJsonEditorElement")
+        
+        const TopLevelJsonEditor = (
+            {
+                initialValue="null",
+                onEdit=(path, newValue)=>0,
+                notify=(message)=>console.log(message),
+                constraints=[],
+            }={}
+        ) => JsonValue({
+            onEdit,
+            initialValue: initialValue||"null",
+            constraints,
+            notify,
+            root: null,
+            parent: null,
+        })
+        
+        const JsonValue = (
+            {
+                onEdit=(path, newValue)=>0,
+                initialValue="null",
+                getParentPath=()=>[],
+                notify=(message)=>console.log(message),
+                root=null,
+                parent=null,
+                constraints=[],
+            }
+        ) => {
+            const jsonType = (value)=>{
+                value = value.trimStart()
+                if (value.startsWith("{")) {
+                    return "object"
+                } else if (value.startsWith("[")) {
+                    return "array"
+                } else if (value.startsWith("\"")) {
+                    return "string"
+                } else if (value.match(/^[0-9\-\.]/)) {
+                    return "number"
+                } else if (value.startsWith("t") || value.startsWith("f")) {
+                    return "boolean"
+                } else if (value == "null") {
+                    return "null"
+                } else {
+                    return "invalid"
+                }
+            }
+            // 
+            // value editors
+            // 
+                const JsonBoolean = ({ jsonValue })=>attachToElement({
+                    jsonValue: console.debug(`init jsonValue is:`,jsonValue)||jsonValue,
+                    toggle() {
+                        console.debug(`this is:`,this)
+                        if (this.jsonValue.startsWith("t")) {
+                            this.jsonValue = "false"
+                        } else {
+                            this.jsonValue = "true"
+                        }
+                        this.messageElement.innerHTML = this.jsonValue
+                        onEdit(getParentPath(), this.jsonValue) 
+                    },
+                    inputKeyDown(eventObject) {
+                        // if (eventObject.key == "Tab") {
+                        // 
+                        // }
+                        if (eventObject.key == "Enter" || eventObject.key == " ") {
+                            eventObject.preventDefault()
+                            this.toggle()
+                            this.inputElement.checked = this.jsonValue.startsWith("t")
+                        }
+                    },
+                    messageElement: null,
+                    inputElement: null,
+                        
+                    $element() {
+                        return html`<span onclick=${this.toggle} onfocus=${()=>this.inputElement.focus()}>
+                            ${this.inputElement = html`<input
+                                type="checkbox"
+                                checked=${this.jsonValue}
+                                onchange=${this.toggle}
+                                onkeydown=${this.inputKeyDown}
+                            />`}
+                            
+                            ${this.messageElement = html`<span margin-left="0.3em" margin-right="0.5em">
+                                ${this.jsonValue}
+                            </span>`}
+                            
+                            ${nullifyButton}
+                        </span>`
+                    }
+                })
+            
+            const object = {
+                onEdit,
+                nullify,
+                type,
+                getParentPath,
+                notify,
+                root,
+                value,
+                previousValue: value,
+                backspacedOnceOnEmpty: false,
+                getWidth: ()=>`${(`${object.value}`.length+2)*0.8}em`,
+                updateWidth: ()=>{
+                    const { element, measuringTapeElement } = object
+                    try {
+                        element.parentElement.insertBefore(measuringTapeElement, element)
+                    } catch (error) {}
+                    try {
+                        element.style.width = `calc(${window.getComputedStyle(measuringTapeElement).width} + 2.2em)`
+                    } catch (error) {
+                        element.style.width = "min-content"
+                    }
+                },
+                attachFocus: ()=>{
+                    // selection range doesnt work for number input for some reason
+                    object.element.type = "text"
+                    focusOn(object.element)
+                    try {
+                        object.element.setSelectionRange(1, 1)
+                    } catch (error) {
+                    }
+                    object.element.type = "number"
+                },
+                onInput: (eventObject)=>{
+                    // no invalid numbers
+                    if (eventObject.target.value == "") {
+                        if (eventObject.inputType == "insertText") {
+                            eventObject.target.value = object.previousValue
+                        } else {
+                            if (object.previousValue == "0" && object.backspacedOnceOnEmpty) {
+                                nullify()
+                                return
+                            }
+                            if (object.previousValue == "0") {
+                                object.backspacedOnceOnEmpty = true
+                                notify("Press backspace again to nullify")
+                            }
+                            eventObject.target.value = "0"
+                            object.previousValue = "0"
+                        }
+                    } else {
+                        object.previousValue = eventObject.target.value
+                        object.backspacedOnceOnEmpty = false
+                    }
+                    object.value = eventObject.target.value
+                    object.measuringTapeElement.innerHTML = `${eventObject.target.value}`
+                    object.updateWidth()
+                    object.onEdit(object.getParentPath(), eventObject.target.value)
+                },
+                
+                element: null,
+                measuringTapeElement: html`<span style="position: absolute; pointer-events: none; opacity: 0;">
+                    ${value}
+                </span>`,
+            }
+            object.element = html`
+                <input
+                    contenteditable=${false}
+                    style="text-align: right; border: none; caret-color: initial; width: ${object.getWidth()};"
+                    oninput=${object.onInput}
+                    type="number"
+                    value=${value}
+                    />
+            `
+            
+            // 
+            // init
+            // 
+            object.element.attachFocus = object.attachFocus
+            object.updateWidth()
+            onEdit(getParentPath(), value-0)
+            object.element.object = object
+            return object.element
+            
+            const JsonNumber = ({ jsonValue })=>attachToElement({
+                $element() { return html`<span>not implemented</span>` }
+            })
+            const JsonString = ({ jsonValue })=>attachToElement({ $element() { return html`<span>not implemented</span>` }})
+            const JsonArray = ({ jsonValue })=>attachToElement({ $element() { return html`<span>not implemented</span>` }}) // TODO: needs .focusOnNext(from)
+            const JsonObject = ({ jsonValue })=>attachToElement({ $element() { return html`<span>not implemented</span>` }}) // TODO: needs .focusOnNext(from)
+            
+            const element = attachToElement({
+                isNull: initialValue == "null",
+                onEdit,
+                getParentPath,
+                constraints,
+                get root() {
+                    if (root == null) {
+                        return this
+                    } else {
+                        return root
+                    }
+                },
+                get jsonValue() {
+                    if (this.isNull) {
+                        return `null`
+                    } else {
+                        return this.valueElement.jsonValue
+                    }
+                },
+                set jsonValue(newValue) {
+                    // newValue needs to be a string because we need to handle the start-of-a-number e.g. "-" or "." which is 
+                    // not a valid value, but is something that can be rendered
+                    // also some values have multiple forms eg: 1.0 and 1 are the same value but different forms
+                    if (typeof newValue != "string") {
+                        throw Error(`jsonValue must be a string (json or partial-json string)`)
+                    }
+                    newValue = newValue.trimStart()
+                    if (newValue.startsWith("{")) {
+                        this.isNull = false
+                        this.valueElement = JsonObject({ jsonValue: newValue })
+                        this.$element.innerHTML = ""
+                        this.$element.appendChild(this.valueElement)
+                    } else if (newValue.startsWith("[")) {
+                        this.isNull = false
+                        this.valueElement = JsonArray({ jsonValue: newValue })
+                        this.$element.innerHTML = ""
+                        this.$element.appendChild(this.valueElement)
+                    } else if (newValue.startsWith("\"")) {
+                        this.isNull = false
+                        this.valueElement = JsonString({ jsonValue: newValue })
+                        this.$element.innerHTML = ""
+                        this.$element.appendChild(this.valueElement)
+                    } else if (newValue.match(/^[0-9\-\.]/)) {
+                        this.isNull = false
+                        this.valueElement = JsonNumber({ jsonValue: newValue })
+                        this.$element.innerHTML = ""
+                        this.$element.appendChild(this.valueElement)
+                    } else if (newValue.startsWith("t") || newValue.startsWith("f")) {
+                        console.debug(`newValue.startsWith("t") is:`,newValue.startsWith("t"))
+                        console.debug(`newValue.startsWith("t") ? "true" : "false" is:`,newValue.startsWith("t") ? "true" : "false")
+                        this.isNull = false
+                        this.valueElement = JsonBoolean({ jsonValue: newValue.startsWith("t") ? "true" : "false" })
+                        this.$element.innerHTML = ""
+                        this.$element.appendChild(this.valueElement)
+                    } else if (newValue == "null") {
+                        this.nullify()
+                    } else {
+                        console.warn(`provided with invalid json value: ${JSON.stringify(newValue)}`)
+                    }
+                },
+                get isPrimitive() {
+                    const type = jsonType(this.jsonValue)
+                    return type != "object" && type != "array"
+                },
+                nullify() {
+                    this.isNull = true
+                    this.$element.innerHTML = "null"
+                    this.valueElement = null
+                },
+                onKeydown(eventObject) {
+                    console.debug(`JsonValue.onKeydown eventObject is:`,eventObject)
+                    if (this.isNull) {
+                        let valueWasSet = false
+                        console.debug(`eventObject.key is:`,eventObject.key)
+                        if (eventObject.key=="{") {
+                            valueWasSet = true
+                            this.jsonValue = `{}`
+                        } else if (eventObject.key=="[") {
+                            valueWasSet = true
+                            this.jsonValue = `[]`
+                        } else if (eventObject.key=="\"" || eventObject.key=="'") {
+                            valueWasSet = true
+                            this.jsonValue = '""'
+                        } else if (eventObject.key.match(/^[0-9\-\.]/)) {
+                            valueWasSet = true
+                            this.jsonValue = eventObject.key // note: this allows invalid JSON, e.g. "-."
+                        } else if (eventObject.key == "t" || eventObject.key == "f") {
+                            valueWasSet = true
+                            this.jsonValue = eventObject.key == "t" ? "true" : "false" 
+                        }
+                        if (valueWasSet) {
+                            focusOn(this.valueElement)
+                        }
+                    }
+                },
+                focusOnNext(from) {
+                    // top level cant go to next
+                    if (this.parent == null) {
+                        return
+                    }
+                    // if isPrimitive we have to go up and over (e.g. ask the parent to focus on the next)
+                    if (this.isPrimitive) {
+                        this.parent.focusOnNext(this.$element)
+                    // if not primitive then we will ask the inner element to focus on the next
+                    } else {
+                        this.valueElement.focusOnNext(from)
+                    }
+                },
+                
+                $element() {
+                    return html`
+                        <div
+                            tabindex="-1"
+                            name="JsonEditor"
+                            onkeydown=${this.onKeydown}
+                            isRoot=${this.isRoot}
+                            style=${`
+                                position: relative;
+                                display: flex;
+                                flex-direction: column;
+                                gap: 0em;
+                                box-shadow: 0 4px 5px 0 rgba(0,0,0,0.10),0 1px 10px 0 rgba(0,0,0,0.08),0 2px 4px -1px rgba(0,0,0,0.24);
+                                caret-color: transparent;
+                                width: fit-content;
+                                border-radius: 1em;
+                                padding: 0.5em 1em;
+                                background: var(--card-background, white);
+                                position: relative;
+                                margin: ${this.isRoot?"0.5em":"0"};
+                            `}
+                            >
+                                null
+                        </div>
+                    `
+                }
+            })
+            const nullifyButton = NullifyButton({ action: ()=>element.nullify() })
+            addDynamicStyleFlags({
+                element: element,
+                styleFunc: (element)=>{
+                    let show = element.isFocused || element.isHovered
+                    nullifyButton.style.opacity = show ? 1 : 0
+                },
+                flagKeys: {
+                    isHovered: [ "mouseover", "mouseout" ],
+                    isFocused: [ "focus", "blur" ],
+                },
+            })
+            
+            element.jsonValue = initialValue
+            return element
+        }
+        
+        function NullifyButton({ children, action, ...other }) {
+            return html`
+                <button
+                    style="
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        padding: 0.5em;
+                        border: none;
+                        border-radius: 1em; 
+                        background: var(--gray, gray);
+                        color: var(--white, white);
+                        font-size: 0.8em;
+                        box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
+                        transform: translate(45%, -25%);
+                    "
+                    onclick=${action}
+                    tabindex="-1"
+                    >
+                        nullify
+                </button>
+            `
         }
         function RemoveButton({ children, ...other }) {
             return html`
@@ -2069,80 +2368,7 @@
                 </button>
             `
         }
-        function NullifyButton({ children, action, ...other }) {
-            return html`
-                <button
-                    style="
-                        position: absolute;
-                        top: 0;
-                        right: 0;
-                        padding: 0.5em;
-                        border: none;
-                        border-radius: 1em; 
-                        background: var(--gray, gray);
-                        color: var(--white, white);
-                        font-size: 0.8em;
-                        box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);
-                        transform: translate(45%, -25%);
-                    "
-                    onclick=${action}
-                    tabindex="-1"
-                    >
-                        nullify
-                </button>
-            `
-        }
-        function EditJsonBoolean({ onEdit, nullify, type, getParentPath, value, notify, root }) {
-            const object = {
-                onEdit,
-                nullify,
-                type,
-                getParentPath,
-                notify,
-                root,
-                value: !!`${value}`.match(/^t/),
-                toggle: ()=>{
-                    object.value = !object.value
-                    object.messageElement.innerHTML = `${object.value}`
-                    onEdit(getParentPath(), object.value) 
-                },
-                inputKeyDown: (eventObject)=>{
-                    // if (eventObject.key == "Tab") {
-                    // 
-                    // }
-                    if (eventObject.key == "Enter" || eventObject.key == " ") {
-                        object.toggle()
-                    }
-                },
-                messageElement: null,
-                inputElement: null,
-                element: null,
-                
-            }
-            object.element = html`<span
-                contenteditable=${false}
-                onclick=${object.toggle}
-                >
-                    ${object.inputElement = html`<input
-                        type="checkbox"
-                        checked=${object.value}
-                        onchange=${object.toggle}
-                        onkeydown=${object.inputKeyDown}
-                    />`}
-                    
-                    ${object.messageElement = html`<span margin-left="0.3em" margin-right="0.5em">
-                        ${object.value}
-                    </span>`}
-            </span>`
-            
-            // 
-            // init
-            // 
-            object.element.object = object
-            object.element.attachFocus = ()=>focusOn(object.element)
-            onEdit(getParentPath(), object.value)
-            return object.element
-        }
+        
         function EditJsonNumber({ onEdit, nullify, type, getParentPath, value, notify, root }) {
             const object = {
                 onEdit,
@@ -2873,7 +3099,6 @@
                     onfocus=${object.onFocus}
                     onclick=${object.onClick}
                     onbeforeinput=${object.onBeforeInput}
-                    onkeydown=${(e)=>{console.log(`onKeyDown local`, e)}}
                     style=${`
                         position: relative;
                         display: flex;
@@ -2918,7 +3143,6 @@
             
             return object.element
         }
-        document.body.children[0].focus()
     
     // 
     // 
@@ -2927,14 +3151,10 @@
     // 
         document.body = html`
             <body font-size=15px>
-                <style>
-                    div[contenteditable=true] {
-                        border-bottom: dashed cornflowerblue 2px !important;
-                    }
-                </style>
-                <JsonEditor />
+                ${TopLevelJsonEditor()}
             </body>
         `
         document.body.animate(...fadeIn)
+        document.body.children[0].focus()
 // })()
 </script>
