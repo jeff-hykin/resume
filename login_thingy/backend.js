@@ -23,5 +23,6 @@ const tool = {
 
         // Compare the recovered address with the provided address
         return recoveredAddress.toLowerCase() === ethUtil.stripHexPrefix(signerAddress).toLowerCase()
-    }
+    },
+    verifyAndSendAccountTempKey
 }
