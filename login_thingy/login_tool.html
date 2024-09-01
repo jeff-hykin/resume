@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+<script>
+    import { toHex } from './utils.js'
+    class LoginTool {
+        constructor({ onAccountChange, provider, localStorageKey=`$loginToolStorage`, saveAccountKey=true }) {
+            this.onAccountChange = onAccountChange||function(){}
+            this.localStorage = localStorage||window.localStorage
+            this.provider = provider||etheremum
+            this.accountStatus = "unset"
+            this.accountAddress = null
+            this.accountPublicKey = null
+        }
+        purgeInfo() {
+            this.accountStatus = "unset"
+            this.accountAddress = null
+            this.localStorage.removeItem(this.localStorageKey)
+        }
+        async requestAccount(challengeMessage) {
+            // try to load from cache
+            if (this.accountStatus === "unset") {
+                try {
+                    const accountInfo = JSON.parse(this.localStorage.getItem(this.localStorageKey))
+                    this.accountAddress = accountInfo.accountKey
+                    this.accountStatus = "fromStorage"
+                    this.onAccountChange()
+                } catch (error) {
+                    
+                }
+            }
+            // 
+            // talk to provider
+            // 
+            try {
+                const [ accountKey ] = await this.provider.request({ method: "eth_requestAccounts" })
+                this.accountPublicKey = await this.provider.request({
+                    method: 'eth_getEncryptionPublicKey',
+                    params: [account],
+                })
+                var publicKey = await ethereum.request({
+                    method: 'eth_getEncryptionPublicKey',
+                    params: [accountKey],
+                })
+                this.accountAddress = accountKey
+                var signature = await ethereum.request({
+                    method: "personal_sign",
+                    params: [
+                        // convert to hex
+                        toHex(challengeMessage),
+                        accountKey
+                    ],
+                })
+                this.provider.on("accountsChanged", (accounts, ...args)=>{
+                    if (accounts[0] !== this.accountAddress) {
+                        this.onAccountChange(accounts[0], ...args)
+                    }
+                })
+            } catch (error) {
+                // if (error.message === "User rejected the request.") {
+                //     // user said "no" on first popup
+                // }
+                throw error
+            }
+        }
+        suggestCreateAccount() {
+            // FIXME
+                // make a little popup that gives a tutorial 
+        }
+    }
+</script>
+</html>
