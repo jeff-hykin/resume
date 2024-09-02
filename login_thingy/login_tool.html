@@ -8,138 +8,32 @@
 <body>
     
 </body>
-<script>
-    import { toHex } from './utils.js'
-    class LoginTool {
-        constructor({ onAccountChange, provider, saveAccountKeyTo=`$loginToolStorage` }) {
-            this.onAccountChange = onAccountChange||function(){}
-            this.provider = provider||ethereum
-            this.saveAccountKey = saveAccountKeyTo
-            this.accountStatus = "unset"
-            this.accountAddress = null
-            this.accountPublicKey = null
-        }
-        get isLoggedIn() {
-            return this.accountStatus === "loggedIn"
-        }
-        purgeInfo() {
-            this.accountStatus = "unset"
-            this.accountAddress = null
-            this.localStorage.removeItem(this.saveAccountKeyTo)
-        }
-        /**
-         * Requests an Ethereum account from the provider and verifies the account's signature against a challenge message.
-         * If the account is successfully verified, the account address and a key are stored in local storage.
-         * The account status is updated accordingly.
-         *
-         * @param {string} challengeMessage - The challenge message to be signed by the account.
-         * @param {function} verifySignatureFunc - A function to verify the signature of the challenge message.
-         * @returns {string|null} - The key if the account is successfully verified, or null if the verification fails.
-         */
-        async requestAccount(challengeMessage, verifySignatureFunc) {
-            // try to load from cache
-            if (this.accountStatus === "unset") {
-                try {
-                    const accountInfo = JSON.parse(this.localStorage.getItem(this.saveAccountKeyTo))
-                    this.accountAddress = accountInfo.accountAddress
-                    this.key = accountInfo.key
-                    if (this.key) {
-                        this.accountStatus = "loggedIn"
-                    }
-                    return this.key
-                } catch (error) {
-                    
-                }
-            }
-            
-            // 
-            // talk to provider
-            // 
-            const [ accountAddress ] = await this.provider.request({ method: "eth_requestAccounts" })
-            this.accountStatus = "hasAddress"
-            // this.accountPublicKey = await this.provider.request({
-            //     method: 'eth_getEncryptionPublicKey',
-            //     params: [account],
-            // })
-            this.accountAddress = accountAddress
-            var signature = await this.provider.request({
-                method: "personal_sign",
-                params: [
-                    // convert to hex
-                    toHex(challengeMessage),
-                    accountAddress,
-                ],
-            })
-            this.provider.on("accountsChanged", (accounts, ...args)=>{
-                if (accounts[0] !== this.accountAddress) {
-                    this.onAccountChange(accounts[0], ...args)
-                }
-            })
-            
-            this.key = await verifySignatureFunc(challengeMessage, signature, accountAddress)
-            if (this.key) {
-                this.accountStatus = "loggedIn"
-                if (typeof this.saveAccountKeyTo == "string" && this.saveAccountKeyTo.length > 0) {
-                    this.localStorage.setItem(this.saveAccountKeyTo, JSON.stringify({ accountAddress, key: this.key }))
-                }
-            }
-            
-            // if (error.message === "User rejected the request.") {
-            //     // user said "no" on first popup
-            // }
-        }
-        showAccountCreationTutorial() {
-            const div = document.createElement("div")
-            div.innerHTML = `
-                <div style="background-color:white;padding:1em;border-radius:0.5em;color:black;">
-                    <h1>Create an account</h1>
-                    <p>This should take 30 seconds (no email verification needed)</p>
-                    <p>1. Get the MetaMask extension <a href="https://metamask.io/download/">here</a></p>
-                    <p>2. Click the MetaMask icon in your browser toolbar</p>
-                    <p>3. Click "Create new account"</p>
-                    <p>4. Then reload this page</p>
-                </div>
-            `
-            div.style.position = "fixed"
-            div.style.top = "0"
-            div.style.left = "0"
-            div.style.width = "100vw"
-            div.style.height = "100vh"
-            div.style.backgroundColor = "rgba(0,0,0,0.5)"
-            div.style.zIndex = "1000"
-            div.style.display = "flex"
-            div.style.alignItems = "center"
-            div.style.justifyContent = "center"
-            document.body.appendChild(div)
-        }
-        ezRequireAccount(challengeMessageFromBackend, backendVerifySignatureFunc) {
-            if (!this.provider) {
-                this.showAccountCreationTutorial()
-            } else {
-                return this.requestAccount(challengeMessageFromBackend)
-            }
-        }
-    }
+<script type="module">
+    import { LoginTool } from './login_tool.js'
+    const loginTool = new LoginTool({
+        provider: window.ethereum, 
+        saveAccountKeyTo:`$loginToolStorage`,
+        getChallengeMessageFunc: ()=>fetch("/backend/challengeMessage").then(res=>res.json()),
+        verifySignatureFunc: async (challengeMessage, signature, accountAddress)=>{
+            return fetch("/backend/verify", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({challengeMessage, signature, accountAddress})
+            }).then(res=>res.json())
+        },
+    })
     
-    // 
-    // example
-    //
-    const loginTool = new LoginTool({ provider: ethereum, saveAccountKeyTo:`$loginToolStorage` })
-    button.onClick = async ()=>{
-        await loginTool.ezRequireAccount(
-            await fetch("/backend/challengeMessage").then(res=>res.json()),
-            async (challengeMessage, signature, accountAddress)=>{
-                return fetch("/backend/verify", {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({challengeMessage, signature, accountAddress})
-                }).then(res=>res.json())
-                
-            }
-        )
+    let button = document.createElement("button")
+    button.innerText = "Login"
+    button.style.position = "fixed"
+    button.style.top = "1rem"
+    button.style.right = "1rem"
+    button.style.padding = "1rem"
+    button.onclick = async ()=>{
+        const authToken = await loginTool.ezRequireAccount()
     }
     
 </script>
