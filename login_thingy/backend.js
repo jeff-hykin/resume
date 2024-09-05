@@ -33,7 +33,7 @@ const handler = (request) => {
     }
     
     return new Response("Srry, page not found", { status: 404 })
-};
+}
 
 console.log(`HTTP server running. Access it at: http://localhost:${port}/`);
 Deno.serve({ port }, handler);
