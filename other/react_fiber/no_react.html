@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html style="width: 100%; height: 100%; overflow: hidden">
+    <head>
+        <meta charset="utf-8" />
+        <title>Stack Example</title>
+    </head>
+    <body>
+        <h1>Stack Example</h1>
+        <script type="module">
+            var { html } = await import("https://cdn.skypack.dev/@!!!!!/elemental@0.5.40")
+            var dotStyle = {
+                position: "absolute",
+                background: "#61dafb",
+                font: "normal 15px sans-serif",
+                textAlign: "center",
+                cursor: "pointer",
+            }
+
+            var containerStyle = {
+                position: "absolute",
+                transformOrigin: "0 0",
+                left: "50%",
+                top: "50%",
+                width: "10px",
+                height: "10px",
+                background: "#eee",
+                transition: "all 0.5s linear 0s",
+            }
+
+            var targetSize = 25
+            
+            function Dot({ size, x, y, innerText, ...children}) {
+                let hover = false
+                let s = size * 1.3
+                let style = {
+                    ...dotStyle,
+                    width: s + "px",
+                    height: s + "px",
+                    borderRadius: s / 2 + "px",
+                    lineHeight: s + "px",
+                    background: hover ? "#ff0" : dotStyle.background,
+                }
+                const element = html`
+                    <div style=${style} onMouseEnter=${()=>{hover=true; element.setText(innerText)}} onMouseLeave=${()=>{hover=false; element.setText(innerText)}}>
+                        ${innerText}
+                    </div>
+                `
+                element.setText = (text)=>{
+                    if (typeof text == "string") {
+                        innerText = text
+                    } else if (typeof text == "number") {
+                        innerText = `${text}`
+                    } else {
+                        throw Error(`here: ${typeof text}`)
+                        innerText = text.innerText
+                    }
+                    element.style.background = hover ? "#ff0" : dotStyle.background
+                    element.innerText = hover ? "*" + innerText + "*" : innerText
+                }
+                element.setPosition = (x,y)=>{
+                    element.style.left = x+"px"
+                    element.style.top = y+"px"
+                }
+                element.setPosition(x,y)
+                return element
+            }
+
+            function SierpinskiTriangle({ x, y, s, children }) {
+                if (s <= targetSize) {
+                    return Dot({
+                        x: x - targetSize / 2,
+                        y: y - targetSize / 2,
+                        size: targetSize,
+                        innerText: children[0],
+                    })
+                }
+                var newSize = s / 2
+                var slowDown = true
+                if (slowDown) {
+                    var e = performance.now() + 0.8
+                    while (performance.now() < e) {
+                        // Artificially long execution time.
+                    }
+                }
+
+                s /= 2
+                
+                let tris = [
+                    SierpinskiTriangle({x,      y:y - s / 2, s, children }),
+                    SierpinskiTriangle({x: x-s, y:y + s / 2, s, children }),
+                    SierpinskiTriangle({x: x+s, y:y + s / 2, s, children }),
+                ]
+                const element = html`<div>
+                    ${tris}
+                </div>`
+                
+                element.setText = (text)=>{
+                    for (const each of tris) {
+                        each.setText(text)
+                    }
+                }
+                element.setPosition = (x,y) =>{
+                    element.setPosition({x,      y:y - s / 2})
+                    element.setPosition({x: x-s, y:y + s / 2})
+                    element.setPosition({x: x+s, y:y + s / 2})
+                }
+                
+                return element
+            }
+            
+            function ExampleApplication() {
+                const start = new Date().getTime()
+                let seconds = 0
+                const computeTransform = ()=>{
+                    const t = ((new Date().getTime() - start) / 1000) % 10
+                    const scale = 1 + (t > 5 ? 10 - t : t) / 10
+                    const transform = "scaleX(" + scale / 2.1 + ") scaleY(0.7) translateZ(0.1px)"
+                    return transform
+                }
+                const transform = computeTransform()
+                let intervalID = setInterval(()=>{
+                    seconds = (seconds % 10) + 1
+                    tri.setText(`${seconds}`)
+                    const transform = computeTransform()
+                    element.style.transform = transform
+                }, 1000)
+                
+                function updateScale() {
+                    const transform = computeTransform()
+                    element.style.transform = transform
+                    setTimeout(() => {
+                        requestAnimationFrame(updateScale)
+                    }, 50);
+                }
+                requestAnimationFrame(updateScale)
+                
+                const tri = SierpinskiTriangle({x:0,y:0,s:1000, children: [seconds]})
+                const element = html`
+                    <div style=${{ ...containerStyle, transform }}>
+                        <div>
+                            ${tri}
+                        </div>
+                    </div>
+                `
+                return element
+            }
+            
+            const exampleApp = ExampleApplication()
+            document.body = html`<body>${exampleApp}</body>`
+        </script>
+    </body>
+</html>
