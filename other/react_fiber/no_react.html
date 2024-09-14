@@ -95,6 +95,13 @@
                 </div>`
                 
                 element.setText = (text)=>{
+                    var extraHardMode = true
+                    if (extraHardMode) {
+                        var e = performance.now() + 0.8;
+                        while (performance.now() < e) {
+                            // Artificially long execution time.
+                        }
+                    }
                     for (const each of tris) {
                         each.setText(text)
                     }
