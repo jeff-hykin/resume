@@ -106,7 +106,7 @@ const maxDescriptionLength = 8192
         let lazyPromises = []
         if (!used) {
             lazyPromises.push(
-                Deno.writeTextFile(path, JSON.stringify({ ...otherJsonData, appName, used: true }))
+                FileSystem.write({path, data: JSON.stringify({ ...otherJsonData, appName, used: true })})
             )
         }
         try {
@@ -115,7 +115,9 @@ const maxDescriptionLength = 8192
             const versionsPath = `${appPath}/versions`
             const owner = await FileSystem.read(ownerPath)
             if (!owner) {
-                lazyPromises.push(FileSystem.write({ data: token, path: ownerPath }))
+                lazyPromises.push(
+                    FileSystem.write({ data: token, path: ownerPath })
+                )
             } else if (owner != token) {
                 throw externalError = Error(`App ${appName} already exists`)
             }
