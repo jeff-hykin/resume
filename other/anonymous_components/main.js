@@ -142,21 +142,21 @@ monkeyPatch(el, "replaceChild", convertAll)
 // usage
 // 
 // 
-class MyElement extends AnonymousElement {
-    constructor() {
-        super()
-    }
-    connectedCallback() {
-        console.log(`connected`)
-        console.debug(`this.attachShadow is:`,this.attachShadow)
-        const shadow = this.attachShadow({ mode: "open" })
-        const message = document.createElement("span")
-        message.innerHTML = "Hello World"
-        shadow.appendChild(message)
-    }
-}
+// class MyElement extends AnonymousElement {
+//     constructor() {
+//         super()
+//     }
+//     connectedCallback() {
+//         console.log(`connected`)
+//         console.debug(`this.attachShadow is:`,this.attachShadow)
+//         const shadow = this.attachShadow({ mode: "open" })
+//         const message = document.createElement("span")
+//         message.innerHTML = "Hello World"
+//         shadow.appendChild(message)
+//     }
+// }
 
-document.body.appendChild(new MyElement())
+// document.body.appendChild(new MyElement())
 
 // considerations
 // - .cloneNode()

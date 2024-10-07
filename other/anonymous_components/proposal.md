@@ -79,14 +79,3 @@ document.body.innerHTML
 <anonymous size="20"><span>Hello World 2</span></anonymous>`
 ```
 
-## API
-
-##### Syntax
-
-```js
-const registry = new CustomElementRegistry();
-```
-
-## Open Questions
-
-##  Alternatives to allowing multiple definitions
