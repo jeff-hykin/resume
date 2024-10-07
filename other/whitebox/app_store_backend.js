@@ -58,7 +58,9 @@ const maxDescriptionLength = 8192
     // TODO: add a lot of other fields to the packageInfo
         // issueUrl
         // zipHash
-        // signatures 
+        // signatures
+        // icon
+        // banner
     const isValidAppName = appName=>{
         if (typeof appName !== "string") {
             throw Error(`appName is required, and it must be a string`)
