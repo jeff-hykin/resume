@@ -766,16 +766,6 @@
         timeline.sort((a,b)=>a.time.getTime()-b.time.getTime())
         return timeline
     }
-    function getFomattedTime(date) {
-        let hours = date.getHours()
-        let amPm = "am"
-        if (hours>12) {
-            amPm = "pm"
-            hours = hours-12
-        }
-        let min = `${date.getMinutes()}`.padStart(2,"0")
-        return `${hours}:${min} ${amPm}`
-    }
     function createTimelineElement(activeSession) {
         const timelineList = createTimelineList(activeSession)
         return html`
@@ -787,11 +777,11 @@
                     if (type == "search") {
                         const { query, ...info } = value
                         return html`<li>
-                            <h5>${getFomattedTime(time)}: <b>${query}</b></h5>
+                            <h5>${getFomattedTime(time)} | <b>${query}</b></h5>
                             <ol>
                                 ${info.articleTitles.map(
                                     eachTitle=>{
-                                        const element = html`<li>${eachTitle}</li>`
+                                        const element = html`<li style="margin-bottom: 1em"><a href="${getLinkForArticle(eachTitle, activeSession)}">${eachTitle}</a></li>`
                                         // element.addEventListener("mouseover", ()=>{
                                         //     activeSession.
                                         // })
@@ -809,9 +799,11 @@
                             notesComment,
                             notesWasRelatedTo,
                             firstSeenTime,
+                            pdfLink,
+                            link,
                         } = value
                         return html`<li style="opacity: ${notesConsideredRelevent?1:0.6}">
-                            <h5>${getFomattedTime(time)}: <b>${title}</b></h5>
+                            <h5>${getFomattedTime(time)} | <b><a href=${pdfLink||link}>${title}</a></b></h5>
                             <div>
                                 <span>title: ${title}</span>
                                 <span>relevent: ${notesConsideredRelevent}</span>
@@ -837,6 +829,25 @@
             </ol>
         `
     }
+    // 
+    // misc helpers
+    // 
+        function getFomattedTime(date) {
+            let hours = date.getHours()
+            let amPm = "am"
+            if (hours>12) {
+                amPm = "pm"
+                hours = hours-12
+            }
+            let min = `${date.getMinutes()}`.padStart(2,"0")
+            return `${hours}:${min} ${amPm}`
+        }
+        function getLinkForArticle(title, activeSession) {
+            let results = activeSession.articles.filter(each=>each.title==title)
+            if (results.length>0) {
+                return results[0].pdfLink||results[0].link
+            }
+        }
     console.log(`${source} loading`)
     browser.storage.local.onChanged.addListener((data)=>{
         console.debug(`${source} onChange data is:`,data)
