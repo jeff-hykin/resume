@@ -28,7 +28,7 @@
     // 
     // common data
     // 
-        let storage = await browser.storage.local.get()
+        let storage = await browser.storage.local.get("activeSession").activeSession||{}
         // {
         //     articles: [
         // 
@@ -52,7 +52,7 @@
             needsUpdate = true
         }
         if (needsUpdate) {
-            browser.storage.local.set({all:storage})
+            browser.storage.local.set({activeSession:storage})
         }
 
     // 
@@ -61,14 +61,15 @@
         // browser.runtime.onMessage.addListener((message) => {
         //     console.log(`[content_scripts/main.js] got message: ${message}`, message)
         // })
-        browser.storage.local.onChanged.addListener(({all})=>{
-            storage = all
+        browser.storage.local.onChanged.addListener(({activeSession})=>{
+            storage = activeSession
         })
-
+        
         // 
         // if on google scholar
         // 
         if (window.location.href.startsWith(`https://scholar.google.com/`)) {
+            browser.storage.local.set({activePageStatus:"googleScholar"})
             let url = new URL(window.location.href)
             let query = url.searchParams.get("q")
             let firstSeenTime = new Date().toString()
@@ -88,7 +89,12 @@
                         articles.push({
                             title,
                             possibleYear: null,
-                            customKeywords: [],
+                            notesConsideredRelevent: null,
+                            notesCustomKeywords: [],
+                            notesComment: null,
+                            notesWasRelatedTo: [],
+                            notesIsCitedByTitles: [],
+                            notesCites: [],
                             firstDiscoveryQuery: query,
                             firstSeenTime,
                             authorNames: null,
@@ -97,6 +103,7 @@
                             citationId: null,
                             multiArticleId: null,
                             citedByLink: null,
+                            publisherInfo: null,
                         })
                     }
                     if (links.length > 0) {
@@ -164,7 +171,7 @@
                                 }
                             }
                             // 
-                            // year & authors
+                            // year, authors, & publisherInfo
                             // 
                             try {
                                 let titleElement = eachArticleElement.querySelector("h3")
@@ -174,13 +181,16 @@
                                         // let probablyAuthorLinks = [...probablyAuthorsElement.querySelectorAll("a")]
                                         let pieces = probablyAuthorsElement.innerText.split("-")
                                         let source = pieces.at(-1).trim()
-                                        let publishInstanceInfo = pieces.at(-2)
+                                        let publishInstanceInfo = pieces.at(-2)||""
                                         let authorInfoString = pieces.slice(0,-2).join("-") // join is just to be defensive, should be 1 item
                                         articleObject.authorNames = authorInfoString.split(",").map(each=>each.trim())
                                         let year
                                         // yep sadly this code will break in the year 2100
                                         if (year = publishInstanceInfo.match(/((?:20|19)(?:\d\d))/)) {
                                             articleObject.possibleYear = year
+                                        }
+                                        if (publishInstanceInfo) {
+                                            articleObject.publisherInfo = publishInstanceInfo
                                         }
                                     }
                                 }
@@ -217,7 +227,7 @@
                 }
                 if (newSearchQuery || newArticlesFound) {
                     console.debug(`storage is:`,storage)
-                    browser.storage.local.set(storage)
+                    browser.storage.local.set({activeSession:storage})
                 }
             }
         }

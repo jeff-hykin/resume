@@ -1,0 +1,14 @@
+- click popup to add notes based on current tab
+  - isRelevent toggle
+  - keywords
+  - comment
+  - title
+    - buttons to autofill title based on last-query titles
+  - related to
+    - buttons to autofill based on recent article titles
+- download button:
+  - for history as JSON
+  - for articles as JSON
+  - for articles as CSV
+- differnt session names
+- on hover info for articles
