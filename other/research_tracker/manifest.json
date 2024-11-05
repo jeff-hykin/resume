@@ -1,0 +1,19 @@
+{
+    "manifest_version": 2,
+    "name": "ResearchRecorder",
+    "version": "1.0",
+    "description": "Lets you keep track of what you searched",
+    "icons": {
+        "48": "icons/border-48.png"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*/*"
+            ],
+            "js": [
+                "main.js"
+            ]
+        }
+    ]
+}
