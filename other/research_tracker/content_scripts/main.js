@@ -64,15 +64,15 @@
         browser.storage.local.onChanged.addListener(({activeSession})=>{
             storage = activeSession
         })
+        browser.storage.local.set({activePage:window.location.href})
         
         // 
         // if on google scholar
         // 
         if (window.location.href.startsWith(`https://scholar.google.com/`)) {
-            browser.storage.local.set({activePageStatus:"googleScholar"})
             let url = new URL(window.location.href)
             let query = url.searchParams.get("q")
-            let firstSeenTime = new Date().toString()
+            let firstSeenTime = new Date().toUTCString()
             // 
             // if query
             // 
@@ -221,7 +221,7 @@
                 if (!storage.searchQueries[query]) {
                     newSearchQuery = true
                     storage.searchQueries[query] = {
-                        firstTime: new Date().toString(),
+                        firstTime: new Date().toUTCString(),
                         articleTitles: articles.map(each=>each.title),
                     }
                 }

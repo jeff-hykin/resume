@@ -6,6 +6,25 @@
     // browser.tabs.removeCSS({ code: hidePage })
     // await browser.tabs.query({ active: true, currentWindow: true })
     // await browser.tabs.executeScript({ file: "/content_scripts/beastify.js" })
+// {
+//     title,
+//     possibleYear: null,
+//     notesConsideredRelevent: null,
+//     notesCustomKeywords: [],
+//     notesComment: null,
+//     notesWasRelatedTo: [],
+//     notesIsCitedByTitles: [],
+//     notesCites: [],
+//     firstDiscoveryQuery: query,
+//     firstSeenTime,
+//     authorNames: null,
+//     pdfLink: null,
+//     link,
+//     citationId: null,
+//     multiArticleId: null,
+//     citedByLink: null,
+//     publisherInfo: null,
+// }
 
 // 
 // elemental.js
@@ -719,29 +738,105 @@
     const source = `[popup/main.js]`
     const data = await browser.storage.local.get()||{}
     const activeSession = await browser.storage.local.get("activeSession").activeSession||data
+    
     document.body = html`<body style="font-family: Helvetica, sans-serif;">
-        <h3>
-            Queries
-        </h3>
-        <ol>
-            ${Object.entries(activeSession.searchQueries).reverse().map(([query, info])=>{
-                return html`<li>
-                    <h5>${query}:<b>${info.firstTime}</b></h5>
-                    <ol>
-                        ${info.articleTitles.map(
-                            eachTitle=>{
-                                const element = html`<li>${eachTitle}</li>`
-                                // element.addEventListener("mouseover", ()=>{
-                                //     activeSession.
-                                // })
-                                return element
-                            }
-                        )}
-                    </ol>
-                </li>`
-            })}
-        </ol>
+        ${createTimelineElement(activeSession)}
     </body>`
+    
+    function createTimelineList(activeSession) {
+        let timeline = []
+        // add queries
+        for (let [query, value] of Object.entries(activeSession.searchQueries)) {
+            timeline.push({
+                type: "search",
+                value: {...value, query},
+                time: new Date(value.firstTime),
+            })
+        }
+        // add lone articles
+        for (let each of activeSession.articles) {
+            if (!each.firstDiscoveryQuery) {
+                timeline.push({
+                    type: "article",
+                    value: each,
+                    time: new Date(value.firstSeenTime),
+                })
+            }
+        }
+        timeline.sort((a,b)=>a.time.getTime()-b.time.getTime())
+        return timeline
+    }
+    function getFomattedTime(date) {
+        let hours = date.getHours()
+        let amPm = "am"
+        if (hours>12) {
+            amPm = "pm"
+            hours = hours-12
+        }
+        let min = `${date.getMinutes()}`.padStart(2,"0")
+        return `${hours}:${min} ${amPm}`
+    }
+    function createTimelineElement(activeSession) {
+        const timelineList = createTimelineList(activeSession)
+        return html`
+            <h3>
+                Queries
+            </h3>
+            <ol>
+                ${timelineList.map(({type,value,time})=>{
+                    if (type == "search") {
+                        const { query, ...info } = value
+                        return html`<li>
+                            <h5>${getFomattedTime(time)}: <b>${query}</b></h5>
+                            <ol>
+                                ${info.articleTitles.map(
+                                    eachTitle=>{
+                                        const element = html`<li>${eachTitle}</li>`
+                                        // element.addEventListener("mouseover", ()=>{
+                                        //     activeSession.
+                                        // })
+                                        return element
+                                    }
+                                )}
+                            </ol>
+                        </li>`
+                    } else {
+                        const {
+                            title,
+                            possibleYear,
+                            notesConsideredRelevent,
+                            notesCustomKeywords,
+                            notesComment,
+                            notesWasRelatedTo,
+                            firstSeenTime,
+                        } = value
+                        return html`<li style="opacity: ${notesConsideredRelevent?1:0.6}">
+                            <h5>${getFomattedTime(time)}: <b>${title}</b></h5>
+                            <div>
+                                <span>title: ${title}</span>
+                                <span>relevent: ${notesConsideredRelevent}</span>
+                                ${possibleYear?html`<span>year: ${possibleYear}</span>`:""}
+                                ${notesCustomKeywords?html`<span>keywords: ${notesCustomKeywords.join(", ")}</span>`:""}
+                                ${notesComment?html`<span>comment: ${notesComment}</span>`:""}
+                                ${notesWasRelatedTo?html`<span>comment: ${notesWasRelatedTo}</span>`:""}
+                            </div>
+                            <ul>
+                                ${info.articleTitles.map(
+                                    eachTitle=>{
+                                        const element = html`<li>${eachTitle}</li>`
+                                        // element.addEventListener("mouseover", ()=>{
+                                        //     activeSession.
+                                        // })
+                                        return element
+                                    }
+                                )}
+                            </ul>
+                        </li>`
+                    }
+                })}
+            </ol>
+        `
+    }
     console.log(`${source} loading`)
     browser.storage.local.onChanged.addListener((data)=>{
         console.debug(`${source} onChange data is:`,data)
