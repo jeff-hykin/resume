@@ -1,3 +1,20 @@
+const allKeys = function(obj) {
+            // from: https://stackoverflow.com/questions/8024149/is-it-possible-to-get-the-non-enumerable-inherited-property-names-of-an-object/70629468?noredirect=1#comment126513832_70629468
+            const listOfKeys = []
+            // super-primitives have no attributes
+            if (obj == null) {
+                return []
+            }
+            // normal primitives still have listOfKeys, just skip the first iteration
+            if (!(obj instanceof Object)) {
+                obj = Object.getPrototypeOf(obj)
+            }
+            while (obj) {
+                listOfKeys.push(Reflect.ownKeys(obj))
+                obj = Object.getPrototypeOf(obj)
+            }
+            return [...new Set(listOfKeys.flat(1))]
+        }
 // example apis:
     // document.addEventListener
     // browser.runtime.getURL("beasts/frog.jpg")
@@ -6,6 +23,9 @@
     // browser.tabs.removeCSS({ code: hidePage })
     // await browser.tabs.query({ active: true, currentWindow: true })
     // await browser.tabs.executeScript({ file: "/content_scripts/beastify.js" })
+    // console.debug(`allKeys(browser) is:`,allKeys(browser))
+    // console.debug(`allKeys(browser.tabs) is:`,allKeys(browser.tabs))
+    
 // {
 //     title,
 //     possibleYear: null,
@@ -737,12 +757,49 @@
 ;((async ()=>{
     const source = `[popup/main.js]`
     const data = await browser.storage.local.get()||{}
-    const activeSession = await browser.storage.local.get("activeSession").activeSession||data
+    console.debug(`data is:`,data)
+    const activeSession = data.activeSession||{articles:[], searchQueries:{}}
+    let lastClickedArticleTitle = data.lastClickedArticleTitle
+    let locationHref = await browser.tabs.query({currentWindow: true, active: true}).then((tabs)=>tabs[0].url)
     
     document.body = html`<body style="font-family: Helvetica, sans-serif;">
+        ${locationHref.startsWith(`https://scholar.google.com/`)?"":createInput(activeSession)}
         ${createTimelineElement(activeSession)}
     </body>`
     
+    function createInput(activeSession) {
+        console.log(`making input`)
+        let article = {
+            title: lastClickedArticleTitle,
+            // notesConsideredRelevent,
+            // notesCustomKeywords,
+            // notesComment,
+            // notesWasRelatedTo,
+            ...activeSession.articles.filter(each=>(each.link==locationHref)||(each.title==lastClickedArticleTitle))[0],
+        }
+        if (!article.link) {
+            article.link = locationHref
+        }
+        return html`<div style="border: 2px solid gray; padding: 1rem; margin-bottom: 1.5rem;">
+            <div style="display: flex;flex-direction: row;">Title <input value="${article.title||""}" oninput="${({target})=>article.title=target.value}" /></div>
+            <div style="display: flex;flex-direction: row;">relevent? <input type="checkbox" checked="${article.notesConsideredRelevent}" oninput="${({target})=>{console.log(target);article.notesConsideredRelevent=target.checked}}" /></div>
+            <button onclick=${()=>{
+                let existingArticle = activeSession.articles.filter(each=>each.title==article.title)[0]
+                if (existingArticle) {
+                    for (const customKeys of Object.keys(article).filter(each=>each.startsWith("notes"))) {
+                        existingArticle[customKeys] = article[customKeys]
+                    }
+                } else {
+                    activeSession.articles.push({
+                        ...article,
+                        firstSeenTime: new Date().toUTCString()
+                    })
+                    lastClickedArticleTitle = article.title
+                }
+            }}>Save</button>
+        </div>`
+    }
+
     function createTimelineList(activeSession) {
         let timeline = []
         // add queries

@@ -28,7 +28,7 @@
     // 
     // common data
     // 
-        let storage = await browser.storage.local.get("activeSession").activeSession||{}
+        let allData = await browser.storage.local.get()||{}
         // {
         //     articles: [
         // 
@@ -42,18 +42,23 @@
         //         // }
         //     },
         // }
-        let needsUpdate = false
-        if (!(storage.articles instanceof Array)) {
-            storage.articles = []
-            needsUpdate = true
+        let initStorage =()=>{
+            allData.activeSession = allData.activeSession||{} 
+            let needsUpdate = false
+            if (!(allData.activeSession.articles instanceof Array)) {
+                allData.activeSession.articles = []
+                needsUpdate = true
+            }
+            if (!(allData.activeSession.searchQueries instanceof Object)) {
+                allData.activeSession.searchQueries = {}
+                needsUpdate = true
+            }
+            if (needsUpdate) {
+                browser.storage.local.set(allData)
+            }
         }
-        if (!(storage.searchQueries instanceof Object)) {
-            storage.searchQueries = {}
-            needsUpdate = true
-        }
-        if (needsUpdate) {
-            browser.storage.local.set({activeSession:storage})
-        }
+        initStorage()
+        console.debug(`1: storage is:`, allData.activeSession)
 
     // 
     // main events
@@ -62,14 +67,35 @@
         //     console.log(`[content_scripts/main.js] got message: ${message}`, message)
         // })
         browser.storage.local.onChanged.addListener(({activeSession})=>{
-            storage = activeSession
+            if (activeSession) {
+                console.debug(`activeSession is:`,activeSession.newValue)
+                allData.activeSession = activeSession.newValue
+                initStorage()
+            }
         })
-        browser.storage.local.set({activePage:window.location.href})
+        browser.storage.local.set(allData)
         
         // 
         // if on google scholar
         // 
         if (window.location.href.startsWith(`https://scholar.google.com/`)) {
+            document.addEventListener("click", ({target}) => {
+                setTimeout(()=>{
+                    console.debug(`target is:`,target)
+                    if (target.tagName == "A") {
+                        console.debug(`target.href is:`,target.href)
+                        console.debug(`storage is:`,allData.activeSession)
+                        for (let eachArticle of allData.activeSession.articles) {
+                            if (eachArticle.link == target.href || eachArticle.pdfLink == target.href) {
+                                console.log(`setting it`)
+                                console.log(`setting lastClickedArticleTitle`)
+                                allData.lastClickedArticleTitle = eachArticle.title
+                                browser.storage.local.set(allData)
+                            }
+                        }
+                    }
+                })
+            })
             let url = new URL(window.location.href)
             let query = url.searchParams.get("q")
             let firstSeenTime = new Date().toUTCString()
@@ -203,7 +229,7 @@
                     console.error(`Error while trying to extract links from search ${error}`)
                 }
                 let newArticlesFound = false
-                const existingArticleTitles = new Set(storage.articles.map(each=>each.title))
+                const existingArticleTitles = new Set(allData.activeSession.articles.map(each=>each.title))
                 let newArticles = []
                 for (let eachArticleObject of articles) {
                     if (existingArticleTitles.has(eachArticleObject.title)) {
@@ -211,23 +237,24 @@
                     }
                     newArticlesFound = true
                     newArticles.push(eachArticleObject)
-                    storage.articles.push(eachArticleObject)
+                    allData.activeSession.articles.push(eachArticleObject)
                 }
 
                 // 
                 // inform background/popup
                 // 
                 let newSearchQuery = false
-                if (!storage.searchQueries[query]) {
+                if (!allData.activeSession.searchQueries[query]) {
                     newSearchQuery = true
-                    storage.searchQueries[query] = {
+                    allData.activeSession.searchQueries[query] = {
                         firstTime: new Date().toUTCString(),
                         articleTitles: articles.map(each=>each.title),
                     }
                 }
                 if (newSearchQuery || newArticlesFound) {
-                    console.debug(`storage is:`,storage)
-                    browser.storage.local.set({activeSession:storage})
+                    console.debug(`allData.activeSession is:`,{...allData.activeSession})
+                    console.debug(`setting activeSession`,allData.activeSession)
+                    browser.storage.local.set(allData)
                 }
             }
         }
