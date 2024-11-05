@@ -25,7 +25,7 @@ const allKeys = function(obj) {
     // await browser.tabs.executeScript({ file: "/content_scripts/beastify.js" })
     // console.debug(`allKeys(browser) is:`,allKeys(browser))
     // console.debug(`allKeys(browser.tabs) is:`,allKeys(browser.tabs))
-    
+
 // {
 //     title,
 //     possibleYear: null,
@@ -796,6 +796,8 @@ const allKeys = function(obj) {
                     })
                     lastClickedArticleTitle = article.title
                 }
+                data.activeSession = activeSession
+                browser.storage.local.set(data)
             }}>Save</button>
         </div>`
     }
@@ -906,8 +908,10 @@ const allKeys = function(obj) {
             }
         }
     console.log(`${source} loading`)
-    browser.storage.local.onChanged.addListener((data)=>{
-        console.debug(`${source} onChange data is:`,data)
+    browser.storage.local.onChanged.addListener(({activeSession})=>{
+        if (activeSession) {
+            data.activeSession = activeSession.newValue
+        }
     })
 })())
 // browser.storage.local.
