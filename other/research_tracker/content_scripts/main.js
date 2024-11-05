@@ -1,4 +1,4 @@
-{
+;((async ()=>{
     console.debug(`[content_scripts/main.js] loading`)
         // console.debug(`allKeys(browser) is:`,allKeys(browser))
         // console.debug(`allKeys(browser.tabs) is:`,allKeys(browser.tabs))
@@ -28,7 +28,7 @@
     // 
     // common data
     // 
-        let storage = browser.storage.local.get()
+        let storage = await browser.storage.local.get()
         // {
         //     articles: [
         // 
@@ -89,6 +89,7 @@
                             title,
                             possibleYear: null,
                             customKeywords: [],
+                            firstDiscoveryQuery: query,
                             firstSeenTime,
                             authorNames: null,
                             pdfLink: null,
@@ -192,7 +193,7 @@
                     console.error(`Error while trying to extract links from search ${error}`)
                 }
                 let newArticlesFound = false
-                const existingArticleTitles = storage.articles.map(each=>each.title)
+                const existingArticleTitles = new Set(storage.articles.map(each=>each.title))
                 let newArticles = []
                 for (let eachArticleObject of articles) {
                     if (existingArticleTitles.has(eachArticleObject.title)) {
@@ -200,6 +201,7 @@
                     }
                     newArticlesFound = true
                     newArticles.push(eachArticleObject)
+                    storage.articles.push(eachArticleObject)
                 }
 
                 // 
@@ -214,9 +216,10 @@
                     }
                 }
                 if (newSearchQuery || newArticlesFound) {
+                    console.debug(`storage is:`,storage)
                     browser.storage.local.set(storage)
                 }
             }
         }
     // 
-}
+})())
