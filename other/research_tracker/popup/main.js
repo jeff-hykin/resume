@@ -765,6 +765,17 @@ const allKeys = function(obj) {
     document.body = html`<body style="font-family: Helvetica, sans-serif;">
         ${locationHref.startsWith(`https://scholar.google.com/`)?"":createInput(activeSession)}
         ${createTimelineElement(activeSession)}
+        <div style="display: flexbox; position: fixed; bottom: 1rem; left: 1rem; gap: 1rem;"> 
+            <button onclick="${()=>downloadString(JSON.stringify(data.activeSession.articles.filter(each=>each.notesComment||each.notesConsideredRelevent),0,4),"articles.json")}">
+                download relevent articles
+            </button>
+            <button onclick="${()=>downloadString(JSON.stringify(data.activeSession.articles,0,4),"articles.json")}">
+                download all articles
+            </button>
+            <button onclick="${browser.storage.local.set({activeSession: {}})}">
+                clear all data
+            </button>
+        </div>
     </body>`
     
     function createInput(activeSession) {
@@ -908,6 +919,16 @@ const allKeys = function(obj) {
             if (results.length>0) {
                 return results[0].pdfLink||results[0].link
             }
+        }
+        function downloadString(textToDownload, name="file.txt") {
+            // Create a Blob from the string
+            const blob = new Blob([textToDownload], { type: 'text/plain' })
+
+            // Create a temporary link element
+            const link = document.createElement('a')
+            link.href = URL.createObjectURL(blob)
+            link.download = name
+            link.click()
         }
     console.log(`${source} loading`)
     browser.storage.local.onChanged.addListener(({activeSession})=>{

@@ -213,7 +213,7 @@
                                         let year
                                         // yep sadly this code will break in the year 2100
                                         if (year = publishInstanceInfo.match(/((?:20|19)(?:\d\d))/)) {
-                                            articleObject.possibleYear = year
+                                            articleObject.possibleYear = year[0]
                                         }
                                         if (publishInstanceInfo) {
                                             articleObject.publisherInfo = publishInstanceInfo
