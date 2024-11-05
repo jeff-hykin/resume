@@ -781,8 +781,10 @@ const allKeys = function(obj) {
             article.link = locationHref
         }
         return html`<div style="border: 2px solid gray; padding: 1rem; margin-bottom: 1.5rem;">
-            <div style="display: flex;flex-direction: row;">Title <input value="${article.title||""}" oninput="${({target})=>article.title=target.value}" /></div>
-            <div style="display: flex;flex-direction: row;">relevent? <input type="checkbox" checked="${article.notesConsideredRelevent}" oninput="${({target})=>{console.log(target);article.notesConsideredRelevent=target.checked}}" /></div>
+            <div style="padding: 0.5em; display: flex;flex-direction: row; width:"><span style="margin-right: 1rem">Title </span><input value="${article.title||""}" oninput="${({target})=>article.title=target.value}" /></div>
+            <div style="padding: 0.5em; display: flex;flex-direction: row; width:"><span style="margin-right: 1rem">relevent?</span> <input type="checkbox" checked="${article.notesConsideredRelevent}" oninput="${({target})=>{article.notesConsideredRelevent=target.checked}}" /></div>
+            <div style="padding: 0.5em; display: flex;flex-direction: row; width:"><span style="margin-right: 1rem">comment </span><input value="${article.notesComment||""}" oninput="${({target})=>{article.notesComment=target.value}}" /></div>
+            <div style="padding: 0.5em; display: flex;flex-direction: row; width:"><span style="margin-right: 1rem">Url </span><input value="${article.link||""}" oninput="${({target})=>article.link=target.value}" /></div>
             <button onclick=${()=>{
                 let existingArticle = activeSession.articles.filter(each=>each.title==article.title)[0]
                 if (existingArticle) {
