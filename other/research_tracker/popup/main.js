@@ -7,7 +7,18 @@
     // await browser.tabs.query({ active: true, currentWindow: true })
     // await browser.tabs.executeScript({ file: "/content_scripts/beastify.js" })
 
-console.log(`popup/main.js loading`)
+const source = `[popup/main.js]`
+console.log(`${source} loading`)
+browser.runtime.onMessage.addListener((message) => {
+    console.log(`${source} got message: ${message}`, message)
+})
+browser.storage.local.onChanged.addListener((data)=>{
+    console.debug(`${source} onChange data is:`,data)
+})
+// browser.storage.local.
+// setInterval(async()=>{
+//    console.debug(`${source} browser.storage.local.get("activeScholarUrl")  is:`, await browser.storage.local.get("activeScholarUrl") )
+// }, 5000)
 
 // /**
 //  * CSS to hide everything on the page,
