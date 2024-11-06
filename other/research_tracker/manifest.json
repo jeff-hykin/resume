@@ -1,0 +1,38 @@
+{
+    "manifest_version": 2,
+    "name": "ResearchRecorder",
+    "version": "1.0",
+    "description": "Lets you keep track of what you searched",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "research_recorder_alpha@xd.com",
+            "strict_min_version": "58.0a1"
+        }
+    },
+    "permissions": [
+        "tabs",
+        "activeTab",
+        "sessions",
+        "storage"
+    ],
+    "background": {
+        "scripts": [
+            "background/main.js"
+        ]
+    },
+    "browser_action": {
+        "default_icon": "icons/beasts-32.png",
+        "default_title": "ResearchRecorder",
+        "default_popup": "popup/index.html"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*/*"
+            ],
+            "js": [
+                "content_scripts/main.js"
+            ]
+        }
+    ]
+}
