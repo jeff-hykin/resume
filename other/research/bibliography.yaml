@@ -1,0 +1,109 @@
+goal:
+    What problems have been solved in relation to the problem of affect based perception?
+
+sources:
+    Immense World:
+        relevant: true
+        media_type: book
+        notes: |
+            The outcomes are really impressive (bat hearing, dog smelling) so much is possible with simple logic on top of these worlds of perceptions. But I can't help but think robotic sensors pale in comparison -- so badly as to make mimicking most of the behavior impossible.
+        found_through:
+            person: Dr. Murphy
+
+    The Ecological Approach for visual perception:
+        relevant: true
+        media_type: book
+        author: JJ Gibson
+        notes: |
+            Harry Heft did a pretty good job of summarizing the ideas in this paper.
+            Lots of the ideas are philosophical with a bit of a gap on how to implement them.
+
+    Bioinspired Tactile Sensation Based on Synergistic Microcrack-Bristle Structure Design toward High Mechanical Sensitivity and Direction-Resolving Capability:
+        relevant: false
+        media_type: article
+        url: https://spj.science.org/doi/10.34133/research.0172
+        notes: |
+            Interesting, but wouldn't be practical for me to replicate or use for anything in practice.
+
+    The Ecological Approach for visual perception video:
+        relevant: true
+        media_type: video
+        author: Harry Heft
+        url: https://www.youtube.com/watch?v=k4fKBqu-Ris
+        found_through:
+            person: Dr. Murphy
+        notes: |
+            1. Things in the environment are a modifier function on the transformation of your motion through the world. Ex: a disco ball changes your visual feedback as you walk. If both stand still, then there's no modification. When our estimation of that modifier function converges and becomes reliable, then we are fully perceiving that thing. E.g. when we know what the back of a couch looks like by seeing the front, we are perceiving the couch. When we are surprised, then we didn't fully perceive it. This “am I having a stroke image is all-sensing no-perceiving
+            (see image in doc: https://docs.google.com/document/d/1iIInU8a6Vtvp77xJAIvQpRbHw36JBvdOKkETXYm7bno/edit?tab=t.0 )
+            2. Objects might be in the same category (tree) but for us they fall in many functional categories, such as “can I easily climb it” where things like “how annoying is the sap” can play a role. The climb-ability is in the tree, but is relative to the perceiver.
+
+
+    Measuring and modeling the motor system with machine learning:
+        relevant: false
+        media_type: article
+        found_through:
+            search: https://www.sciencedirect.com/search?references=Gary%20Klein&qs=robotics&years=2018%2C2019%2C2020%2C2021%2C2022%2C2023%2C2024%2C2025&show=100&subjectAreas=2200%2C1700%2C2800%2C3200
+        
+        summary: |
+            S2 TL;DR: This review discusses the growing use of machine learning: from pose estimation, kinematic analyses, dimensionality reduction, and closed-loop feedback, to its use in understanding neural correlates and untangling sensorimotor systems.
+            
+    Contrasting action and posture coding with hierarchical deep neural network models of proprioception:
+        year: 2020
+        relevant: true
+        media_type: article
+        url: https://www.semanticscholar.org/paper/3bdff5d56330b218dba04e1618f1410d52edb1e5
+        found_through:
+            cites: Measuring and modeling the motor system with machine learning
+
+        notes: |
+            probably the most relevant of the work related to the above source.
+            Does directly tie motors with perception.
+
+    How well do deep neural networks trained on object recognition characterize the mouse visual system:
+        year: 2019
+        relevant: true
+        media_type: article
+        url: https://www.semanticscholar.org/paper/4b45f999e6f3cde0c63fc3e4a4eef589497f1ebb
+        found_through:
+            prior_work: Contrasting action and posture coding with hierarchical deep neural network models of proprioception
+
+        notes: |
+            probably most relevant work so far
+    
+    Mouse visual cortex as a limited resource system that self-learns an ecologically-general representation:
+        year: 2021
+        relevant: true
+        media_type: article
+        url: https://www.semanticscholar.org/paper/d340e4fa9cf36e5e363d2c22d354ef21bf9ab22a
+        found_through:
+            prior_work: Contrasting action and posture coding with hierarchical deep neural network models of proprioception
+        read_more_than_the_abtract: true
+        notes: |
+            focues on the mouse visual cortex rather than the general idea of affective perception
+            does say "providing a high-fidelity quantitative model of mouse visual cortex and identifying key structural and functional principles underlying that model's success."
+            
+            "self-supervised, contrastive algorithms provide the best correspondence to mouse visual responses" (in comparison to supervised)
+            
+            
+
+    Task-driven neural network models predict neural dynamics of proprioception:
+        relevant: false
+        media_type: article
+        url: https://www.semanticscholar.org/paper/5e3a1ab688007ce33fb4b6075a7c223d7e5edc6e
+        found_through:
+            cites: Measuring and modeling the motor system with machine learning
+
+        notes: |
+            heavy relation to neurology, but not necessarily related to affect based recognition.
+
+    'SUBTLE: An unsupervised platform with temporal link embedding that maps animal behavior':
+        relevant: false
+        media_type: article
+        url: https://www.semanticscholar.org/paper/df3e41cd31e3b433ccfbf009383fe027061bfe56
+        found_through:
+            cites: Measuring and modeling the motor system with machine learning
+
+        notes: |
+            looks at animals but not necessarily through an affective lens 
+
+
