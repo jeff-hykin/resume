@@ -84,7 +84,6 @@ sources:
             
             "self-supervised, contrastive algorithms provide the best correspondence to mouse visual responses" (in comparison to supervised)
             
-            
 
     Task-driven neural network models predict neural dynamics of proprioception:
         relevant: false
