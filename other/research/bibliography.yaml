@@ -78,11 +78,25 @@ sources:
         found_through:
             prior_work: Contrasting action and posture coding with hierarchical deep neural network models of proprioception
         read_more_than_the_abtract: true
+        fully_annotated_pdf: true
         notes: |
-            focues on the mouse visual cortex rather than the general idea of affective perception
+            "Contrastive AlexNet" best model of mouse visual perception so far
+            
+            "neural predictivity from an ecological point of view"
+            
+            uses a "visual rodent" simulator as part of validation and testing of affect based perception (e.g. naviation but not manipulation)
+            
+            claims contrastive objectives are input-domain agnostic, which doesn't make sense to me due to the agumentation needed for contrastive learning. I'm still not sure why they say "constrastive objective" instead of "constrastive loss".
+            
+            Focues on the mouse visual cortex rather than the general idea of affective perception
             does say "providing a high-fidelity quantitative model of mouse visual cortex and identifying key structural and functional principles underlying that model's success."
             
             "self-supervised, contrastive algorithms provide the best correspondence to mouse visual responses" (in comparison to supervised)
+        additional_line_of_research: 
+            how does contrastive learning work?: |
+                issue: it needs a data augmentation strategy, which is basically domain specific knowledge. Possibly there is a way to fix this, but after searching for "contrastive learning with no augmentation" I couldn't find any general solutions.
+            
+            
             
 
     Task-driven neural network models predict neural dynamics of proprioception:
@@ -106,3 +120,4 @@ sources:
             looks at animals but not necessarily through an affective lens 
 
 
+  
