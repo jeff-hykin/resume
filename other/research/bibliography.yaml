@@ -202,12 +202,15 @@ sources:
         notes: |
             heavy relation to neurology, but not necessarily related to affect based recognition.
     The neuroconnectionist research programme:
+        year: 2023
         url: https://www.nature.com/articles/s41583-023-00705-w
         notes: |
             could be good background reading for the neuology + ML stuff
         summary: |
             Artificial neural networks (ANNs) inspired by biology are beginning to be widely used to model behavioural and neural data, an approach we call ‘neuroconnectionism’. ANNs have been not only lauded as the current best models of information processing in the brain but also criticized for failing to account for basic cognitive functions. In this Perspective article, we propose that arguing about the successes and failures of a restricted set of current ANNs is the wrong approach to assess the promise of neuroconnectionism for brain science. Instead, we take inspiration from the philosophy of science, and in particular from Lakatos, who showed that the core of a scientific research programme is often not directly falsifiable but should be assessed by its capacity to generate novel insights. Following this view, we present neuroconnectionism as a general research programme centred around ANNs as a computational language for expressing falsifiable theories about brain computation. We describe the core of the programme, the underlying computational framework and its tools for testing specific neuroscientific hypotheses and deriving novel understanding. Taking a longitudinal view, we review past and present neuroconnectionist projects and their responses to challenges and argue that the research programme is highly progressive, generating new and otherwise unreachable insights into the workings of the brain.
-    
+        
+        relevant: false
+        
     'SUBTLE: An unsupervised platform with temporal link embedding that maps animal behavior':
         relevant: false
         media_type: article
