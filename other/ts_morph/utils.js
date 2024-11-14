@@ -31,7 +31,7 @@ export function getNodeId(node) {
     return `${node.getStart()}:${node.getEnd()}:${getWrongDepth(node)}:${node.getKind()}:${node.getChildren().length}`
 }
 
-function recursive(item, func, { first=Infinity, visited=new Set()}={}) {
+export function recursive(item, func, { first=Infinity, visited=new Set()}={}) {
     let results = []
     let children
     try {
@@ -70,7 +70,7 @@ const declareKinds = new Set([
     SyntaxKind.TypeAliasDeclaration,
     SyntaxKind.EnumDeclaration,
     SyntaxKind.ImportEqualsDeclaration,
-    SyntaxKind.NamespaceImport" 
+    SyntaxKind.NamespaceImport,
     SyntaxKind.ImportClause,
     SyntaxKind.ImportAttributes,
     SyntaxKind.ImportAttribute,
