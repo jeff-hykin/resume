@@ -1,6 +1,6 @@
 goal:
-    What problems have been solved in relation to the problem of affect based perception?
-                                
+    What problems have been solved in relation to the problem of affordance based perception?
+    
 dud searches:
     - search: ecological affect based perception machine learning
       results: conflated with human emotion recognition and ecological as in environmental/urbanism
@@ -18,6 +18,22 @@ dud searches:
     
 
 sources:
+    "A Survey of Visual Affordance Recognition Based on Deep Learning":
+        relevent: true
+        super_relevent: true
+        year: 2023
+        url: https://ieeexplore.ieee.org/abstract/document/10171410
+        notes: |
+            aside from a few caveats, nobody seems to be working on the hard stuff (non supervised, unstructured world, pov interaction based)
+            claims five categories: affordance categorization, affordance detection, affordance segmentation, affordance behavior recognition, and affordance reasoning
+        
+    "AffordanceNet: An End-to-End Deep Learning Approach for Object Affordance Detection":
+        relevent: true
+        year: 2018
+        url: https://ieeexplore.ieee.org/abstract/document/8460902
+        search:
+            google_scholar: affordance based object recognition machine learning
+    
     Immense World:
         relevant: true
         media_type: book
