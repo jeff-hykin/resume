@@ -1870,26 +1870,29 @@ function flatten(extension, compartments, newCompartments) {
     if (Array.isArray(ext)) {
       for (let e of ext)
         inner(e, prec2);
-    } else if (ext instanceof CompartmentInstance) {
+    } else if (ext instanceof CompartmentInstance || ext.compartment) {
       if (newCompartments.has(ext.compartment))
         throw new RangeError(`Duplicate use of compartment in extensions`);
       let content2 = compartments.get(ext.compartment) || ext.inner;
       newCompartments.set(ext.compartment, content2);
       inner(content2, prec2);
-    } else if (ext instanceof PrecExtension) {
+    } else if (ext.thisOne&&console.log(`ext instanceof PrecExtension`, ext instanceof PrecExtension, ext,), ext instanceof PrecExtension || ext.prec) {
       inner(ext.inner, ext.prec);
     } else if (ext instanceof StateField) {
       result[prec2].push(ext);
       if (ext.provides)
         inner(ext.provides, prec2);
-    } else if (ext instanceof FacetProvider) {
+    } else if (ext instanceof FacetProvider || ext.facet) {
+    //   Object.setPrototypeOf(ext, FacetProvider)
       result[prec2].push(ext);
       if (ext.facet.extensions)
         inner(ext.facet.extensions, Prec_.default);
     } else {
       let content2 = ext.extension;
-      if (!content2)
+      if (!content2) {
+        console.debug(`ext is:`,ext)
         throw new Error(`Unrecognized extension value in extension set (${ext}). This sometimes happens because multiple instances of @codemirror/state are loaded, breaking instanceof checks.`);
+      }
       inner(content2, prec2);
     }
   }

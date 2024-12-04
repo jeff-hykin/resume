@@ -76,6 +76,7 @@ const { html } = Elemental({
     Cell,
 })
 
+ext.thisOne = true 
 function Editor({initialText, onChange, ...props}={}) {
     const initContainer = document.createElement("div")
     let editor = new EditorView({
@@ -112,10 +113,13 @@ function Editor({initialText, onChange, ...props}={}) {
             // 
             // Ctrl-Enter hook
             // 
-                // Prec.high(keymap.of([{
-                //     key: "Ctrl-Enter",
-                //     run() { console.log("Here"); return true }
-                // }])),
+            Prec.high(keymap.of([{
+                key: "Ctrl-Enter",
+                run() {
+                    console.log("Here")
+                    return true 
+                },
+            }]))
         ],
         parent: initContainer,
     })
