@@ -7,6 +7,15 @@ import { zip, enumerate, count, permute, combinations, wrapAroundGet } from "htt
 import { deepCopy, deepCopySymbol, allKeyDescriptions, deepSortObject, shallowSortObject, isGeneratorObject,isAsyncIterable, isSyncIterable, isIterableTechnically, isSyncIterableObjectOrContainer, allKeys } from "https://deno.land/x/good@1.13.2.0/value.js"
 import storageObject from "https://deno.land/x/storage_object@0.0.2.0/main.js"
 
+// TODO:
+    // image display
+        // render return elements
+    // output object display
+        // maybe interactive object
+    // table output display
+    // drag&drop file preview
+
+
 // import {EditorView, basicSetup} from "https://esm.sh/codemirror@6.0.1?target=es2020&dev"
 // import {keymap} from "https://esm.sh/v135/@codemirror/view@6.35.0/es2022/view.mjs?target=es2020&dev"
 // import {EditorState, Prec} from "https://esm.sh/v135/@codemirror/state@6.4.1/es2022/state.mjs?target=es2020&dev"
@@ -138,9 +147,20 @@ function Editor({initialText, onChange, onRun, ...props}={}) {
     window.editor = editor
     return element
 }
+
+const rootList = html`<Column>
+    <Cell>
+    </Cell>
+</Column>`
+const globalApi = {
+    addNewCell: () => {
+        rootList.appendChild(html`<Cell />`)
+    },
+}
+
 function Cell() {
     let editorElement
-    let outputElement = html`<code style="white-space: pre; min-width: 20rem; background-color: white; height: 100%; overflow: auto;"></code>`
+    let outputElement = html`<code style="white-space: pre; min-width: 20rem; background-color: #ccc; height: auto; flex-grow: 1; overflow: auto;"></code>`
     const refreshOutput = ()=>{
         outputElement.innerHTML = ''
     }
@@ -173,7 +193,8 @@ function Cell() {
         }
         realConsole.log(`Done running`)
     }
-    return html`
+    let thisElement
+    return thisElement = html`
         <Column class="cell">
             <Row>
                 ${editorElement=html`<Editor
@@ -187,8 +208,10 @@ function Cell() {
                 </Editor>`}
                 ${outputElement}
             </Row> 
-            <Row horizontalAlignment="center">
+            <Row horizontalAlignment="center" justify-content=center padding="1em" gap=1em>
                 <button onclick=${run}>Run</button>
+                <button background-color=turquoise onclick=${()=>{globalApi.addNewCell()}}>New Cell</button>
+                <button background-color=salmon onclick=${()=>{thisElement.remove()}}>Delete</button>
             </Row>
         </Column>
     `
@@ -196,9 +219,6 @@ function Cell() {
 
 document.body = html`
     <body font-size=15px background-color=whitesmoke overflow=scroll width=100vw>
-        <Column>
-            <Cell>
-            </Cell>
-        </Column>
+        ${rootList}
     </body>
 `
