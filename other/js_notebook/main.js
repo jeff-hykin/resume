@@ -139,19 +139,57 @@ function Editor({initialText, onChange, onRun, ...props}={}) {
     return element
 }
 function Cell() {
+    let editorElement
+    let outputElement = html`<code style="white-space: pre; min-width: 20rem; background-color: white; height: 100%; overflow: auto;"></code>`
+    const refreshOutput = ()=>{
+        outputElement.innerHTML = ''
+    }
+    const realConsole = console
+    const run = ()=>{
+        realConsole.log(`Running...`)
+        refreshOutput()
+        const console = {
+            log: (...args)=>{
+                outputElement.append(html`<span style="display: block; white-space: pre;">${args.join(" ")}</span>`)
+            },
+            debug: (...args)=>{
+                outputElement.append(html`<span style="display: block; color: gray; white-space: pre;">${args.join(" ")}</span>`)
+            },
+            warn: (...args)=>{
+                outputElement.append(html`<span style="display: block; color: yellow; white-space: pre;">${args.join(" ")}</span>`)
+            },
+            error: (...args)=>{
+                outputElement.append(html`<span style="display: block; color: red; white-space: pre;">${args.join(" ")}</span>`)
+            },
+        }
+        const handleError = (error)=>{
+            realConsole.debug(`error is:`,error)
+            outputElement.append(html`<span style="white-space: pre;">${error.stack}</span>`)
+        }
+        try {
+            Promise.resolve(eval(editorElement.code)).catch(handleError)
+        } catch (error) {
+            handleError(error)
+        }
+        realConsole.log(`Done running`)
+    }
     return html`
         <Column class="cell">
-            <Editor
-                initialText="console.log('howdy')\n\n\n\n"
-                onChange=${change=>{
-                    console.log(`changing`)
-                }}
-                onRun=${()=>{
-                    console.log("Running!")
-                }}
-                min-height=20rem min-width=20rem background-color=cornflowerblue
-                >
-            </Editor>
+            <Row>
+                ${editorElement=html`<Editor
+                    initialText="console.log('howdy')\n\n\n\n"
+                    onChange=${change=>{
+                        console.log(`changing`)
+                    }}
+                    onRun=${run}
+                    min-height=20rem min-width=20rem background-color=cornflowerblue flex-grow=1
+                    >
+                </Editor>`}
+                ${outputElement}
+            </Row> 
+            <Row horizontalAlignment="center">
+                <button onclick=${run}>Run</button>
+            </Row>
         </Column>
     `
 }
