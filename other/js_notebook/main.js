@@ -76,8 +76,7 @@ const { html } = Elemental({
     Cell,
 })
 
-ext.thisOne = true 
-function Editor({initialText, onChange, ...props}={}) {
+function Editor({initialText, onChange, onRun, ...props}={}) {
     const initContainer = document.createElement("div")
     let editor = new EditorView({
         // state: EditorState.create({
@@ -116,10 +115,17 @@ function Editor({initialText, onChange, ...props}={}) {
             Prec.high(keymap.of([{
                 key: "Ctrl-Enter",
                 run() {
-                    console.log("Here")
+                    onRun&&onRun()
                     return true 
                 },
-            }]))
+            }])),
+            Prec.high(keymap.of([{
+                key: "Cmd-Enter",
+                run() {
+                    onRun&&onRun()
+                    return true 
+                },
+            }])),
         ],
         parent: initContainer,
     })
@@ -136,8 +142,12 @@ function Cell() {
     return html`
         <Column class="cell">
             <Editor
-                initialText="console.log('howdy')"
+                initialText="console.log('howdy')\n\n\n\n"
                 onChange=${change=>{
+                    console.log(`changing`)
+                }}
+                onRun=${()=>{
+                    console.log("Running!")
                 }}
                 min-height=20rem min-width=20rem background-color=cornflowerblue
                 >
