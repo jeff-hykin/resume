@@ -3149,9 +3149,17 @@ var HeapCursor = class _HeapCursor {
   static from(sets, skip = null, minPoint = -1) {
     let heap = [];
     for (let i3 = 0; i3 < sets.length; i3++) {
-      for (let cur2 = sets[i3]; !cur2.isEmpty; cur2 = cur2.nextLayer) {
-        if (cur2.maxPoint >= minPoint)
-          heap.push(new LayerCursor(cur2, skip, minPoint, i3));
+      console.debug(`sets is:`,sets)
+      let cur2 = sets[i3]
+      if (cur2) {
+        for (cur2; !cur2?.isEmpty; cur2 = cur2?.nextLayer) {
+            if (!cur2) {
+                break
+            }
+            if (cur2.maxPoint >= minPoint) {
+                heap.push(new LayerCursor(cur2, skip, minPoint, i3));
+            }
+        }
       }
     }
     return heap.length == 1 ? heap[0] : new _HeapCursor(heap);
