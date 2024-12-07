@@ -25,12 +25,17 @@ const { html } = Elemental({
 })
 
 let lineHeight = `1.5em`
+let latestCode
 let editorElement
+let dataElement
 document.body = html`
-    <body font-size=15px background-color=whitesmoke overflow=scroll width=100vw padding=0 margin=0>
+    <body font-size=15px background-color=whitesmoke overflow=scroll width=100vw padding=0 margin=0 font-family=monospace>
         <Row>
             ${editorElement=html`
                 <Editor initialText="console.log('howdy')\n\n\n\n" width=50vw />
+            `}
+            ${dataElement=html`
+                <div />
             `}
         </Row>
     </body>
@@ -43,88 +48,113 @@ socket.addEventListener("open",()=>{
 socket.addEventListener("message",(message,...args)=>{
     const data = yaml.parse(message.data)
     if (data.latestCode) {
+        latestCode = data.latestCode
         // inefficient, but it works 
         editorElement.replaceWith(html`<Editor initialText="${data.latestCode}" width=50vw />`)
         // editorElement.code = data.latestCode
+    } else if (data.dataByLineNumber) {
+        window.dataByLineNumber = data.dataByLineNumber
+        console.debug(`dataByLineNumber is:`,data.dataByLineNumber)
+        dataElement.replaceWith(dataToLines(data.dataByLineNumber))
+    } else {
+        console.debug(`data is:`,data)
     }
 })
 
-function Editor({initialText, onChange, onRun, ...props}={}) {
-    const parent = document.createElement("div")
-    let editor = new EditorView({
-        parent,
-        state: EditorState.create({
-            doc: initialText,
-            extensions: [
-                basicSetup, // ctrl+z = undo, and other stuff like that
-                javascript(), // highlighting hooks
-                
-                // 
-                // theme choice
-                // 
-                themeToExtension(
-                    atomOne({
-                        variant:"dark", // "light" | "dark"
-                        settings:{
-                            // can override defaults:
-                            // background: 'hsl(286, 60%, 67%)',
-                            // foreground: 'hsl(286, 60%, 67%)',
-                            // caret: '#e06c75',
-                            // selection: '#e06c75',
-                            // lineHighlight: '#e06c75',
-                            // gutterBackground: '#e06c75',
-                            // gutterForeground: '#e06c75',
-                        },
-                        styles:[], // styles to add to the theme
-                        mutateThemeStyles:(style)=>style, // return null to remove a style entry from the theme
-                    })
-                ),
-                
-                // //
-                // // example: define your own keybinding
-                // //
-                // keymap.of([{
-                //     key: "Ctrl-Enter",
-                //     run: () =>{
-                //         console.log("User pressed Ctrl+Enter!")
-                //         return true
-                //     }}
-                // ]),
-                
-                // // 
-                // // example: overriding a default keybinding (from the basicSetup or another extension)
-                // // 
-                // // Prec = "precedence"
-                // Prec.high(keymap.of([{
-                //     key: "Ctrl-;",
-                //     run: () =>{
-                //         console.log("User pressed Ctrl+;!")
-                //         return true
-                //     }}
-                // ])),
-                
-                // // 
-                // // example: onChange
-                // // 
-                // EditorView.updateListener.of((update)=>{
-                //     // const codeString = editor.state.doc.text.join("\n")
-                //     // console.log("Something (no matter how small) happened!")
-                //     // console.log("I'm called on init, and twice per keypress")
-                //     // console.log("DON'T USE THIS UNLESS YOU HAVE TO!")
-                // })
-            ],
-        }),
-    })
-    const element = parent.children[0]
-    passAlongProps(element, props)
-    element.editor = editor
-    Object.defineProperties(element, {
-        code: { get() { return editor.state.doc.text.join("\n") } },
-    })
-    window.editor = editor
-    console.debug(`props is:`,props)
-    if (props.width) {
-        parent.children[0].style.width = props.width
+
+// 
+// 
+// Components
+// 
+// 
+    function dataToLines(dataByLineNumber) {
+        let out = html`<div style="--line-height:${lineHeight}" background-color=gray display=flex flex-direction=column flex-grow=1></div>`
+        let index = -1
+        while (++index < latestCode.split(/\n/g).length) {
+            out.append(
+                html`<div height=var(--line-height)>${
+                    (dataByLineNumber[index]||[]).map(each=>html`<span>${each.key}: <span color="aquamarine">${each.repr}</span>, </span>`)
+                }</div>`
+            )
+        }
+        return out
     }
-    return element
-}
+    function Editor({initialText, onChange, onRun, ...props}={}) {
+        const parent = document.createElement("div")
+        let editor = new EditorView({
+            parent,
+            state: EditorState.create({
+                doc: initialText,
+                extensions: [
+                    basicSetup, // ctrl+z = undo, and other stuff like that
+                    javascript(), // highlighting hooks
+                    
+                    // 
+                    // theme choice
+                    // 
+                    themeToExtension(
+                        atomOne({
+                            variant:"dark", // "light" | "dark"
+                            settings:{
+                                // can override defaults:
+                                // background: 'hsl(286, 60%, 67%)',
+                                // foreground: 'hsl(286, 60%, 67%)',
+                                // caret: '#e06c75',
+                                // selection: '#e06c75',
+                                // lineHighlight: '#e06c75',
+                                // gutterBackground: '#e06c75',
+                                // gutterForeground: '#e06c75',
+                            },
+                            styles:[], // styles to add to the theme
+                            mutateThemeStyles:(style)=>style, // return null to remove a style entry from the theme
+                        })
+                    ),
+                    
+                    // //
+                    // // example: define your own keybinding
+                    // //
+                    // keymap.of([{
+                    //     key: "Ctrl-Enter",
+                    //     run: () =>{
+                    //         console.log("User pressed Ctrl+Enter!")
+                    //         return true
+                    //     }}
+                    // ]),
+                    
+                    // // 
+                    // // example: overriding a default keybinding (from the basicSetup or another extension)
+                    // // 
+                    // // Prec = "precedence"
+                    // Prec.high(keymap.of([{
+                    //     key: "Ctrl-;",
+                    //     run: () =>{
+                    //         console.log("User pressed Ctrl+;!")
+                    //         return true
+                    //     }}
+                    // ])),
+                    
+                    // // 
+                    // // example: onChange
+                    // // 
+                    // EditorView.updateListener.of((update)=>{
+                    //     // const codeString = editor.state.doc.text.join("\n")
+                    //     // console.log("Something (no matter how small) happened!")
+                    //     // console.log("I'm called on init, and twice per keypress")
+                    //     // console.log("DON'T USE THIS UNLESS YOU HAVE TO!")
+                    // })
+                ],
+            }),
+        })
+        const element = parent.children[0]
+        passAlongProps(element, props)
+        element.editor = editor
+        Object.defineProperties(element, {
+            code: { get() { return editor.state.doc.text.join("\n") } },
+        })
+        window.editor = editor
+        console.debug(`props is:`,props)
+        if (props.width) {
+            parent.children[0].style.width = props.width
+        }
+        return element
+    }

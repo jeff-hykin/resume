@@ -18,7 +18,7 @@
             for (const [key, value] of Object.entries(object)) {
                 const id = JSON.stringify([...address, key])
                 let identifierHistory = (_identifierLookup[id]||=[])
-                let entry = {context}
+                let entry = {key, context}
                 try {
                     entry.repr = toRepresentation(value)
                 } catch (error) {
@@ -44,12 +44,14 @@ var a = 10,b,c=2
 _record([], {a,b,c}, {line:0})
 
 
+
+a += 11
+
+
+
+
 // import {g} from "./test.js"
 function f(a,b,c){
-
-
-
-    
     return a+b+c
 }
 
@@ -62,9 +64,11 @@ var howd
 _record([], {howd}, {line:10})
 
 
+        console.log(`_dataByLineNumber`, _dataByLineNumber)
         await _connection
         _socket.send(_yaml.stringify({
-            type: "update",
-            data: _dataByLineNumber,
+            from: "evalSystem",
+            to: "web",
+            dataByLineNumber: _dataByLineNumber,
         }))
     

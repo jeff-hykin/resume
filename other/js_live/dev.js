@@ -39,8 +39,26 @@
 
     import { generateNewJs } from "./parsing.js"
     const websocketAddress = `ws://${args.address}:${args.port}`
-    let latestCode = await FileSystem.read(args.file)
-    let generatedCode = generateNewJs(latestCode, websocketAddress)
+    let latestCode, latestMessageForWeb
+    async function updateLatestCode() {
+        latestCode = await FileSystem.read(args.file)
+        const generatedCode = generateNewJs(await FileSystem.read(args.file), websocketAddress)
+        broadcast(yaml.stringify({latestCode}))
+        const outputPath = args.file+".out.js"
+        FileSystem.write({
+            path: outputPath,
+            data: generatedCode,
+        }).then(async ()=>{
+            try {
+                console.log(`running deno run -A ${outputPath}`)
+                const result = await $$`deno run -A ${outputPath}`
+            } catch (error) {
+                console.debug(`error is:`,error)
+            }
+        })
+    }
+    updateLatestCode()
+    
 
 // 
 // socket setup
@@ -52,7 +70,11 @@
         }
     }
     const onReceive = (event, socket) => {
-        console.debug(`event is:`,event)
+        const data = yaml.parse(event.data)
+        if (data.to == "web" && data.from == "evalSystem") {
+            latestMessageForWeb = event.data
+            broadcast(event.data)
+        }
     }
     Deno.serve(
         { port: args.port, hostname: args.address },
@@ -73,6 +95,9 @@
                 // follow up with latestCode
                 setTimeout(() => {
                     broadcast(yaml.stringify({latestCode}))
+                    if (latestMessageForWeb) {
+                        broadcast(latestMessageForWeb)
+                    }
                 }, 0)
                 // index.html
                 return new Response(
@@ -116,13 +141,5 @@
     import * as yaml from "https://deno.land/std@0.168.0/encoding/yaml.ts"
     let watcher = Deno.watchFs(args.file)
     for await (const event of watcher) {
-        latestCode = await FileSystem.read(args.file)
-        const generatedCode = generateNewJs(await FileSystem.read(args.file), websocketAddress)
-        broadcast(yaml.stringify({latestCode}))
-        FileSystem.write({
-            path: args.file+".out.js",
-            data: latestCode,
-        }).then(()=>{
-            $$`deno run -A ${args.file+".out.js"}`
-        })
+        
     }

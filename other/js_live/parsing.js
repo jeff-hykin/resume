@@ -29,7 +29,7 @@ export function generateNewJs(code, websocketAddress) {
             for (const [key, value] of Object.entries(object)) {
                 const id = JSON.stringify([...address, key])
                 let identifierHistory = (_identifierLookup[id]||=[])
-                let entry = {context}
+                let entry = {key, context}
                 try {
                     entry.repr = toRepresentation(value)
                 } catch (error) {
@@ -75,10 +75,12 @@ export function generateNewJs(code, websocketAddress) {
         endOfPreviousSlice = newEnd
     }
     newChunks.push(`
+        console.log(\`_dataByLineNumber\`, _dataByLineNumber)
         await _connection
         _socket.send(_yaml.stringify({
-            type: "update",
-            data: _dataByLineNumber,
+            from: "evalSystem",
+            to: "web",
+            dataByLineNumber: _dataByLineNumber,
         }))
     `)
     return newChunks.flat(0).join(`\n`)
