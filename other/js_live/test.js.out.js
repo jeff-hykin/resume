@@ -15,10 +15,11 @@
         const _dataByLineNumber = {}
         function _record(address, object, context) {
             let lineNumberHistory = (_dataByLineNumber[context.line]||=[])
+            let lineNumberHistoryEntry = {}
             for (const [key, value] of Object.entries(object)) {
                 const id = JSON.stringify([...address, key])
                 let identifierHistory = (_identifierLookup[id]||=[])
-                let entry = {key, context}
+                let entry = {context}
                 try {
                     entry.repr = toRepresentation(value)
                 } catch (error) {
@@ -29,9 +30,10 @@
                 } catch (error) {
                     
                 }
+                lineNumberHistoryEntry[key] = entry
                 identifierHistory.push(entry)
-                lineNumberHistory.push(entry)
             }
+            lineNumberHistory.push(lineNumberHistoryEntry)
             if (Object.values(object).length == 1) {
                 return Object.values(object)[0]
             }

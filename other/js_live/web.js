@@ -22,6 +22,7 @@ const { themeToExtension } = CM["@jeff-hykin/theme-tools"]
 const { html } = Elemental({
     ...components,
     Editor,
+    DataLine,
 })
 
 let lineHeight = `1.5em`
@@ -67,15 +68,21 @@ socket.addEventListener("message",(message,...args)=>{
 // Components
 // 
 // 
+    function DataLine(lineHistory) {
+        const element = html`<div height=var(--line-height)></div>`
+        const mostRecentEntry = (lineHistory.at(-1)||[])
+        element.append(html`<span background-color=white border-radius=1rem margin-right=1rem opacity=${lineHeight.length>1?0:1}>(${lineHistory.length})</span>`)
+        for (const [key, value] of Object.entries(mostRecentEntry)) {
+            element.append(html`<span>${key}: <span color="aquamarine">${value.repr}</span>, </span>`)
+        }
+        return element
+    }
     function dataToLines(dataByLineNumber) {
         let out = html`<div style="--line-height:${lineHeight}" background-color=gray display=flex flex-direction=column flex-grow=1></div>`
         let index = -1
         while (++index < latestCode.split(/\n/g).length) {
-            out.append(
-                html`<div height=var(--line-height)>${
-                    (dataByLineNumber[index]||[]).map(each=>html`<span>${each.key}: <span color="aquamarine">${each.repr}</span>, </span>`)
-                }</div>`
-            )
+            const lineHistory = (dataByLineNumber[index]||[])
+            out.append(DataLine(lineHistory))
         }
         return out
     }
@@ -109,29 +116,6 @@ socket.addEventListener("message",(message,...args)=>{
                             mutateThemeStyles:(style)=>style, // return null to remove a style entry from the theme
                         })
                     ),
-                    
-                    // //
-                    // // example: define your own keybinding
-                    // //
-                    // keymap.of([{
-                    //     key: "Ctrl-Enter",
-                    //     run: () =>{
-                    //         console.log("User pressed Ctrl+Enter!")
-                    //         return true
-                    //     }}
-                    // ]),
-                    
-                    // // 
-                    // // example: overriding a default keybinding (from the basicSetup or another extension)
-                    // // 
-                    // // Prec = "precedence"
-                    // Prec.high(keymap.of([{
-                    //     key: "Ctrl-;",
-                    //     run: () =>{
-                    //         console.log("User pressed Ctrl+;!")
-                    //         return true
-                    //     }}
-                    // ])),
                     
                     // // 
                     // // example: onChange
